@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const db =require('./models/index');
+const db =require('./models');
 
 const app = express();
 
