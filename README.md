@@ -1,3 +1,6 @@
+## Status
+[![Coverage Status](https://coveralls.io/repos/github/andela/goodfellas-ah-backend/badge.svg?branch=staging)](https://coveralls.io/github/andela/goodfellas-ah-backend?branch=staging)
+
 Authors Haven - A Social platform for the creative at heart.
 =======
 
