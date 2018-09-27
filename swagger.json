@@ -5,12 +5,22 @@
     "title": "Author's Haven",
     "description": "A community of like minded Authors"
   },
-  "schemes": ["https"],
   "host": "",
-  "basePath": "/api",
+  "tags": [
+    {
+      "name": "User",
+      "description": "User operations"
+    },
+    {
+      "name": "Article",
+      "description": "Article operations"
+    }
+  ],
+  "schemes": ["https"],
   "paths": {
     "/article": {
       "get": {
+        "tags": ["Article"],
         "summary": "Get an article",
         "description": "Returns an article.",
         "responses": {
@@ -27,6 +37,50 @@
                     "type": "string"
                   },
                   "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Register a user",
+        "description": "Returns an article.",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "users email",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "User's password",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A user",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
                     "type": "string"
                   }
                 }
