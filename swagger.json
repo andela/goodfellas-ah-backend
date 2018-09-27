@@ -1,0 +1,155 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Author's Haven",
+    "description": "A community of like minded Authors"
+  },
+  "host": "",
+  "tags": [
+    {
+      "name": "User",
+      "description": "User operations"
+    },
+    {
+      "name": "Article",
+      "description": "Article operations"
+    }
+  ],
+  "schemes": ["https"],
+  "paths": {
+    "/article": {
+      "get": {
+        "tags": ["Article"],
+        "summary": "Get an article",
+        "description": "Returns an article.",
+        "responses": {
+          "200": {
+            "description": "An article",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Register a user",
+        "description": "Returns an article.",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "users email",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "User's password",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A user",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Article": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "Unique identifier representing an article."
+        },
+        "user_id": {
+          "type": "number",
+          "description": "Unique identifier representing a specific User."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the article."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the article."
+        },
+        "created_at": {
+          "type": "date",
+          "description": "Article creation date."
+        },
+        "updated_at": {
+          "type": "date",
+          "description": "Date Article was updated."
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "Unique identifier representing a user."
+        },
+
+        "username": {
+          "type": "string",
+          "description": "the username of the user."
+        },
+        "email": {
+          "type": "email",
+          "description": "User email."
+        },
+        "created_at": {
+          "type": "date",
+          "description": "User creation date."
+        },
+        "updated_at": {
+          "type": "date",
+          "description": "Date for user detail update."
+        },
+        "password": {
+          "type": "password",
+          "description": "User password."
+        }
+      }
+    }
+  }
+}
