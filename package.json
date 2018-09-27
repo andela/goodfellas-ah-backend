@@ -39,6 +39,8 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
     "coveralls": "^3.0.2",
     "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.0",
