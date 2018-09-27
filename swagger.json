@@ -1,0 +1,40 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Author's Haven",
+    "description": "A community of like minded Authors"
+  },
+  "schemes": ["https"],
+  "host": "",
+  "basePath": "/api",
+  "paths": {
+    "/article": {
+      "get": {
+        "summary": "Get an article",
+        "description": "Returns an article.",
+        "responses": {
+          "200": {
+            "description": "An article",
+            "schema": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
