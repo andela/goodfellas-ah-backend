@@ -90,5 +90,66 @@
         }
       }
     }
+  },
+  "definitions": {
+    "Article": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "Unique identifier representing an article."
+        },
+        "user_id": {
+          "type": "number",
+          "description": "Unique identifier representing a specific User."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the article."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the article."
+        },
+        "created_at": {
+          "type": "date",
+          "description": "Article creation date."
+        },
+        "updated_at": {
+          "type": "date",
+          "description": "Date Article was updated."
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "Unique identifier representing a user."
+        },
+
+        "username": {
+          "type": "string",
+          "description": "the username of the user."
+        },
+        "email": {
+          "type": "email",
+          "description": "User email."
+        },
+        "created_at": {
+          "type": "date",
+          "description": "User creation date."
+        },
+        "updated_at": {
+          "type": "date",
+          "description": "Date for user detail update."
+        },
+        "password": {
+          "type": "password",
+          "description": "User password."
+        }
+      }
+    }
   }
 }
