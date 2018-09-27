@@ -22,7 +22,7 @@ app.get("/article", async (req, res) => {
   try {
     const article = await db.Article.findAll({});
     return res.status(400).json({
-      status: "Successful",
+      status: "Success",
       data: article
     });
   } catch (error) {
