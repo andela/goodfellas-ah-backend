@@ -31,6 +31,11 @@ app.get("/article", async (req, res) => {
     });
   }
 });
+app.get("/hound", async (req, res) => {
+  return res.status(400).json({
+    status: "Successful"
+  });
+});
 
 const port = process.env.PORT || 3000;
 
