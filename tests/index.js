@@ -29,6 +29,7 @@ describe('Article', () => (
         });
     });
 
+    // Testing get all articles route
     it('should retrieve all articles', (done) => {
       chai
         .request(app)
