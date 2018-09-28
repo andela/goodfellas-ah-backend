@@ -1,12 +1,18 @@
 {  
   "root": true,
   "extends": "airbnb-base",
-  "parser": "babel-eslint",
   "esversion": 6,
   "env": {
     "node": true,
     "es6": true,
     "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+        "jsx": true
+    }
   },
   "rules": {
     "one-var": 0,

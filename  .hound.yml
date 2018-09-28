@@ -1,8 +1,3 @@
 eslint:
   enabled: true
   config_file: .eslintrc
-  ignore_file: .eslintignore
-fail_on_violations: true
-jshint:
-  enabled: false
-  
