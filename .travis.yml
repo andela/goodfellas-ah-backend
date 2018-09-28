@@ -8,7 +8,7 @@ env:
   - DB_USERNAME=postgres
   - DB_PASSWORD=postgres
   - DB_HOST=127.0.0.1
-  - DATABASE=test_db
+  - TEST_DATABASE=test_db
 before_script:
   - npm install
   - psql -c 'drop database if exists test_db;' -U postgres
