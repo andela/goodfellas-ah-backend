@@ -22,17 +22,22 @@ app.get('/', (req, res) => res.send({ message: "Welcome to Author's Haven" }));
 app.get('/article', async (req, res) => {
   try {
     const article = await db.Article.findAll({});
-    return res.status(400).json({
-      status: 'Success',
+    return res.status(200).json({
+      status: "Success",
       data: article
     });
   } catch (error) {
-    return res.json({
-      status: 'error'
+    console.log(error);
+    return res.status(404).json({
+      status: "error"
     });
   }
 });
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+app.listen(port, () =>
+  console.log(`Server running at http://localhost:${port}`)
+);
+
+module.exports = { app }
