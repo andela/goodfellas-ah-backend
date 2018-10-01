@@ -3,5 +3,6 @@ eslint:
   config_file: .eslintrc
   ignore_file: .eslintignore
 jshint:
-  enabled: false
+  enabled: true
+  config_file: .jshintrc
 fail_on_violations: true
