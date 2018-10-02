@@ -1,7 +1,6 @@
 eslint:
-  enabled: true
+  enabled: false
   config_file: .eslintrc
   ignore_file: .eslintignore
-jshint:
-  config_file: .jshintrc
+
 fail_on_violations: true
