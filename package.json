@@ -4,7 +4,8 @@
   "description": "A Social platform for the creative at heart",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js | npm run lint",
+    "start": "node server.js",
+    "dev": "nodemon server.js | npm run lint",
     "lint": "eslint . --fix --ignore-path .gitignore",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha --timeout 250000 tests/* --require babel-register --exit",
     "cover": "NODE_ENV=test istanbul cover _mocha",
