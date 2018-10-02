@@ -23,21 +23,19 @@ app.get('/article', async (req, res) => {
   try {
     const article = await db.Article.findAll({});
     return res.status(200).json({
-      status: "Success",
+      status: 'Success',
       data: article
     });
   } catch (error) {
     console.log(error);
     return res.status(404).json({
-      status: "error"
+      status: 'error'
     });
   }
 });
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () =>
-  console.log(`Server running at http://localhost:${port}`)
-);
+app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 
-module.exports = { app }
+module.exports = { app };
