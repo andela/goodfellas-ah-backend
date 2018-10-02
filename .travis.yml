@@ -1,3 +1,20 @@
 language: node_js
 node_js:
-   - "stable"
+  - "stable"
+services:
+  - postgresql          
+env:
+  global:
+  - DB_USERNAME=postgres
+  - DB_PASSWORD=postgres
+  - DB_HOST=127.0.0.1
+  - TEST_DATABASE=test_db
+before_script:
+  - npm install
+  - psql -c 'drop database if exists test_db;' -U postgres
+  - psql -c 'create database test_db;' -U postgres
+  - sequelize db:migrate --env test
+script:
+  - npm test
+after_script:
+  - npm run coverage
