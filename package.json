@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js | npm run lint",
     "lint": "eslint . --fix --ignore-path .gitignore",
-    "test": "NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha --timeout 250000 tests/* --require babel-register --exit",
+    "test-migrate": "cross-env NODE_ENV=test sequelize db:migrate",
+    "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha --timeout 250000 tests/* --require babel-register --exit",
     "cover": "NODE_ENV=test istanbul cover _mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -44,6 +45,7 @@
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
     "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
