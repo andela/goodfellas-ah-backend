@@ -29,6 +29,25 @@ describe('Article', () => (
         });
     });
 
+    it('should get the landing page route', (done) => {
+      chai
+        .request(app)
+        .get('/')
+        .end((err, res) => {
+          if (err) {
+            console.log(err);
+          } else {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('message');
+            res.body.should.have
+              .property('message')
+              .eql('Welcome to Author\'s Haven');
+            done();
+          }
+        });
+    });
+
     // Testing get all articles route
     it('should retrieve all articles', (done) => {
       chai
