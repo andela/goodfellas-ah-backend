@@ -1,5 +1,9 @@
-// const router = require('express').Router();
+const requireAuth = require('../../middleware/requireAuth');
 
-// router.get('/articles', );
+const router = require('express').Router();
 
-// module.exports = router;
+router.get('/articles', requireAuth.auth, function(req, res) {
+	res.send({ message: 'All Articles Retrieved Successfully' });
+});
+
+module.exports = router;

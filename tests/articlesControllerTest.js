@@ -45,5 +45,16 @@ describe('Articles controller', () => {
           			done();
         		});
   		});
+
+  		it('GET to /api/articles should return an error message if a token is not provided', done => {
+      		chai
+      			.request(app)
+        		.get('/api/articles')
+        		.end((err, res) => {
+          			expect(res.status).to.equal(401);
+          			expect(res.body.message).to.equal('Unauthorized request, please login')
+          			done();
+        		});
+    });
  	});
 });
