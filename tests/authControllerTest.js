@@ -196,9 +196,8 @@ describe('Authentication controller', () => {
     it('Should return an error message when the user tries to sign in after passing more than the required fields', done => {
       chai
         .request(app)
-        .post('/api/auth/signup')
+        .post('/api/auth/signin')
         .send({
-          "username": "Sadiq",
           "email": "myemail@gmail.com",
           "password": "password",
           "occupation": "Software developer"

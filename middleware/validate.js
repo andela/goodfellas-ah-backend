@@ -34,4 +34,30 @@ module.exports = {
 	    }
 	    next();
   	},
+  	signinPost(req, res, next) {
+	    const { email, password } = req.body;
+	    const fieldLength = Object.keys(req.body).length;
+	    const missing = checkFields({ email, password });
+	    
+	    if (missing.length > 0) {
+	      if (missing.length === 1) {
+	        return res.status(400).send({ message: `Please fill the ${missing[0]} field` });
+	      }
+	      return res.status(400).send({ message: `Please fill the ${missing[0]} and ${missing[1]} fields` });
+	    }
+
+	    if (!email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/)) {
+	      return res.status(400).send({ message: 'Please enter a valid email' });
+	    }
+
+	    if (password.length < 5) {
+	      return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+	    }
+
+	    if (fieldLength > 2) {
+	      return res.status(400).send({ message: 'Too many fields' });
+	    }
+
+	    next();
+	},
 }
