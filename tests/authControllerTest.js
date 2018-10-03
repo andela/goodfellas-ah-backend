@@ -101,4 +101,36 @@ describe('Authentication controller', () => {
         });
     });
 	});
+
+  describe('Signin a new user', () => {
+    beforeEach((done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send({
+          "firstname": "Adinoyi",
+          "lastname": "Sadiq",
+          "email": "sadiqadinoyi@gmail.com",
+          "password": "myPassword"
+        })
+        .end((err, res) => {
+          done();
+        });
+    });
+
+    it('POST should create an authenticate a user using username and password', done => {
+      chai
+        .request(app)
+        .post('/api/auth/signin')
+        .send({
+          "email": "sadiqadinoyi@gmail.com",
+          "password": "myPassword"
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.token).to.be.a('string');
+          done();
+        });
+    });
+  });
 });
