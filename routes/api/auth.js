@@ -7,6 +7,6 @@ const googleToken = require('../../config/passport');
 
 router.post('/auth/signup', validate('signup'), userController.signup);
 router.post('/auth/signin', validate('signin'), userController.signin);
-router.post('/auth/googlesignup', passport.authenticate('google-plus-token', { session: false }));
+router.post('/auth/googlesignup', passport.authenticate('google-plus-token', { session: false }), userController.socialLogin);
 
 module.exports = router;

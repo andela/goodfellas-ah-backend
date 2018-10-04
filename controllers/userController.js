@@ -51,5 +51,34 @@ module.exports = {
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
+  },
+  async socialLogin(req, res) {
+    // Check if user exists
+    const existingUser = await userHelper.findUser(req.user.email);
+    console.log('existing user', existingUser.dataValues);
+
+    // If Yes authenticate user
+    if (existingUser) {
+      return res
+        .status(200)
+        .send({
+          message: 'Successfully signed in',
+          token: utility.createToken(existingUser)
+        });
+    }
+    // If No, create user then authenticate user
+    const encryptedPassword = await utility.encryptPassword(req.user.password);
+
+    User.create({
+      firstname: req.user.firstName,
+      lastname: req.user.lastName,
+      email: req.user.email,
+      password: encryptedPassword
+    })
+      .then(newUser => res.status(201).send({
+        message: 'Successfully created your account',
+        token: utility.createToken(newUser)
+      }))
+      .catch(() => res.status(500).send({ error: 'Internal server error' }));
   }
 };
