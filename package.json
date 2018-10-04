@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js | npm run lint",
+    "dev": "nodemon server.js --exec babel-node",
     "postinstall": "./node_modules/.bin/sequelize db:migrate",
     "lint": "eslint . --fix",
     "test-migrate": "cross-env NODE_ENV=test sequelize db:migrate",
