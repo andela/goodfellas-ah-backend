@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
-import resetDB from '../helpers/resetDB';
+import { resetDB } from './resetTestDB';
 
 chai.use(chaiHttp);
 
@@ -26,7 +26,7 @@ describe('Articles controller', () => {
   });
 
   after((done) => {
-    resetDB.resetDB();
+    resetDB();
 
     done();
   });

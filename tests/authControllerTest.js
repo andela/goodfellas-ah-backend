@@ -1,13 +1,13 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
-import resetDB from '../helpers/resetDB';
+import { resetDB } from './resetTestDB';
 
 chai.use(chaiHttp);
 
 describe('Authentication controller', () => {
   after((done) => {
-    resetDB.resetDB();
+    resetDB();
 
     done();
   });
@@ -41,7 +41,7 @@ describe('Authentication controller', () => {
           password: 'myPassword'
         })
         .end((err, res) => {
-          expect(res.status).to.equal(400);
+          expect(res.status).to.equal(409);
           expect(res.body.message).to.equal('Email is in use');
           done();
         });
@@ -171,7 +171,7 @@ describe('Authentication controller', () => {
         })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal('Please fill the email and password fields');
+          expect(res.body.message).to.equal('Please fill the email, and password fields');
           done();
         });
     });

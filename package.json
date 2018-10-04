@@ -9,6 +9,7 @@
     "postinstall": "./node_modules/.bin/sequelize db:migrate",
     "lint": "eslint . --fix",
     "test-migrate": "cross-env NODE_ENV=test sequelize db:migrate",
+    "undo-test-migrate": "cross-env NODE_ENV=test sequelize db:migrate:undo:all",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha --timeout 250000 tests/* --require babel-register --exit",
     "cover": "NODE_ENV=test istanbul cover _mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
@@ -16,7 +17,7 @@
   "author": "Andela Simulations Programme",
   "license": "MIT",
   "dependencies": {
-    "bcrypt-nodejs": "0.0.3",
+    "bcrypt": "^3.0.1",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
@@ -36,10 +37,10 @@
     "pg-hstore": "^2.3.2",
     "request": "^2.87.0",
     "sequelize": "^4.39.0",
+    "sequelize-cli": "^4.1.1",
     "slug": "^0.9.1",
     "swagger-ui-express": "^4.0.1",
-    "underscore": "^1.9.1",
-    "sequelize-cli": "^4.1.1"
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

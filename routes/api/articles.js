@@ -1,8 +1,8 @@
 const router = require('express').Router();
 
-const requireAuth = require('../../middleware/requireAuth');
+const authenticate = require('../../middleware/authentication');
 
-router.get('/articles', requireAuth.auth, (req, res) => {
+router.get('/articles', authenticate, (req, res) => {
   res.send({ message: 'All Articles Retrieved Successfully' });
 });
 

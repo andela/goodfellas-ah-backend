@@ -8,19 +8,26 @@ module.exports = {
       type: Sequelize.INTEGER
     },
     firstname: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false
     },
     lastname: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false
     },
     email: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false,
+      unique: true
     },
     password: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      allowNull: false
     },
     role: {
-      type: Sequelize.STRING
+      type: Sequelize.ENUM,
+      defaultValue: 'User',
+      values: ['SuperAdmin', 'Admin', 'User']
     },
     createdAt: {
       allowNull: false,
@@ -31,5 +38,5 @@ module.exports = {
       type: Sequelize.DATE
     }
   }),
-  down: (queryInterface, Sequelize) => queryInterface.dropTable('Users')
+  down: queryInterface => queryInterface.dropTable('Users')
 };
