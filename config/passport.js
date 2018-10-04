@@ -11,7 +11,8 @@ const googleStrategy = passport.use(new GooglePlusTokenStrategy({
     firstName: profile.name.givenName,
     lastName: profile.name.familyName,
     email: profile.emails[0].value,
-    password: profile.id
+    password: profile.id,
+    accountType: 'Google'
   };
 
   done(null, user);

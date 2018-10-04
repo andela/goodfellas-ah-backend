@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    accountType: {
+      type: DataTypes.ENUM,
+      defaultValue: 'Local',
+      values: ['Local', 'Google', 'Facebook', 'Twitter']
+    },
     role: {
       type: DataTypes.ENUM,
       defaultValue: 'User',

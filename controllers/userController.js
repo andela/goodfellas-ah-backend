@@ -55,7 +55,6 @@ module.exports = {
   async socialLogin(req, res) {
     // Check if user exists
     const existingUser = await userHelper.findUser(req.user.email);
-    console.log('existing user', existingUser.dataValues);
 
     // If Yes authenticate user
     if (existingUser) {
@@ -73,7 +72,8 @@ module.exports = {
       firstname: req.user.firstName,
       lastname: req.user.lastName,
       email: req.user.email,
-      password: encryptedPassword
+      password: encryptedPassword,
+      accountType: req.user.accountType
     })
       .then(newUser => res.status(201).send({
         message: 'Successfully created your account',
