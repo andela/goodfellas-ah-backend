@@ -16,6 +16,7 @@
     "build": "npm run clean && npm run build-babel",
     "build-babel": "babel . --ignore node_modules,test,migrations -d ./dist -s --copy-files",
     "postinstall": "npm run build && ./node_modules/.bin/sequelize db:migrate"
+
   },
   "author": "Andela Simulations Programme",
   "license": "MIT",
@@ -36,6 +37,7 @@
     "method-override": "^2.3.10",
     "methods": "^1.1.2",
     "morgan": "^1.9.0",
+    "nodemailer": "^4.6.8",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "pg": "^7.4.3",
