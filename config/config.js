@@ -13,7 +13,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.TEST_DATABASE,
     host: process.env.DB_HOST,
-    dialect: "postgres"
+    dialect: 'postgres'
   },
   production: {
     username: 'root',

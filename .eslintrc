@@ -17,6 +17,8 @@
     "curly": ["error", "multi-line"],
     "import/no-unresolved": [2, { "commonjs": true }],
     "no-shadow": ["error", { "allow": ["req", "res", "err"] }],
+    "import/extensions": 0,
+    "no-console": 0,
     "valid-jsdoc": ["error", {
       "requireReturn": true,
       "requireReturnType": true,
