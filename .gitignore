@@ -37,3 +37,6 @@ node_modules
 .env
 # Command line interface used by istanbul
 .nyc_output
+
+#package-lock
+package-lock.json
