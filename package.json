@@ -4,15 +4,18 @@
   "description": "A Social platform for the creative at heart",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node dist/server.js",
     "dev": "nodemon server.js --exec babel-node",
-    "postinstall": "./node_modules/.bin/sequelize db:migrate",
     "lint": "eslint . --fix",
     "test-migrate": "cross-env NODE_ENV=test sequelize db:migrate",
     "undo-test-migrate": "cross-env NODE_ENV=test sequelize db:migrate:undo:all",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text --reporter=lcov mocha --timeout 250000 tests/* --require babel-register --exit",
     "cover": "NODE_ENV=test istanbul cover _mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "npm run clean && npm run build-babel",
+    "build-babel": "babel . --ignore node_modules,test,migrations -d ./dist -s --copy-files",
+    "postinstall": "npm run build && ./node_modules/.bin/sequelize db:migrate"
   },
   "author": "Andela Simulations Programme",
   "license": "MIT",
