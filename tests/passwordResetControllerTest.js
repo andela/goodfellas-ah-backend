@@ -13,6 +13,7 @@ describe('Password reset controller', () => {
       .request(app)
       .post('/api/auth/signup')
       .send({
+<<<<<<< HEAD
         firstname: 'Victor',
         lastname: 'Ukafor',
         email: 'goodfellascohort40@gmail.com',
@@ -30,6 +31,15 @@ describe('Password reset controller', () => {
             resetToken = token;
             done();
           });
+=======
+          email: 'victorukafor@gmail.com',
+        })
+        .end((err, res) => {
+          const { token } = res.body.message;
+          resetToken = token; 
+          done();
+        });
+>>>>>>> bug(test): Refactor test logic for password reset
       });
   });
 
