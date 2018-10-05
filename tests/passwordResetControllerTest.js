@@ -26,7 +26,7 @@ describe('Password reset controller', () => {
           email: 'victorukafor@gmail.com',
         })
         .end((err, res) => {
-          const { token } = res.body;
+          const { token } = res.body.message;
           resetToken = token; 
           done();
         });
@@ -105,13 +105,12 @@ describe('Password reset controller', () => {
     it('Should reset password when token is valid', (done) => {
       chai
       .request(app)
-      .post(`/api/resetPassword?token=${token}`)
+      .post(`/api/resetPassword?token=${resetToken}`)
       .send({
         password: 'password',
       })
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.message).to.equal('Password reset successful');
         done();
       });
     });

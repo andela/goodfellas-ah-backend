@@ -110,7 +110,7 @@ export default class PasswordResetController {
                   password_reset_token: null,
                   password_reset_time: null,
                 })
-                  .then(() => {
+                  .then((success) => {
                     const message = 'Password reset successful';
                     return this.sendEmail(res, mailOptions, this.env.EMAIL, this.env.EMAIL_PASSWORD, message);
                 });
