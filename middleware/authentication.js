@@ -17,6 +17,4 @@ module.exports = (req, res, next) => {
       .status(401)
       .send({ message: 'Unauthorized request, please login' });
   }
-
-  
 };
