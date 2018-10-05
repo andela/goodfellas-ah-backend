@@ -4,6 +4,6 @@ const { User } = db;
 
 module.exports = {
   resetDB() {
-    User.destroy({ where: {}, truncate: true });
-  },
+    User.destroy({ where: {}, truncate: { cascade: true } });
+  }
 };
