@@ -8,17 +8,17 @@ import sendEmail from '../../lib/mailer';
 import passwordResetMiddleware from '../../middleware/passwordResetMiddleware';
 import PasswordResetController from '../../controllers/passwordResetController';
 
-const env = process.env;
+const { env } = process;
 const passwordResetRouter = express.Router();
-const middleware = new passwordResetMiddleware(User, Op)
+const middleware = new passwordResetMiddleware(User, Op);
 const passwordReset = new PasswordResetController(User, jwt, env, nodemailer, Op, sendEmail);
 
 // forgot password
-passwordResetRouter.post('/forgotPassword', 
-middleware.requiredEmail, passwordReset.forgotPassword);
+passwordResetRouter.post('/forgotPassword',
+  middleware.requiredEmail, passwordReset.forgotPassword);
 
 // reset password
-passwordResetRouter.post('/resetPassword', 
-middleware.validateToken, passwordReset.resetPassword);
+passwordResetRouter.post('/resetPassword',
+  middleware.validateToken, passwordReset.resetPassword);
 
 export default passwordResetRouter;
