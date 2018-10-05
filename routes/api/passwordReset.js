@@ -14,11 +14,11 @@ const middleware = new passwordResetMiddleware(User, Op);
 const passwordReset = new PasswordResetController(User, jwt, env, nodemailer, Op, sendEmail);
 
 // forgot password
-passwordResetRouter.post('/forgotPassword',
-  middleware.requiredEmail, passwordReset.forgotPassword);
+passwordResetRouter
+.post('/forgotPassword', middleware.requiredEmail, passwordReset.forgotPassword);
 
 // reset password
-passwordResetRouter.post('/resetPassword',
-  middleware.validateToken, passwordReset.resetPassword);
+passwordResetRouter
+.post('/resetPassword', middleware.validateToken, passwordReset.resetPassword);
 
 export default passwordResetRouter;
