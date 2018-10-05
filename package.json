@@ -16,7 +16,6 @@
     "build": "npm run clean && npm run build-babel",
     "build-babel": "babel . --ignore node_modules,test,migrations -d ./dist -s --copy-files",
     "postinstall": "npm run build && ./node_modules/.bin/sequelize db:migrate"
-
   },
   "author": "Andela Simulations Programme",
   "license": "MIT",
