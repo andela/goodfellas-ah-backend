@@ -55,7 +55,6 @@ module.exports = {
   async socialLogin(req, res) {
     // Check if user exists
     const existingUser = await userHelper.findUser(req.user.email);
-    console.log(existingUser.dataValues);
     // If Yes authenticate user
     if (existingUser) {
       return res
