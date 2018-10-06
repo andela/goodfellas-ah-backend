@@ -51,5 +51,10 @@ module.exports = {
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
+  },
+  async follow(req, res) {
+    res.status(201).send({
+      message: 'following'
+    });
   }
 };

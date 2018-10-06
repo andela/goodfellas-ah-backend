@@ -2,10 +2,24 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
+import { User } from '../models';
 
 chai.use(chaiHttp);
 
-describe('Authentication controller', () => {
+describe('User controller', () => {
+  const rootUrl = '/api';
+  const userADetails = {
+    firstname: 'Jane',
+    lastname: 'Doegirl',
+    email: 'jane@doegirl.com',
+    password: 'myPassword'
+  };
+  const userBDetails = {
+    firstname: 'John',
+    lastname: 'Doeis',
+    email: 'john@doeis.com',
+    password: 'johnspassword'
+  };
   after((done) => {
     resetDB();
 
@@ -115,6 +129,11 @@ describe('Authentication controller', () => {
           done();
         });
     });
+    afterEach((done) => {
+      resetDB();
+
+      done();
+    });
 
     it('POST should create an authenticate a user using username and password', (done) => {
       chai
@@ -205,6 +224,34 @@ describe('Authentication controller', () => {
           expect(res.body.message).to.equal('Too many fields');
           done();
         });
+    });
+  });
+
+  describe('POST /user/follow', () => {
+    let userAToken;
+    let userBId;
+    beforeEach('add users to db before each test', async () => {
+      const userASignUp = await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userADetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userBDetails);
+      const userB = await User.findOne({ email: userBDetails.email });
+      userBId = userB.dataValues.id;
+      userAToken = userASignUp.body.token;
+    });
+    afterEach('Reset database after each test', async () => resetDB());
+
+    it('should allow signed in userA to follow specified userB', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}/user/follow`)
+        .set('x-auth-token', userAToken)
+        .send({ userId: userBId });
+      expect(response.status).to.equal(201);
     });
   });
 });
