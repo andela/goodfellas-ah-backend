@@ -249,9 +249,28 @@ describe('User controller', () => {
       const response = await chai
         .request(app)
         .post(`${rootUrl}/user/follow`)
-        .set('x-auth-token', userAToken)
+        .set('authorization', userAToken)
         .send({ userId: userBId });
       expect(response.status).to.equal(201);
+    });
+    it('should return error if token is compromised', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}/user/follow`)
+        .set('authorization', 'userATokenIsNowCompromisedThisShouldReturnAnError')
+        .send({ userId: userBId });
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('jwt malformed');
+    });
+    it('should return error if token is not given', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}/user/follow`)
+        .send({ userId: userBId });
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('Unauthorized request, please login');
     });
   });
 });
