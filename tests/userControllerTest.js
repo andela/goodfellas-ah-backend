@@ -355,4 +355,58 @@ describe('User controller', () => {
       expect(response.body.message).to.equal('Unauthorized request, please login');
     });
   });
+  describe('GET /user/followed', () => {
+    const route = '/user/followed';
+    let userAToken;
+    let userBId;
+    beforeEach('add users to db, follow userB before each test', async () => {
+      const userASignUp = await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userADetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userBDetails);
+      const userB = await User.findOne({ where: { email: userBDetails.email } });
+      userBId = userB.dataValues.id;
+      userAToken = userASignUp.body.token;
+      await chai
+        .request(app)
+        .post(`${rootUrl}/user/follow`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId });
+    });
+    afterEach('Reset database after each test', async () => resetDB());
+
+    it('should return users that are currently followed', async () => {
+      const response = await chai
+        .request(app)
+        .get(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send();
+      console.log(response.body);
+      expect(response.status).to.equal(200);
+      expect(response.body.message).to.equal(`User ${userBId} unfollowed successfully`);
+    });
+    it('should return error if token is compromised', async () => {
+      const response = await chai
+        .request(app)
+        .get(`${rootUrl}${route}`)
+        .set('authorization', 'userATokenIsNowCompromisedThisShouldReturnAnError')
+        .send();
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('jwt malformed');
+    });
+    it('should return error if token is not given', async () => {
+      const response = await chai
+        .request(app)
+        .get(`${rootUrl}${route}`)
+        .send();
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('Unauthorized request, please login');
+    });
+  });
 });

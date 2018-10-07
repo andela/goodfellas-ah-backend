@@ -79,7 +79,6 @@ module.exports = {
         message: `User ${followedId} unfollowed successfully`
       });
     } catch (err) {
-      console.log(err);
       res.status(500).send({
         message: err.message === 'unExistingFollow'
           ? 'You\'re not following this user, no need to unfollow'
