@@ -98,11 +98,8 @@ module.exports = {
         message: 'Retrieved followed users'
       });
     } catch (err) {
-      console.log(err);
       res.status(500).send({
-        message: err.message === 'unExistingFollow'
-          ? 'You\'re not following this user, no need to unfollow'
-          : 'Internal server error'
+        message: 'Internal server error'
       });
     }
   },
