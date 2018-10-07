@@ -103,4 +103,21 @@ module.exports = {
       });
     }
   },
+  async followers(req, res) {
+    const { userId } = req;
+    try {
+      const followedUsers = await UserFollow.findAll({
+        where: { followedId: userId },
+        attributes: { exclude: ['followedId'] }
+      });
+      res.status(200).send({
+        data: followedUsers,
+        message: 'Retrieved followed users'
+      });
+    } catch (err) {
+      res.status(500).send({
+        message: 'Internal server error'
+      });
+    }
+  },
 };
