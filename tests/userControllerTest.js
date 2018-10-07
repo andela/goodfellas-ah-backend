@@ -20,6 +20,12 @@ describe('User controller', () => {
     email: 'john@doeis.com',
     password: 'johnspassword'
   };
+  const userCDetails = {
+    firstname: 'User',
+    lastname: 'Seee',
+    email: 'user@see.com',
+    password: 'userpassword'
+  };
   after((done) => {
     resetDB();
 
@@ -359,7 +365,8 @@ describe('User controller', () => {
     const route = '/user/followed';
     let userAToken;
     let userBId;
-    beforeEach('add users to db, follow userB before each test', async () => {
+    let userCId;
+    beforeEach('add users to db, follow userB and userC before each test', async () => {
       const userASignUp = await chai
         .request(app)
         .post(`${rootUrl}/auth/signup`)
@@ -368,14 +375,25 @@ describe('User controller', () => {
         .request(app)
         .post(`${rootUrl}/auth/signup`)
         .send(userBDetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userCDetails);
       const userB = await User.findOne({ where: { email: userBDetails.email } });
+      const userC = await User.findOne({ where: { email: userCDetails.email } });
       userBId = userB.dataValues.id;
+      userCId = userC.dataValues.id;
       userAToken = userASignUp.body.token;
       await chai
         .request(app)
         .post(`${rootUrl}/user/follow`)
         .set('authorization', userAToken)
         .send({ userId: userBId });
+      await chai
+        .request(app)
+        .post(`${rootUrl}/user/follow`)
+        .set('authorization', userAToken)
+        .send({ userId: userCId });
     });
     afterEach('Reset database after each test', async () => resetDB());
 
@@ -387,7 +405,9 @@ describe('User controller', () => {
         .send();
       console.log(response.body);
       expect(response.status).to.equal(200);
-      expect(response.body.message).to.equal(`User ${userBId} unfollowed successfully`);
+      expect(response.body.data).to.be.an('array');
+      expect(response.body.data).to.have.length(2);
+      expect(response.body.message).to.equal('Retrieved followed users');
     });
     it('should return error if token is compromised', async () => {
       const response = await chai

@@ -86,4 +86,24 @@ module.exports = {
       });
     }
   },
+  async followed(req, res) {
+    const { userId } = req;
+    try {
+      const followedUsers = await UserFollow.findAll({
+        where: { followerId: userId },
+        attributes: { exclude: ['followerId'] }
+      });
+      res.status(200).send({
+        data: followedUsers,
+        message: 'Retrieved followed users'
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: err.message === 'unExistingFollow'
+          ? 'You\'re not following this user, no need to unfollow'
+          : 'Internal server error'
+      });
+    }
+  },
 };

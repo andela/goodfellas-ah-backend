@@ -7,5 +7,6 @@ const userController = require('../../controllers/userController');
 
 router.post('/user/follow', authenticate, userController.follow);
 router.post('/user/unfollow', authenticate, userController.unfollow);
+router.get('/user/followed', authenticate, userController.followed);
 
 module.exports = router;
