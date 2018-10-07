@@ -228,6 +228,7 @@ describe('User controller', () => {
   });
 
   describe('POST /user/follow', () => {
+    const route = '/user/follow';
     let userAToken;
     let userBId;
     beforeEach('add users to db before each test', async () => {
@@ -248,7 +249,7 @@ describe('User controller', () => {
     it('should allow signed in userA to follow specified userB', async () => {
       const response = await chai
         .request(app)
-        .post(`${rootUrl}/user/follow`)
+        .post(`${rootUrl}${route}`)
         .set('authorization', userAToken)
         .send({ userId: userBId });
 
@@ -258,7 +259,7 @@ describe('User controller', () => {
     it('should return error if token is compromised', async () => {
       const response = await chai
         .request(app)
-        .post(`${rootUrl}/user/follow`)
+        .post(`${rootUrl}${route}`)
         .set('authorization', 'userATokenIsNowCompromisedThisShouldReturnAnError')
         .send({ userId: userBId });
 
@@ -268,7 +269,61 @@ describe('User controller', () => {
     it('should return error if token is not given', async () => {
       const response = await chai
         .request(app)
-        .post(`${rootUrl}/user/follow`)
+        .post(`${rootUrl}${route}`)
+        .send({ userId: userBId });
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('Unauthorized request, please login');
+    });
+  });
+  describe('POST /user/unfollow', () => {
+    const route = '/user/unfollow';
+    let userAToken;
+    let userBId;
+    beforeEach('add users to db, userA follow userB before each test', async () => {
+      const userASignUp = await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userADetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userBDetails);
+      const userB = await User.findOne({ where: { email: userBDetails.email } });
+      userBId = userB.dataValues.id;
+      userAToken = userASignUp.body.token;
+      await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId });
+    });
+    afterEach('Reset database after each test', async () => resetDB());
+
+    it('should allow signed in userA to unfollow specified userB', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId });
+
+      expect(response.status).to.equal(201);
+      expect(response.body.message).to.equal(`User ${userBId} followed successfully`);
+    });
+    it('should return error if token is compromised', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', 'userATokenIsNowCompromisedThisShouldReturnAnError')
+        .send({ userId: userBId });
+
+      expect(response).to.have.status(401);
+      expect(response.body.message).to.equal('jwt malformed');
+    });
+    it('should return error if token is not given', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
         .send({ userId: userBId });
 
       expect(response).to.have.status(401);
