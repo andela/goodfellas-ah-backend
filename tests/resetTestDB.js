@@ -1,9 +1,10 @@
 const db = require('../models');
 
-const { User } = db;
+const { User, UserFollow } = db;
 
 module.exports = {
   resetDB() {
-    User.destroy({ where: {}, truncate: true });
+    UserFollow.destroy({ truncate: true, cascade: true });
+    User.destroy({ truncate: true, cascade: true });
   },
 };

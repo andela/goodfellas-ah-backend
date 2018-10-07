@@ -239,7 +239,7 @@ describe('User controller', () => {
         .request(app)
         .post(`${rootUrl}/auth/signup`)
         .send(userBDetails);
-      const userB = await User.findOne({ email: userBDetails.email });
+      const userB = await User.findOne({ where: { email: userBDetails.email } });
       userBId = userB.dataValues.id;
       userAToken = userASignUp.body.token;
     });
@@ -251,7 +251,9 @@ describe('User controller', () => {
         .post(`${rootUrl}/user/follow`)
         .set('authorization', userAToken)
         .send({ userId: userBId });
+
       expect(response.status).to.equal(201);
+      expect(response.body.message).to.equal(`User ${userBId} followed successfully`);
     });
     it('should return error if token is compromised', async () => {
       const response = await chai

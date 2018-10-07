@@ -2,7 +2,7 @@ const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
 
-const { User } = db;
+const { User, UserFollow } = db;
 
 module.exports = {
   async signup(req, res) {
@@ -53,8 +53,16 @@ module.exports = {
     }
   },
   async follow(req, res) {
-    res.status(201).send({
-      message: 'following'
-    });
+    try {
+      const userFollow = await UserFollow.create({
+        followerId: req.userId,
+        followedId: req.body.userId
+      });
+      res.status(201).send({
+        message: `User ${userFollow.dataValues.followedId} followed successfully`
+      });
+    } catch (err) {
+      res.status(500).send({ error: 'Internal server error' });
+    }
   }
 };
