@@ -256,6 +256,21 @@ describe('User controller', () => {
       expect(response.status).to.equal(201);
       expect(response.body.message).to.equal(`User ${userBId} followed successfully`);
     });
+    it('should throw D follow the same user twice', async () => {
+      await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId });
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId });
+
+      expect(response.status).to.equal(500);
+      expect(response.body.message).to.equal('You\'re already following this user');
+    });
     it('should return error if token is compromised', async () => {
       const response = await chai
         .request(app)
@@ -294,7 +309,7 @@ describe('User controller', () => {
       userAToken = userASignUp.body.token;
       await chai
         .request(app)
-        .post(`${rootUrl}${route}`)
+        .post(`${rootUrl}/user/follow`)
         .set('authorization', userAToken)
         .send({ userId: userBId });
     });
@@ -308,7 +323,17 @@ describe('User controller', () => {
         .send({ userId: userBId });
 
       expect(response.status).to.equal(201);
-      expect(response.body.message).to.equal(`User ${userBId} followed successfully`);
+      expect(response.body.message).to.equal(`User ${userBId} unfollowed successfully`);
+    });
+    it('should return error if specified user is not currently followed', async () => {
+      const response = await chai
+        .request(app)
+        .post(`${rootUrl}${route}`)
+        .set('authorization', userAToken)
+        .send({ userId: userBId + 3 });
+
+      expect(response.status).to.equal(500);
+      expect(response.body.message).to.equal('You\'re not following this user, no need to unfollow');
     });
     it('should return error if token is compromised', async () => {
       const response = await chai

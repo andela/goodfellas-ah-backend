@@ -53,16 +53,38 @@ module.exports = {
     }
   },
   async follow(req, res) {
+    const followerId = req.userId;
+    const followedId = req.body.userId;
     try {
-      const userFollow = await UserFollow.create({
-        followerId: req.userId,
-        followedId: req.body.userId
-      });
+      await userHelper.throwErrorIfFollowed(followerId, followedId);
+      const userFollow = await UserFollow.create({ followerId, followedId });
       res.status(201).send({
         message: `User ${userFollow.dataValues.followedId} followed successfully`
       });
     } catch (err) {
-      res.status(500).send({ error: 'Internal server error' });
+      res.status(500).send({
+        message: err.message === 'existingFollow'
+          ? 'You\'re already following this user'
+          : 'Internal server error'
+      });
     }
-  }
+  },
+  async unfollow(req, res) {
+    const followerId = req.userId;
+    const followedId = req.body.userId;
+    try {
+      const userUnfollow = await UserFollow.destroy({ where: { followerId, followedId } });
+      if (userUnfollow === 0) throw new Error('unExistingFollow');
+      res.status(201).send({
+        message: `User ${followedId} unfollowed successfully`
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({
+        message: err.message === 'unExistingFollow'
+          ? 'You\'re not following this user, no need to unfollow'
+          : 'Internal server error'
+      });
+    }
+  },
 };
