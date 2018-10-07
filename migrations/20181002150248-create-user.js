@@ -24,10 +24,10 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false
     },
-    accountType: {
+    account_type: {
       type: Sequelize.ENUM,
       defaultValue: 'Local',
-      values: ['Local', 'Google', 'Facebook', 'Twitter']
+      values: ['Local', 'google-plus', 'facebook', 'twitter']
     },
     role: {
       type: Sequelize.ENUM,

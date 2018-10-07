@@ -3,10 +3,13 @@ const passport = require('passport');
 
 const userController = require('../../controllers/userController');
 const { validate } = require('../..//middleware/validation');
-const strategy = require('../../config/passport');
+const googleStrategy = require('../../config/passportAuthentication/googleAuthentication');
+const facebookStrategy = require('../../config/passportAuthentication/facebookAuthentication');
+
 
 router.post('/auth/signup', validate('signup'), userController.signup);
 router.post('/auth/signin', validate('signin'), userController.signin);
-router.post('/auth/google', passport.authenticate(strategy, { session: false }), userController.socialLogin);
+router.post('/auth/google', passport.authenticate(googleStrategy, { session: false }), userController.socialAuth);
+router.post('/auth/facebook', passport.authenticate(facebookStrategy, { session: false }), userController.socialAuth);
 
 module.exports = router;

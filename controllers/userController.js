@@ -52,32 +52,46 @@ module.exports = {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
   },
-  async socialLogin(req, res) {
+  async socialAuth(req, res) {
     // Check if user exists
-    const existingUser = await userHelper.findUser(req.user.email);
-    // If Yes authenticate user
-    if (existingUser) {
-      return res
-        .status(200)
-        .send({
-          message: 'Successfully signed in',
-          token: utility.createToken(existingUser.dataValues)
-        });
-    }
-    // If No, create user then authenticate user
-    const encryptedPassword = await utility.encryptPassword(req.user.password);
 
-    User.create({
-      firstname: req.user.firstName,
-      lastname: req.user.lastName,
-      email: req.user.email,
-      password: encryptedPassword,
-      accountType: req.user.accountType
-    })
-      .then(newUser => res.status(201).send({
-        message: 'Successfully created your account',
-        token: utility.createToken(newUser)
-      }))
-      .catch(() => res.status(500).send({ error: 'Internal server error' }));
+    const existingUser = await userHelper.findUser(req.user.email);
+
+    if (existingUser) {
+      // If Yes, check if it was with the same social account
+
+      const { password } = req.user;
+
+      const match = await utility.comparePasswords(password, existingUser.dataValues.password);
+      // If yes then authenticate user
+      if (match) {
+        res
+          .status(200)
+          .send({
+            message: 'Successfully signed in',
+            token: utility.createToken(existingUser.dataValues)
+          });
+      } else {
+        // If no, return error message
+
+        res.status(400).send({ message: 'You can\'t login via this platform' });
+      }
+    } else {
+      // If No, create user then authenticate user
+
+      const encryptedPassword = await utility.encryptPassword(req.user.password);
+      User.create({
+        firstname: req.user.firstName,
+        lastname: req.user.lastName,
+        email: req.user.email,
+        password: encryptedPassword,
+        account_type: req.user.account_type
+      })
+        .then(newUser => res.status(201).send({
+          message: 'Successfully created your account',
+          token: utility.createToken(newUser)
+        }))
+        .catch(() => res.status(500).send({ error: 'Internal server error' }));
+    }
   }
 };
