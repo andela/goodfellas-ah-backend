@@ -40,9 +40,7 @@ describe('Articles controller', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal(
-            'All Articles Retrieved Successfully'
-          );
+          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
           done();
         });
     });
@@ -53,9 +51,7 @@ describe('Articles controller', () => {
         .get('/api/articles')
         .end((err, res) => {
           expect(res.status).to.equal(401);
-          expect(res.body.message).to.equal(
-            'Unauthorized request, please login'
-          );
+          expect(res.body.message).to.equal('Unauthorized request, please login');
           done();
         });
     });

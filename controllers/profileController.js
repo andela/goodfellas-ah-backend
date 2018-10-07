@@ -25,7 +25,7 @@ module.exports = {
       },
       { returning: true, where: { userId: userID } }
     )
-      .then(userProfile => res.status(201).send(userProfile))
+      .then(userProfile => res.status(200).send(userProfile))
       .catch(error => res.status(400).send(error));
   },
   async getProfile(req, res) {
