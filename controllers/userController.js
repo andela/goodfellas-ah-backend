@@ -7,30 +7,34 @@ const { User } = db;
 
 module.exports = {
   async signup(req, res) {
-    const values = utility.trimValues(req.body);
-    const {
-      firstname, lastname, email, password
-    } = values;
+    try {
+      const values = utility.trimValues(req.body);
+      const {
+        firstname, lastname, email, password
+      } = values;
 
-    const existingUser = await userHelper.findUser(email);
+      const existingUser = await userHelper.findUser(email);
 
-    if (existingUser) {
-      return res.status(409).send({ message: 'Email is in use' });
+      if (existingUser) {
+        return res.status(409).send({ message: 'Email is in use' });
+      }
+
+      const encryptedPassword = await utility.encryptPassword(password);
+
+      User.create({
+        firstname,
+        lastname,
+        email,
+        password: encryptedPassword
+      })
+        .then(newUser => res.status(201).send({
+          message: 'Successfully created your account',
+          token: utility.createToken(newUser)
+        }))
+        .catch(() => res.status(500).send({ error: 'Internal server error' }));
+    } catch (error) {
+      console.log('ThIS IS THE ERROR', error);
     }
-
-    const encryptedPassword = await utility.encryptPassword(password);
-
-    User.create({
-      firstname,
-      lastname,
-      email,
-      password: encryptedPassword
-    })
-      .then(newUser => res.status(201).send({
-        message: 'Successfully created your account',
-        token: utility.createToken(newUser)
-      }))
-      .catch(() => res.status(500).send({ error: 'Internal server error' }));
   },
   async signin(req, res) {
     const values = utility.trimValues(req.body);

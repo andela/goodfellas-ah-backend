@@ -24,6 +24,7 @@ describe('Authentication controller', () => {
           password: 'myPassword'
         })
         .end((err, res) => {
+          console.log('THIS IS RES', res);
           expect(res.status).to.equal(201);
           expect(res.body.token).to.be.a('string');
           done();
