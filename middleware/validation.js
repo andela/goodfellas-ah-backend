@@ -33,6 +33,9 @@ const checkEmptyFields = (data) => {
 const checkFieldLength = (route, fields) => {
   const fieldLength = Object.keys(fields).length;
 
+  if (route === 'forgotPassword' && fieldLength > 1) {
+    return true;
+  }
   if (route === 'signin' && fieldLength > 2) {
     return true;
   }
@@ -84,6 +87,7 @@ exports.profileValidation = (req, res) => {
   extraFields(req, res);
 };
 
+// middleware for validating signup fields
 exports.validate = route => (req, res, next) => {
   const userDetails = req.body;
   const tooManyFields = checkFieldLength(route, userDetails);
@@ -140,6 +144,7 @@ exports.validateForgotPassword = route => (req, res, next) => {
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
   }
+
   if (!validEmail) {
     return res.status(400).send({ message: 'Please enter a valid email' });
   }
@@ -176,3 +181,4 @@ exports.findUserByToken = (req, res, next) => {
     next();
   });
 };
+
