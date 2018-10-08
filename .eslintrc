@@ -20,6 +20,7 @@
     "import/extensions": 0,
     "no-console": 0,
     "no-else-return": ["error", { "allowElseIf": true }],
+    "valid-typeof": 0,
     "valid-jsdoc": ["error", {
       "requireReturn": true,
       "requireReturnType": true,
