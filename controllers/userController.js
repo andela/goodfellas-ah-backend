@@ -1,7 +1,7 @@
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
-const profileHelper = require('../controllers/profileController');
+const profileController = require('../controllers/profileController');
 
 const { User } = db;
 
@@ -27,7 +27,7 @@ module.exports = {
       password: encryptedPassword
     })
       .then((newUser) => {
-        profileHelper.createProfile(newUser);
+        profileController.createProfile(newUser);
         return res.status(201).json({
           error: false,
           token: utility.createToken(newUser),
