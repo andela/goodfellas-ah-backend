@@ -1,3 +1,4 @@
+// this function converts arguments from format ['a', {'b': 'c'}] to [[a], ['b', 'c']]
 const convertArgsToArray = mixedArgs => mixedArgs
   .map((eachArg) => {
     if (typeof eachArg === 'object') {
@@ -6,7 +7,10 @@ const convertArgsToArray = mixedArgs => mixedArgs
     }
     return [eachArg];
   });
+
 const validator = {
+// some validation rules, you can add more.
+// Return true if validation passes or error message on failure
   required(inputField, field) {
     return Boolean(inputField) || `${field} is required`;
   },
@@ -19,6 +23,8 @@ const validator = {
     }
     return typeof inputField === type || `${field} should be of type ${type}`;
   },
+  // this function does the validation.
+  // simply loops and calls every validationRule specified.
   validate(validationRules, userInput) {
     const error = Object.keys(validationRules)
       .map((field) => {
