@@ -59,7 +59,6 @@ module.exports = {
 
     if (existingUser) {
       // If Yes, check if it was with the same social account
-
       const { password } = req.user;
 
       const match = await utility.comparePasswords(password, existingUser.dataValues.password);
@@ -73,12 +72,10 @@ module.exports = {
           });
       } else {
         // If no, return error message
-
-        res.status(400).send({ message: 'You can\'t login via this platform' });
+        res.status(400).send({ message: 'You can\'t login through this platform' });
       }
     } else {
       // If No, create user then authenticate user
-
       const encryptedPassword = await utility.encryptPassword(req.user.password);
       User.create({
         firstname: req.user.firstName,
