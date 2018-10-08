@@ -1,5 +1,5 @@
 // checking for undefined fields
-const undefinedFields = (req, res, next) => {
+const undefinedFields = (req, res) => {
   const { username, bio } = req.body;
 
   if (username === undefined || bio === undefined) {
@@ -14,11 +14,10 @@ const undefinedFields = (req, res, next) => {
       message: 'profileImage field is required'
     });
   }
-  return next();
 };
 
 // checking for any empty field
-const emptyField = (req, res, next) => {
+const emptyField = (req, res) => {
   const { username, bio } = req.body;
 
   if (!username.trim() || !bio.trim()) {
@@ -27,19 +26,17 @@ const emptyField = (req, res, next) => {
       message: 'Fields cannot be empty'
     });
   }
-  return next();
 };
 
 // checking for any unwanted field
-const extraFields = (req, res, next) => {
+const extraFields = (req, res) => {
   const fieldLength = Object.keys(req.body).length + Object.keys(req.files).length;
-  if (fieldLength === 3) {
-    return next();
+  if (fieldLength !== 3) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Extra field(s) not required'
+    });
   }
-  return res.status(400).json({
-    status: 'fail',
-    message: 'Extra field(s) not required'
-  });
 };
 
 module.exports = {

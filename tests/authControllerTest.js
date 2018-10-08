@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
+import { userDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
 
@@ -17,12 +18,7 @@ describe('Authentication controller', () => {
       chai
         .request(app)
         .post('/api/auth/signup')
-        .send({
-          firstname: 'Adinoyi',
-          lastname: 'Sadiq',
-          email: 'adinoyi@gmail.com',
-          password: 'myPassword'
-        })
+        .send(userDetail)
         .end((err, res) => {
           expect(res.status).to.equal(201);
           expect(res.body.token).to.be.a('string');
@@ -34,12 +30,7 @@ describe('Authentication controller', () => {
       chai
         .request(app)
         .post('/api/auth/signup')
-        .send({
-          firstname: 'Adinoyi',
-          lastname: 'Sadiq',
-          email: 'adinoyi@gmail.com',
-          password: 'myPassword'
-        })
+        .send(userDetail)
         .end((err, res) => {
           expect(res.status).to.equal(409);
           expect(res.body.message).to.equal('Email is in use');
@@ -105,12 +96,7 @@ describe('Authentication controller', () => {
       chai
         .request(app)
         .post('/api/auth/signup')
-        .send({
-          firstname: 'Adinoyi',
-          lastname: 'Sadiq',
-          email: 'sadiqadinoyi@gmail.com',
-          password: 'myPassword'
-        })
+        .send(userDetail)
         .end(() => {
           done();
         });
@@ -121,8 +107,8 @@ describe('Authentication controller', () => {
         .request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'sadiqadinoyi@gmail.com',
-          password: 'myPassword'
+          email: 'goodfellas@gmail.com',
+          password: 'password'
         })
         .end((err, res) => {
           expect(res.status).to.equal(200);
@@ -151,7 +137,7 @@ describe('Authentication controller', () => {
         .request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'sadiqadinoyi@gmail.com',
+          email: 'goodfellas@gmail.com',
           password: 'wrongPassword'
         })
         .end((err, res) => {

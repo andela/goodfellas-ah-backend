@@ -5,20 +5,14 @@ const profileController = require('../../controllers/profileController');
 const authenticate = require('../../middleware/authentication');
 
 const multipart = multiparty();
-const cloudinary = require('../../middleware/cloudinary');
-const validate = require('../../middleware/profileValidation');
 
 router.put(
-  '/profile/user',
+  '/user/profile',
   authenticate,
   multipart,
-  validate.undefinedFields,
-  validate.emptyField,
-  validate.extraFields,
-  cloudinary.imageUpload,
   profileController.updateProfile
 );
 
-router.get('/profile/user/:userId', profileController.getProfile);
+router.get('/user/profile/:userId', profileController.getProfile);
 
 module.exports = router;
