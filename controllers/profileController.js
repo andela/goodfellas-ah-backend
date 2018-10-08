@@ -5,8 +5,8 @@ const profileSearch = require('../lib/profile');
 const { Profiles } = db;
 
 module.exports = {
-  createProfile(newUser) {
-    Profiles.create({
+  async createProfile(newUser) {
+    await Profiles.create({
       userId: newUser.id
     });
   },
@@ -30,8 +30,8 @@ module.exports = {
   },
   async getProfile(req, res) {
     const { userId } = req.params;
-    const existingUser = await profileSearch.findProfile(userId);
-    if (!existingUser) {
+    const existingProfile = await profileSearch.findProfile(userId);
+    if (!existingProfile) {
       return res.status(409).json({
         error: true,
         message: 'No user with this profile'
