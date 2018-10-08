@@ -26,7 +26,10 @@ module.exports = {
       email,
       password: encryptedPassword
     })
-      .then(newUser => res.status(201).json({ token: utility.createToken(newUser), message: 'User created Successfully' }))
+      .then(newUser => res.status(201).send({
+        message: 'Successfully created your account',
+        token: utility.createToken(newUser)
+      }))
       .catch(() => res.status(500).send({ error: 'Internal server error' }));
   },
   async signin(req, res) {
