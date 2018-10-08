@@ -38,3 +38,9 @@ node_modules
 # Command line interface used by istanbul
 .nyc_output
 .vscode
+
+#package-lock
+package-lock.json
+
+#babel-build
+dist
