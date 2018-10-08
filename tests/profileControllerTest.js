@@ -72,7 +72,7 @@
 //           });
 //       });
 //     });
-//     it('PUT /api/profile/user should return an error if profileImage is not provided', (done) => {
+//     it('PUT /api/profile/user should return an error if Image is not provided', (done) => {
 //       chai
 //         .request(app)
 //         .put('/api/profile/user')

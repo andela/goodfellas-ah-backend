@@ -1,7 +1,7 @@
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
-const profileController = require('../controllers/profileController');
+// const profileController = require('../controllers/profileController');
 
 const { User } = db;
 
@@ -26,15 +26,7 @@ module.exports = {
       email,
       password: encryptedPassword
     })
-      .then((newUser) => {
-        // profileController.createProfile(newUser);
-        return res.status(201).json({
-          // error: false,
-          token: utility.createToken(newUser),
-          // userId: newUser.id,
-          message: 'User created Successfully'
-        });
-      })
+      .then(newUser => res.status(201).json({ token: utility.createToken(newUser), message: 'User created Successfully' }))
       .catch(() => res.status(500).send({ error: 'Internal server error' }));
   },
   async signin(req, res) {
