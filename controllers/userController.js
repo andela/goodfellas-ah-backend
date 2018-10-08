@@ -1,9 +1,11 @@
+const jwt = require('jsonwebtoken');
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
 const profileController = require('../controllers/profileController');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
 
 const { User } = db;
 
@@ -69,7 +71,6 @@ module.exports = {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
   },
-
 
   async forgotPassword(req, res) {
     const user = await userHelper.findUser(req.email);
