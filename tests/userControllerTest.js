@@ -464,7 +464,7 @@ describe('User controller', () => {
         .get(`${rootUrl}${route}`)
         .set('authorization', userAToken)
         .send();
-      console.log(response.body);
+
       expect(response.status).to.equal(200);
       expect(response.body.data).to.be.an('array');
       expect(response.body.data).to.have.length(1);
