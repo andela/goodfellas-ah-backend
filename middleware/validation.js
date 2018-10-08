@@ -1,6 +1,5 @@
 const generateErrorMessage = (missing) => {
   let errorString = 'Please fill the ';
-
   missing.forEach((field) => {
     if (missing[missing.length - 1] === field && missing.length !== 1) {
       errorString += `and ${field} fields`;
@@ -14,7 +13,6 @@ const generateErrorMessage = (missing) => {
 };
 
 const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
-
 const checkEmptyFields = (data) => {
   const emptyFields = {};
   const missingFields = Object.keys(data).filter(
