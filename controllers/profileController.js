@@ -5,8 +5,8 @@ const profileSearch = require('../lib/profile');
 const { Profiles } = db;
 
 module.exports = {
-  async createProfile(newUser) {
-    await Profiles.create({
+  createProfile(newUser) {
+    Profiles.create({
       userId: newUser.id
     });
   },
