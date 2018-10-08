@@ -27,11 +27,11 @@ module.exports = {
       password: encryptedPassword
     })
       .then((newUser) => {
-        profileController.createProfile(newUser);
+        // profileController.createProfile(newUser);
         return res.status(201).json({
-          error: false,
+          // error: false,
           token: utility.createToken(newUser),
-          userId: newUser.id,
+          // userId: newUser.id,
           message: 'User created Successfully'
         });
       })
