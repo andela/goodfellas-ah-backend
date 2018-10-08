@@ -5,9 +5,10 @@ import { resetDB } from './resetTestDB';
 
 chai.use(chaiHttp);
 let id;
+let testToken;
 
 describe('Profile controller', () => {
-  beforeEach((done) => {
+  before((done) => {
     chai
       .request(app)
       .post('/api/auth/signup')
@@ -18,8 +19,9 @@ describe('Profile controller', () => {
         password: 'myPassword'
       })
       .end((err, res) => {
-        const { userId } = res.body;
+        const { userId, token } = res.body;
         id = userId;
+        testToken = token;
         done();
       });
   });
@@ -41,13 +43,45 @@ describe('Profile controller', () => {
         });
     });
   });
-  describe('GET user error', () => {
+  describe('Check user', () => {
     it('GET /api/profile/user should return an error if user does not exist', (done) => {
       chai
         .request(app)
         .get('/api/profile/user/0')
         .end((err, res) => {
           expect(res.status).to.equal(409);
+          done();
+        });
+    });
+  });
+
+  describe('update profile', () => {
+    describe('update profile', () => {
+      it('PUT /api/profile/user should return an error if any field is undefined', (done) => {
+        chai
+          .request(app)
+          .put('/api/profile/user')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send({
+            username: 'test'
+          })
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('All fields are required');
+            done();
+          });
+      });
+    });
+    it('PUT /api/profile/user should return an error if profileImage is not provided', (done) => {
+      chai
+        .request(app)
+        .put('/api/profile/user')
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .field('username', 'crunchy')
+        .field('bio', '')
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.message).to.equal('profileImage field is required');
           done();
         });
     });

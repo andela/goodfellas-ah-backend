@@ -17,7 +17,9 @@ const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 
 const checkEmptyFields = (data) => {
   const emptyFields = {};
-  const missingFields = Object.keys(data).filter(field => (!data[field] || !/\S/.test(data[field])));
+  const missingFields = Object.keys(data).filter(
+    field => !data[field] || !/\S/.test(data[field])
+  );
 
   if (missingFields.length > 0) {
     emptyFields.status = true;
@@ -35,6 +37,7 @@ const checkFieldLength = (route, fields) => {
   if (route === 'signup' && fieldLength > 4) {
     return true;
   }
+
   return false;
 };
 
@@ -52,7 +55,9 @@ exports.validate = route => (req, res, next) => {
     return res.status(400).send({ message: 'Please enter a valid email' });
   }
   if (userDetails.password.length < 5) {
-    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+    return res
+      .status(400)
+      .send({ message: 'Passwords must be greater than four characters' });
   }
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });

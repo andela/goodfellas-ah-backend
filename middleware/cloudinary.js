@@ -8,6 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUD_APISECRET
 });
 
+// image upload middleware using cloudinary
 const imageUpload = (req, res, next) => {
   if (req.files.profileImage.type !== ('image/jpeg' || 'image/png')) {
     return res.status(400).json({
