@@ -11,9 +11,6 @@ const convertArgsToArray = mixedArgs => mixedArgs
 const validator = {
 // some validation rules, you can add more.
 // Return true if validation passes or error message on failure
-  required(inputField, field) {
-    return Boolean(inputField) || `${field} is required`;
-  },
   minLength(inputField, field, min) {
     return inputField && inputField.length >= min ? true : `${field} should have minimum of ${min} characters`;
   },
@@ -28,8 +25,14 @@ const validator = {
   validate(validationRules, userInput) {
     const error = Object.keys(validationRules)
       .map((field) => {
+        // trim input if specified and string
         if (validationRules[field].trim && typeof userInput[field] === 'string') userInput[field] = userInput[field].trim();
+        // if field is required and not provided, skip subsequent validations, return error
+        if (validationRules[field].required && !userInput[field]) return [`${field} is required`];
+        // if field is not provided, skip subsequent validations, return no error
+        if (!userInput[field]) return [true];
         return convertArgsToArray(validationRules[field].rules)
+        // call each rule
           .map(rule => this[rule[0]](
             userInput[field],
             field,
