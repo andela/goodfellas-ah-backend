@@ -1,7 +1,9 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
+import passport from 'passport';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
+import Strategy from '../lib/mockStrategy';
 
 chai.use(chaiHttp);
 
@@ -12,6 +14,19 @@ describe('Social Login Authentication', () => {
     resetDB();
 
     done();
+  });
+
+  // UNIT TESTS
+  describe('Mock passport strategy', () => {
+    it('should fail when strategy name is not declared', (done) => {
+      expect(() => passport.use(new Strategy('', () => {}))).to.throw(TypeError);
+      done();
+    });
+
+    it('should fail when strategy name is null', (done) => {
+      expect(() => passport.use(new Strategy(null, () => {}))).to.throw(TypeError);
+      done();
+    });
   });
 
   // GOOGLE SOCIAL AUTHENTICATION
