@@ -1,6 +1,5 @@
 // checking for undefined fields
 const undefinedFields = (req, res) => {
-  console.log(req.body)
   const { username, bio } = req.body;
 
   if (username === undefined || bio === undefined) {
