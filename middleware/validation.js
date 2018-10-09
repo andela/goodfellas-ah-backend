@@ -179,7 +179,7 @@ exports.validateForgotPassword = route => (req, res, next) => {
   next();
 };
 
-exports.findUserByToken = route => (req, res, next) => {
+exports.findUserByToken = (req, res, next) => {
   const { token } = req.query;
 
   if (!token) {
