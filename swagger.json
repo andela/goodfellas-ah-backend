@@ -18,27 +18,89 @@
   ],
   "schemes": ["https"],
   "paths": {
-    "/article": {
-      "get": {
-        "tags": ["Article"],
-        "summary": "Get an article",
-        "description": "Returns an article.",
-        "responses": {
-          "200": {
-            "description": "An article",
+    "/auth/google": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with google",
+        "description": "User can sign up and sign in for an account on the platform with their existing google account.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The details of a new user provided by google at the sign up and sign in page.",
+            "required": true,
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A new user was created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -46,43 +108,89 @@
         }
       }
     },
-    "/user": {
+    "/auth/facebook": {
       "post": {
-        "tags": ["User"],
-        "summary": "Register a user",
-        "description": "Returns an article.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with facebook",
+        "description": "User can sign up and sign in for an account on the platform with their existing facebook account.",
         "parameters": [
           {
-            "name": "email",
             "in": "body",
-            "description": "users email",
+            "name": "body",
+            "description": "The details of a new user provided by facebook at the sign up and sign in page.",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "description": "User's password",
-            "required": true,
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "A user",
+          "201": {
+            "description": "A new user was created",
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -136,6 +244,10 @@
         "email": {
           "type": "email",
           "description": "User email."
+        },
+        "account_type":{
+          "type": "string",
+          "description": "Platform with which the user joined the platform"
         },
         "created_at": {
           "type": "date",
