@@ -196,12 +196,30 @@ describe('Password reset controller', () => {
         });
     });
 
+
     // password fields must match
     it('Should fail when password fields do not match', (done) => {
       chai
         .request(app)
         .post(`/api/resetPassword?token=${resetToken}`)
         .send({
+          password: 'password',
+          confirm_password: 'password123',
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          done();
+        });
+    });
+
+
+    // there are so many field
+    it('Should fail when fields are more than required', (done) => {
+      chai
+        .request(app)
+        .post(`/api/resetPassword?token=${resetToken}`)
+        .send({
+          email: 'victor.ukafor@andela.com',
           password: 'password',
           confirm_password: 'password123',
         })
