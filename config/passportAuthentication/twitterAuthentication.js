@@ -30,16 +30,11 @@ const strategyCallback = async (token, tokenSecret, profile, done) => {
 
 // Configure the facebook passport strategy and pass the callback as an handler
 
-passport.use(
-  new TwitterTokenStrategy(
-    {
-      consumerKey: process.env.TWITTER_CLIENT_ID,
-      consumerSecret: process.env.TWITTER_CLIENT_SECRET,
-      includeEmail: true
-    },
-    strategyCallback
-  )
-);
+passport.use(new TwitterTokenStrategy({
+  consumerKey: process.env.TWITTER_CLIENT_ID,
+  consumerSecret: process.env.TWITTER_CLIENT_SECRET,
+  includeEmail: true
+}, strategyCallback));
 
 /* For testing purposes configure a mock strategy
 

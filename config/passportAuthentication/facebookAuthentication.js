@@ -29,15 +29,10 @@ const strategyCallback = async (accessToken, refreshToken, profile, done) => {
 
 // Configure the facebook passport strategy and pass the callback as an handler
 
-passport.use(
-  new FacebookTokenStrategy(
-    {
-      clientID: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET
-    },
-    strategyCallback
-  )
-);
+passport.use(new FacebookTokenStrategy({
+  clientID: process.env.FACEBOOK_CLIENT_ID,
+  clientSecret: process.env.FACEBOOK_CLIENT_SECRET
+}, strategyCallback));
 
 /* For testing purposes configure a mock strategy
 

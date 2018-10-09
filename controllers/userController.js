@@ -53,9 +53,6 @@ module.exports = {
     }
   },
   async socialAuth(req, res) {
-    // Extract username for profile purposes
-    const { username } = req.user;
-
     // Check if user exists
 
     const existingUser = await userHelper.findUser(req.user.email);
