@@ -95,7 +95,7 @@ describe('Profile controller', () => {
           .send({
             username: 'testname',
             bio: 'ddd',
-            extra1: 'juh',
+            extra1: 'juha',
             extra2: 'jj'
           })
           .end((err, res) => {
