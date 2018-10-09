@@ -196,6 +196,21 @@ describe('Password reset controller', () => {
         });
     });
 
+    // password fields must match
+    it('Should fail when password fields do not match', (done) => {
+      chai
+        .request(app)
+        .post(`/api/resetPassword?token=${resetToken}`)
+        .send({
+          password: 'password',
+          confirm_password: 'password123',
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          done();
+        });
+    });
+
     // sends email to registered user who forgot their password
     it('Should reset password when token is valid', (done) => {
       chai

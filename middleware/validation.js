@@ -3,7 +3,6 @@ const db = require('../models');
 
 const { User } = db;
 
-
 const generateErrorMessage = (missing) => {
   let errorString = 'Please fill the ';
   missing.forEach((field) => {
@@ -33,6 +32,9 @@ const checkEmptyFields = (data) => {
 const checkFieldLength = (route, fields) => {
   const fieldLength = Object.keys(fields).length;
 
+  if (route === 'resetPassword' && fieldLength > 2) {
+    return true;
+  }
   if (route === 'forgotPassword' && fieldLength > 1) {
     return true;
   }
@@ -134,6 +136,27 @@ exports.validateResetPassword = route => (req, res, next) => {
   next();
 };
 
+// middleware for validating passwords
+exports.validateResetPassword = route => (req, res, next) => {
+  const userDetails = req.body;
+  const tooManyFields = checkFieldLength(route, userDetails);
+  const emptyFields = checkEmptyFields(userDetails);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (userDetails.password.length < 5) {
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+  }
+  if (userDetails.password.length !== userDetails.confirm_password.length) {
+    return res.status(400).send({ message: 'Passwords do not match' });
+  }
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+  next();
+};
+
 // middleware for validating forgot password
 exports.validateForgotPassword = route => (req, res, next) => {
   const userDetails = req.body;
@@ -181,4 +204,3 @@ exports.findUserByToken = (req, res, next) => {
     next();
   });
 };
-
