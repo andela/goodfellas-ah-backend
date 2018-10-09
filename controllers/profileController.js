@@ -2,7 +2,7 @@
 const db = require('../models');
 const utility = require('../lib/utility');
 const profileSearch = require('../lib/profile');
-const validate = require('../middleware/profileValidation');
+const validate = require('../middleware/validation');
 const imageUploadHelper = require('../lib/utility');
 
 const { Profiles } = db;
@@ -14,9 +14,7 @@ module.exports = {
     });
   },
   updateProfile(req, res) {
-    validate.undefinedFields(req, res);
-    validate.emptyField(req, res);
-    validate.extraFields(req, res);
+    validate.profileValidation(req, res);
     const url = imageUploadHelper.imageUpload(req.files);
     const values = utility.trimValues(req.body);
     const { username, bio } = values;
