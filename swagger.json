@@ -197,6 +197,96 @@
           }
         }
       }
+    },
+    "/auth/twitter": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with Twitter",
+        "description": "User can sign up and sign in for an account on the platform with their existing Twitter account.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "The details of a new user provided by Twitter at the sign up and sign in page.",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "A new user was created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
