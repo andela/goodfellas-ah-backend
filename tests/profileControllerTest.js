@@ -95,7 +95,7 @@ describe('Profile controller', () => {
           .send({
             username: 'testname',
             bio: 'ddd',
-            extra1: 'juha',
+            profileImage: 'juha',
             extra2: 'jj'
           })
           .end((err, res) => {

@@ -13,23 +13,31 @@ module.exports = {
       userId: newUser.id
     });
   },
-  updateProfile(req, res) {
-    validate.profileValidation(req, res);
-    const url = imageUploadHelper.imageUpload(req.files);
-    const values = utility.trimValues(req.body);
-    const { username, bio } = values;
-    const { userID } = req;
+  async updateProfile(req, res) {
+    try {
+      validate.profileValidation(req, res);
+      const url = await imageUploadHelper.imageUpload(req.files);
+      const values = utility.trimValues(req.body);
+      const { username, bio } = values;
+      const { userID } = req;
 
-    Profiles.update(
-      {
-        username,
-        bio,
-        image: url
-      },
-      { returning: true, where: { userId: userID } }
-    )
-      .then(userProfile => res.status(200).send(userProfile))
-      .catch(error => res.status(400).send(error));
+      const userProfile = await Profiles.update(
+        {
+          username,
+          bio,
+          image: url
+        },
+        { returning: true, where: { userId: userID } }
+      );
+
+      res.status(200).send({
+        error: false,
+        message: 'Profile updated Successfully',
+        profile: userProfile
+      });
+    } catch (error) {
+      res.status(500).send(error);
+    }
   },
   async getProfile(req, res) {
     const { userId } = req.params;
