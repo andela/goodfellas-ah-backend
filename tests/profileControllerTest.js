@@ -2,8 +2,9 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-
 import { userDetail } from './signUpDetails';
+
+const imageUploadHelper = require('../lib/utility');
 
 chai.use(chaiHttp);
 let id;
@@ -105,5 +106,14 @@ describe('Profile controller', () => {
           });
       });
     });
+  });
+});
+
+// UNIT TESTS
+describe('Cloudinary image upload', () => {
+  it('the return object should not have a profileImage property since the path is missing', (done) => {
+    const url = imageUploadHelper.imageUpload();
+    expect(url).to.not.have.property('profileImage');
+    done();
   });
 });
