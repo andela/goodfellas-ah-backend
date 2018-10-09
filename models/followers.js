@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const UserRelationship = sequelize.define('UserRelationship', {
+  const FollowersTable = sequelize.define('FollowersTable', {
     followerId: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -9,17 +9,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     }
   }, {});
-  UserRelationship.associate = (models) => {
-    UserRelationship.belongsTo(models.User, {
+  FollowersTable.associate = (models) => {
+    FollowersTable.belongsTo(models.User, {
       foreignKey: 'followerId',
       sourceKey: 'followerId',
       onDelete: 'CASCADE',
     });
-    UserRelationship.belongsTo(models.User, {
+    FollowersTable.belongsTo(models.User, {
       foreignKey: 'followedId',
       sourceKey: 'followedId',
       onDelete: 'CASCADE',
     });
   };
-  return UserRelationship;
+  return FollowersTable;
 };

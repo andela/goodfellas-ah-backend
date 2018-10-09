@@ -2,7 +2,7 @@ const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
 
-const { User, UserRelationship } = db;
+const { User, FollowersTable } = db;
 
 module.exports = {
   async signup(req, res) {
@@ -54,29 +54,28 @@ module.exports = {
   },
   async follow(req, res) {
     const followerId = req.userId;
-    const followedId = req.body.userId;
+    const followedId = req.params.userId;
     try {
-      await userHelper.throwErrorIfFollowed(followerId, followedId);
-      const followUser = await UserRelationship.create({ followerId, followedId });
+      await userHelper.throwErrorOnBadRequest(followerId, followedId);
+      console.log(followedId, followerId);
+      const followUser = await FollowersTable.create({ followerId, followedId });
       res.status(201).send({
-        message: `User ${followUser.dataValues.followedId} followed successfully`
+        message: `You're now following ${followUser.dataValues.followedId}`
       });
     } catch (err) {
       res.status(500).send({
-        message: err.message === 'existingFollow'
-          ? 'You\'re already following this user'
-          : 'Internal server error'
+        message: err.message
       });
     }
   },
   async unfollow(req, res) {
     const followerId = req.userId;
-    const followedId = req.body.userId;
+    const followedId = req.params.userId;
     try {
-      const userUnfollow = await UserRelationship.destroy({ where: { followerId, followedId } });
+      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedId } });
       if (userUnfollow === 0) throw new Error('unExistingFollow');
       res.status(201).send({
-        message: `User ${followedId} unfollowed successfully`
+        message: `You unfollowed ${followedId}`
       });
     } catch (err) {
       res.status(500).send({
@@ -86,10 +85,10 @@ module.exports = {
       });
     }
   },
-  async followed(req, res) {
-    const { userId } = req;
+  async listOfFollowedUsers(req, res) {
+    const { userId } = req.params;
     try {
-      const followedUsers = await UserRelationship.findAll({
+      const followedUsers = await FollowersTable.findAll({
         where: { followerId: userId },
         attributes: { exclude: ['followerId'] }
       });
@@ -103,16 +102,16 @@ module.exports = {
       });
     }
   },
-  async followers(req, res) {
-    const { userId } = req;
+  async listOfFollowers(req, res) {
+    const { userId } = req.params;
     try {
-      const followedUsers = await UserRelationship.findAll({
+      const followers = await FollowersTable.findAll({
         where: { followedId: userId },
         attributes: { exclude: ['followedId'] }
       });
       res.status(200).send({
-        data: followedUsers,
-        message: 'Retrieved followed users'
+        data: followers,
+        message: 'Retrieved followers'
       });
     } catch (err) {
       res.status(500).send({
