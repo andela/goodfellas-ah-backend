@@ -1,17 +1,12 @@
 // checking for undefined fields
 const undefinedFields = (req, res) => {
+  console.log(req.body)
   const { username, bio } = req.body;
 
   if (username === undefined || bio === undefined) {
     return res.status(400).json({
       status: 'fail',
       message: 'All fields are required'
-    });
-  }
-  if (typeof req.files.profileImage === 'undefined') {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'profileImage field is required'
     });
   }
 };
@@ -30,8 +25,8 @@ const emptyField = (req, res) => {
 
 // checking for any unwanted field
 const extraFields = (req, res) => {
-  const fieldLength = Object.keys(req.body).length + Object.keys(req.files).length;
-  if (fieldLength !== 3) {
+  const fieldLength = Object.keys(req.body).length;
+  if (fieldLength !== 2) {
     return res.status(400).json({
       status: 'fail',
       message: 'Extra field(s) not required'

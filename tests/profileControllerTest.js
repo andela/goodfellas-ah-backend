@@ -69,5 +69,41 @@ describe('Profile controller', () => {
           });
       });
     });
+    describe('update profile', () => {
+      it('PUT /api/user/profile should return an error if the profile image field is undefined', (done) => {
+        chai
+          .request(app)
+          .put('/api/user/profile')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send({
+            username: 'test',
+            bio: '',
+          })
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('Fields cannot be empty');
+            done();
+          });
+      });
+    });
+    describe('update profile', () => {
+      it('PUT /api/user/profile should return an error if the there are extra fields', (done) => {
+        chai
+          .request(app)
+          .put('/api/user/profile')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send({
+            username: 'test',
+            bio: 'ddd',
+            extra1: 'juh',
+            extra2: 'jj'
+          })
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('Extra field(s) not required');
+            done();
+          });
+      });
+    });
   });
 });
