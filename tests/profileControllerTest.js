@@ -93,7 +93,7 @@ describe('Profile controller', () => {
           .put('/api/user/profile')
           .set({ authorization: testToken, Accept: 'application/json' })
           .send({
-            username: 'test',
+            username: 'testname',
             bio: 'ddd',
             extra1: 'juh',
             extra2: 'jj'
