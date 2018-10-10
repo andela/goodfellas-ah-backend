@@ -53,6 +53,7 @@ module.exports = {
     }
   },
   async socialAuth(req, res) {
+    console.log(req.user);
     // Check if user exists
 
     const existingUser = await userHelper.findUser(req.user.email);

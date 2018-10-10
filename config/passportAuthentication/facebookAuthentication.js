@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import passport from 'passport';
-import FacebookTokenStrategy from 'passport-facebook-token';
+import FacebookTokenStrategy from 'passport-facebook';
 
 import MockedStrategy from '../../lib/mockStrategy';
 
@@ -12,6 +12,7 @@ let strategy;
 
 // Define callback to be passed to successful strategies
 const strategyCallback = async (accessToken, refreshToken, profile, done) => {
+  console.log(accessToken, profile);
   // Get access to the user details and send it to the controller
   try {
     const user = {
@@ -31,7 +32,9 @@ const strategyCallback = async (accessToken, refreshToken, profile, done) => {
 
 passport.use(new FacebookTokenStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
-  clientSecret: process.env.FACEBOOK_CLIENT_SECRET
+  clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+  profileFields: ['id', 'name', 'displayName', 'email'],
+  callbackURL: 'https://aa9f858f.ngrok.io/api/auth/facebook/callback'
 }, strategyCallback));
 
 /* For testing purposes configure a mock strategy
@@ -40,13 +43,13 @@ These articles guided in implementing the mock strategy
 https://gist.github.com/mweibel/5219403
 https://medium.com/chingu/mocking-passport-githubstrategy-for-functional-testing-33e7ed4f9aa3
 */
-passport.use(new MockedStrategy('facebook', strategyCallback));
+passport.use(new MockedStrategy('facebook-test', strategyCallback));
 
 // Configure which strategy gets used based on the environment
 if (process.env.NODE_ENV === 'test') {
-  strategy = 'facebook';
+  strategy = 'facebook-test';
 } else {
-  strategy = 'facebook-token';
+  strategy = 'facebook';
 }
 
 module.exports = strategy;

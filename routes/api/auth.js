@@ -10,8 +10,11 @@ const twitterStrategy = require('../../config/passportAuthentication/twitterAuth
 
 router.post('/auth/signup', validate('signup'), userController.signup);
 router.post('/auth/signin', validate('signin'), userController.signin);
-router.post('/auth/google', passport.authenticate(googleStrategy, { session: false }), userController.socialAuth);
-router.post('/auth/facebook', passport.authenticate(facebookStrategy, { session: false }), userController.socialAuth);
-router.post('/auth/twitter', passport.authenticate(twitterStrategy, { session: false }), userController.socialAuth);
+router.get('/auth/facebook', passport.authenticate(facebookStrategy, { scope: ['email'] }));
+router.get('/auth/facebook/callback', passport.authenticate(facebookStrategy, { session: false }), userController.socialAuth);
+router.get('/auth/google', passport.authenticate(googleStrategy, { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', passport.authenticate(googleStrategy, { session: false }), userController.socialAuth);
+router.get('/auth/twitter', passport.authenticate(twitterStrategy, { scope: ['include_email=true', 'include_entities=false'] }));
+router.get('/auth/twitter/callback', passport.authenticate(twitterStrategy, { session: false }), userController.socialAuth);
 
 module.exports = router;
