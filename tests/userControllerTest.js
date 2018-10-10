@@ -261,7 +261,7 @@ describe('User controller', () => {
         .send();
 
       expect(response.status).to.equal(201);
-      expect(response.body.message).to.equal(`You're now following ${userBId}`);
+      expect(response.body.message).to.equal(`You're now following ${userBDetails.firstname} ${userBDetails.lastname}`);
     });
     it('should return error on attempt to follow the same user twice', async () => {
       await chai
@@ -275,7 +275,7 @@ describe('User controller', () => {
         .set('authorization', userAToken)
         .send();
 
-      expect(response.status).to.equal(500);
+      expect(response.status).to.equal(400);
       expect(response.body.message).to.equal('Error: You\'re already following this user');
     });
     it('should return error on attempt to follow oneself', async () => {
@@ -285,7 +285,7 @@ describe('User controller', () => {
         .set('authorization', userBToken)
         .send();
 
-      expect(response.status).to.equal(500);
+      expect(response.status).to.equal(400);
       expect(response.body.message).to.equal('Error: You cannot follow yourself');
     });
     it('should return error if token is compromised', async () => {
@@ -311,6 +311,7 @@ describe('User controller', () => {
   describe('DELETE /user/follow/:userId', () => {
     let userAToken;
     let userBId;
+    let userCId;
     beforeEach('add users to db, userA follow userB before each test', async () => {
       const userASignUp = await chai
         .request(app)
@@ -320,8 +321,14 @@ describe('User controller', () => {
         .request(app)
         .post(`${rootUrl}/auth/signup`)
         .send(userBDetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userCDetails);
       const userB = await User.findOne({ where: { email: userBDetails.email } });
+      const userC = await User.findOne({ where: { email: userCDetails.email } });
       userBId = userB.dataValues.id;
+      userCId = userC.dataValues.id;
       userAToken = userASignUp.body.token;
       await chai
         .request(app)
@@ -339,17 +346,27 @@ describe('User controller', () => {
         .send({ userId: userBId });
 
       expect(response.status).to.equal(201);
-      expect(response.body.message).to.equal(`You unfollowed ${userBId}`);
+      expect(response.body.message).to.equal(`You unfollowed ${userBDetails.firstname} ${userBDetails.lastname}`);
     });
-    it('should return error if specified user is not currently followed', async () => {
+    it('should return error if specified user does not exist', async () => {
       const response = await chai
         .request(app)
         .delete(`${rootUrl}/user/follow/${userBId + 3}`)
         .set('authorization', userAToken)
         .send();
 
-      expect(response.status).to.equal(500);
-      expect(response.body.message).to.equal('You\'re not following this user, no need to unfollow');
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal('Error: User doen\'t exist');
+    });
+    it('should return error if specified user is not currently followed', async () => {
+      const response = await chai
+        .request(app)
+        .delete(`${rootUrl}/user/follow/${userCId}`)
+        .set('authorization', userAToken)
+        .send();
+
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal('You\'re not following this user');
     });
     it('should return error if token is compromised', async () => {
       const response = await chai
@@ -381,14 +398,14 @@ describe('User controller', () => {
         .request(app)
         .post(`${rootUrl}/auth/signup`)
         .send(userADetails);
-      await chai
-        .request(app)
-        .post(`${rootUrl}/auth/signup`)
-        .send(userBDetails);
       const userCSignUp = await chai
         .request(app)
         .post(`${rootUrl}/auth/signup`)
         .send(userCDetails);
+      await chai
+        .request(app)
+        .post(`${rootUrl}/auth/signup`)
+        .send(userBDetails);
       const userB = await User.findOne({ where: { email: userBDetails.email } });
       const userC = await User.findOne({ where: { email: userCDetails.email } });
       userCId = userC.dataValues.id;
@@ -410,8 +427,11 @@ describe('User controller', () => {
         .set('authorization', userAToken)
         .send();
       expect(response.status).to.equal(200);
-      expect(response.body.data).to.be.an('array');
-      expect(response.body.data).to.have.length(1);
+      expect(response.body.data).to.be.an('object');
+      expect(response.body.data).to.have.property('followedUsers');
+      expect(response.body.data).to.include({
+        followedUsersCount: 1
+      });
       expect(response.body.message).to.equal('Retrieved followed users');
     });
     it('should return error if token is compromised', async () => {
@@ -474,9 +494,13 @@ describe('User controller', () => {
         .get(`${rootUrl}/user/followers/${userCId}`)
         .set('authorization', userAToken)
         .send();
+
       expect(response.status).to.equal(200);
-      expect(response.body.data).to.be.an('array');
-      expect(response.body.data).to.have.length(2);
+      expect(response.body.data).to.be.an('object');
+      expect(response.body.data).to.have.property('followers');
+      expect(response.body.data).to.include({
+        followersCount: 2
+      });
       expect(response.body.message).to.equal('Retrieved followers');
     });
     it('should return error if token is compromised', async () => {
@@ -499,66 +523,4 @@ describe('User controller', () => {
       expect(response.body.message).to.equal('Unauthorized request, please login');
     });
   });
-  // describe('GET /user/followers/:id', () => {
-  //   let userAToken;
-  //   let userBToken;
-  //   let userAId;
-  //   let userBId;
-  //   beforeEach('add users to db, userB follow userB before each test', async () => {
-  //     const userASignUp = await chai
-  //       .request(app)
-  //       .post(`${rootUrl}/auth/signup`)
-  //       .send(userADetails);
-  //     const userBSignUp = await chai
-  //       .request(app)
-  //       .post(`${rootUrl}/auth/signup`)
-  //       .send(userBDetails);
-  //     const userA = await User.findOne({ where: { email: userADetails.email } });
-  //     const userB = await User.findOne({ where: { email: userBDetails.email } });
-  //     userAId = userA.dataValues.id;
-  //     userBId = userB.dataValues.id;
-  //     userAToken = userASignUp.body.token;
-  //     userBToken = userBSignUp.body.token;
-
-  //     await chai
-  //       .request(app)
-  //       .delete(`${rootUrl}/user/follow/${userBId}`)
-  //       .set('authorization', userAToken)
-  //       .send();
-  //   });
-  //   afterEach('Reset database after each test', async () => resetDB());
-
-  //   it('should return users that currently follow userB', async () => {
-  //     const response = await chai
-  //       .request(app)
-  //       .get(`${rootUrl}/user/followers/${userBId}`)
-  //       .set('authorization', userAToken)
-  //       .send();
-
-  //     expect(response.status).to.equal(200);
-  //     expect(response.body.data).to.be.an('array');
-  //     expect(response.body.data).to.have.length(1);
-  //     expect(response.body.data[0].followerId).to.equal(userBId);
-  //     expect(response.body.message).to.equal('Retrieved followed users');
-  //   });
-  //   it('should return error if token is compromised', async () => {
-  //     const response = await chai
-  //       .request(app)
-  //       .get(`${rootUrl}/user/follow/${userBId}`)
-  //       .set('authorization', 'userATokenIsNowCompromisedThisShouldReturnAnError')
-  //       .send();
-
-  //     expect(response).to.have.status(401);
-  //     expect(response.body.message).to.equal('jwt malformed');
-  //   });
-  //   it('should return error if token is not given', async () => {
-  //     const response = await chai
-  //       .request(app)
-  //       .get(`${rootUrl}/user/follow/${userBId}`)
-  //       .send();
-
-  //     expect(response).to.have.status(401);
-  //     expect(response.body.message).to.equal('Unauthorized request, please login');
-  //   });
-  // });
 });

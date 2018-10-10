@@ -17,14 +17,14 @@ module.exports = {
         as: 'followerId',
       },
     },
-    followedId: {
+    followedUserId: {
       type: Sequelize.INTEGER,
       allowNull: false,
       onDelete: 'CASCADE',
       references: {
         model: 'Users',
         key: 'id',
-        as: 'followedId',
+        as: 'followedUserId',
       },
     },
     createdAt: {

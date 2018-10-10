@@ -54,68 +54,91 @@ module.exports = {
   },
   async follow(req, res) {
     const followerId = req.userId;
-    const followedId = req.params.userId;
+    const followedUserId = req.params.userId;
     try {
-      await userHelper.throwErrorOnBadRequest(followerId, followedId);
-      console.log(followedId, followerId);
-      const followUser = await FollowersTable.create({ followerId, followedId });
+      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
+      await userHelper.throwErrorOnBadRequest(followerId, followedUserId);
+      await FollowersTable.create({ followerId, followedUserId });
       res.status(201).send({
-        message: `You're now following ${followUser.dataValues.followedId}`
+        message: `You're now following ${user.dataValues.firstname} ${user.dataValues.lastname}`
       });
     } catch (err) {
-      res.status(500).send({
+      res.status(400).send({
         message: err.message
       });
     }
   },
   async unfollow(req, res) {
     const followerId = req.userId;
-    const followedId = req.params.userId;
+    const followedUserId = req.params.userId;
     try {
-      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedId } });
-      if (userUnfollow === 0) throw new Error('unExistingFollow');
+      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
+      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
+      if (userUnfollow === 0) throw new Error('You\'re not following this user');
       res.status(201).send({
-        message: `You unfollowed ${followedId}`
+        message: `You unfollowed ${user.dataValues.firstname} ${user.dataValues.lastname}`
       });
     } catch (err) {
-      res.status(500).send({
-        message: err.message === 'unExistingFollow'
-          ? 'You\'re not following this user, no need to unfollow'
-          : 'Internal server error'
+      res.status(400).send({
+        message: err.message
       });
     }
   },
   async listOfFollowedUsers(req, res) {
     const { userId } = req.params;
     try {
-      const followedUsers = await FollowersTable.findAll({
+      await userHelper.throwErrorOnNonExistingUser(userId);
+      const followedUsers = await FollowersTable.findAndCountAll({
         where: { followerId: userId },
-        attributes: { exclude: ['followerId'] }
+        attributes: { exclude: ['followerId', 'followedUserId'] },
+        include: {
+          model: User,
+          as: 'followedUser',
+          attributes: {
+            include: [['id', 'userId']],
+            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
+          }
+        }
       });
       res.status(200).send({
-        data: followedUsers,
+        data: {
+          followedUsers: followedUsers.rows,
+          followedUsersCount: followedUsers.count
+        },
         message: 'Retrieved followed users'
       });
     } catch (err) {
-      res.status(500).send({
-        message: 'Internal server error'
+      res.status(400).send({
+        message: err.message
       });
     }
   },
   async listOfFollowers(req, res) {
     const { userId } = req.params;
     try {
-      const followers = await FollowersTable.findAll({
-        where: { followedId: userId },
-        attributes: { exclude: ['followedId'] }
+      await userHelper.throwErrorOnNonExistingUser(userId);
+      const followers = await FollowersTable.findAndCountAll({
+        where: { followedUserId: userId },
+        attributes: { exclude: ['followedUserId'] },
+        include: {
+          model: User,
+          as: 'follower',
+          attributes: {
+            include: [['id', 'userId']],
+            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
+          }
+        }
       });
       res.status(200).send({
-        data: followers,
+        data: {
+          followers: followers.rows,
+          followersCount: followers.count
+        },
         message: 'Retrieved followers'
       });
     } catch (err) {
-      res.status(500).send({
-        message: 'Internal server error'
+      res.status(400).send({
+        message: err.message
       });
     }
   },

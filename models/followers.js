@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    followedId: {
+    followedUserId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
@@ -13,11 +13,13 @@ module.exports = (sequelize, DataTypes) => {
     FollowersTable.belongsTo(models.User, {
       foreignKey: 'followerId',
       sourceKey: 'followerId',
+      as: 'follower',
       onDelete: 'CASCADE',
     });
     FollowersTable.belongsTo(models.User, {
-      foreignKey: 'followedId',
-      sourceKey: 'followedId',
+      foreignKey: 'followedUserId',
+      sourceKey: 'followedUserId',
+      as: 'followedUser',
       onDelete: 'CASCADE',
     });
   };
