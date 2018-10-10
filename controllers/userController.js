@@ -3,7 +3,6 @@ const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
 const profileController = require('../controllers/profileController');
-const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 
