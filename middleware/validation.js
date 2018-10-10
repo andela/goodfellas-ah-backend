@@ -116,63 +116,34 @@ exports.validate = route => (req, res, next) => {
 
 
 // middleware for validating passwords
-exports.validateResetPassword = route => (req, res, next) => {
-  const userDetails = req.body;
-  const tooManyFields = checkFieldLength(route, userDetails);
-  const emptyFields = checkEmptyFields(userDetails);
+exports.validateResetPassword = (req, res, next) => {
+  const emptyFields = checkEmptyFields(req.body);
 
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
   }
-  if (userDetails.password.length < 5) {
+  if (req.body.password.length < 5) {
     return res.status(400).send({ message: 'Passwords must be greater than four characters' });
   }
-  if (userDetails.password.length !== userDetails.confirm_password.length) {
+  if (req.body.password.length !== req.body.confirm_password.length) {
     return res.status(400).send({ message: 'Passwords do not match' });
   }
-  if (tooManyFields) {
-    return res.status(400).send({ message: 'Too many fields' });
-  }
+
   next();
 };
 
-// middleware for validating passwords
-exports.validateResetPassword = route => (req, res, next) => {
-  const userDetails = req.body;
-  const tooManyFields = checkFieldLength(route, userDetails);
-  const emptyFields = checkEmptyFields(userDetails);
-
-  if (emptyFields.status) {
-    return res.status(400).send({ message: emptyFields.message });
-  }
-  if (userDetails.password.length < 5) {
-    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
-  }
-  if (userDetails.password.length !== userDetails.confirm_password.length) {
-    return res.status(400).send({ message: 'Passwords do not match' });
-  }
-  if (tooManyFields) {
-    return res.status(400).send({ message: 'Too many fields' });
-  }
-  next();
-};
 
 // middleware for validating forgot password
-exports.validateForgotPassword = route => (req, res, next) => {
-  const userDetails = req.body;
-  const tooManyFields = checkFieldLength(route, userDetails);
-  const validEmail = checkValidEmail(userDetails.email);
-  const emptyFields = checkEmptyFields(userDetails);
+exports.validateForgotPassword = (req, res, next) => {
+  const isEmailValid = checkValidEmail(req.body.email);
+  const emptyFields = checkEmptyFields(req.body);
 
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
   }
 
-  if (!validEmail) {
-    return res.status(400).send({ message: 'Please enter a valid email' });
-  }
-  if (tooManyFields) {
-    return res.status(400).send({ message: 'Too many fields' });
+  if (!isEmailValid) {
+    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
   }
 
   req.email = req.body.email.trim();

@@ -5,14 +5,14 @@ const { validateForgotPassword, findUserByToken, validateResetPassword } = requi
 // forgot password
 router.post(
   '/forgotPassword',
-  validateForgotPassword('forgotPassword'),
+  validateForgotPassword,
   userController.forgotPassword
 );
 
 // reset password
 router.post(
   '/resetPassword',
-  validateResetPassword('resetPassword'),
+  validateResetPassword,
   findUserByToken, userController.resetPassword
 );
 

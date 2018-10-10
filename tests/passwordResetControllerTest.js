@@ -33,7 +33,6 @@ describe('Password reset controller', () => {
       });
   });
 
-  console.log('loooooog', resetToken);
 
   after((done) => {
     resetDB();
@@ -42,7 +41,7 @@ describe('Password reset controller', () => {
 
   describe('Sends email for password reset', () => {
     // Returns an error message when enail is not entered
-    it('Should return error when email is entered', (done) => {
+    it('Should return error when email is not entered', (done) => {
       chai
         .request(app)
         .post('/api/forgotPassword')
@@ -81,23 +80,7 @@ describe('Password reset controller', () => {
         })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal('Please enter a valid email');
-          done();
-        });
-    });
-
-    // fields are more than reqiured
-    it('Should fail when fields are more than required', (done) => {
-      chai
-        .request(app)
-        .post('/api/forgotPassword')
-        .send({
-          email: 'goodfellascohort40@gmail.com',
-          password: 'password'
-        })
-        .end((err, res) => {
-          expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal('Too many fields');
+          expect(res.body.message).to.equal('You\'ve entered an invalid email');
           done();
         });
     });
@@ -135,6 +118,38 @@ describe('Password reset controller', () => {
         });
     });
 
+    // Should return error when token is not found
+    it('Should return error when token is not found', (done) => {
+      chai
+        .request(app)
+        .post('/api/resetPassword')
+        .send({
+          password: 'password',
+          confirm_password: 'password'
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('An account can not be found');
+          done();
+        });
+    });
+
+
+    // passwords must be entered
+    it('Should fail when passwords are not entered', (done) => {
+      chai
+        .request(app)
+        .post(`/api/resetPassword?token=${resetToken}`)
+        .send({
+          password: '',
+          confirm_password: '',
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          done();
+        });
+    });
+
     // password must be filled
     it('Should fail when password is not passed', (done) => {
       chai
@@ -143,6 +158,21 @@ describe('Password reset controller', () => {
         .send({
           password: '',
           confirm_password: 'password123',
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          done();
+        });
+    });
+
+    // conirm_password must be filled
+    it('Should fail when confirm password is not passed', (done) => {
+      chai
+        .request(app)
+        .post(`/api/resetPassword?token=${resetToken}`)
+        .send({
+          password: 'password',
+          confirm_password: '',
         })
         .end((err, res) => {
           expect(res.status).to.equal(400);
@@ -181,56 +211,6 @@ describe('Password reset controller', () => {
         });
     });
 
-
-    // there are so many field
-    it('Should fail when fields are more than required', (done) => {
-      chai
-        .request(app)
-        .post(`/api/resetPassword?token=${resetToken}`)
-        .send({
-          email: 'victor.ukafor@andela.com',
-          password: 'password',
-          confirm_password: 'password123',
-        })
-        .end((err, res) => {
-          expect(res.status).to.equal(400);
-          done();
-        });
-    });
-
-
-    // password fields must match
-    it('Should fail when password fields do not match', (done) => {
-      chai
-        .request(app)
-        .post(`/api/resetPassword?token=${resetToken}`)
-        .send({
-          password: 'password',
-          confirm_password: 'password123',
-        })
-        .end((err, res) => {
-          expect(res.status).to.equal(400);
-          done();
-        });
-    });
-
-
-    // there are so many field
-    it('Should fail when fields are more than required', (done) => {
-      chai
-        .request(app)
-        .post(`/api/resetPassword?token=${resetToken}`)
-        .send({
-          email: 'victor.ukafor@andela.com',
-          password: 'password',
-          confirm_password: 'password123',
-        })
-        .end((err, res) => {
-          expect(res.status).to.equal(400);
-          done();
-        });
-    });
-
     // sends email to registered user who forgot their password
     it('Should reset password when token is valid', (done) => {
       chai
@@ -242,6 +222,21 @@ describe('Password reset controller', () => {
         })
         .end((err, res) => {
           expect(res.status).to.equal(200);
+          done();
+        });
+    });
+
+    // email can only be reset once with one token
+    it('Should return false when token is used again', (done) => {
+      chai
+        .request(app)
+        .post(`/api/resetPassword?token=${resetToken}`)
+        .send({
+          password: 'password',
+          confirm_password: 'password',
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
           done();
         });
     });
