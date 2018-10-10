@@ -1,5 +1,9 @@
 import {
-  createArticle, modifyArticle, deleteArticle, getAllArticles, getAnArticle
+  createArticle,
+  modifyArticle,
+  deleteArticle,
+  getAllArticles,
+  getAnArticle
 } from '../../controllers/articleController';
 import authenticate from '../../middleware/authentication';
 import { checkNullInput } from '../../middleware/validation';
