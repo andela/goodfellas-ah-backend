@@ -13,7 +13,6 @@ let strategy;
 // Define callback to be passed to successful strategies
 const strategyCallback = async (token, tokenSecret, profile, done) => {
   // Get access to the user details and send it to the controller
-  console.log(profile);
   try {
     const user = {
       firstName: '',

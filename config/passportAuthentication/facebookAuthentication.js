@@ -12,7 +12,6 @@ let strategy;
 
 // Define callback to be passed to successful strategies
 const strategyCallback = async (accessToken, refreshToken, profile, done) => {
-  console.log(accessToken, profile);
   // Get access to the user details and send it to the controller
   try {
     const user = {
