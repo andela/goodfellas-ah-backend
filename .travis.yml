@@ -12,6 +12,9 @@ env:
   - SECRET=a7qsdtbwecawq
   - EMAIL=goodfellascohort40@gmail.com
   - EMAIL_PASSWORD=andela_cohort40
+  - CLOUD_NAME="drmmqcxkc"
+  - CLOUD_APIKEY="657175248381499"
+  - CLOUD_APISECRET="CRyA-b_t63WwPxDuWJZUCRCiz9E"
 before_script:
   - npm install
   - psql -c 'drop database if exists test_db;' -U postgres

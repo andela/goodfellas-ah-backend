@@ -18,7 +18,7 @@ describe('Articles controller', () => {
         email: 'anthonyugwu@gmail.com',
         password: 'myPassword'
       })
-      .end(() => {
+      .end((err, res) => {
         const { token } = res.body;
         testToken = token;
         done();
@@ -57,4 +57,3 @@ describe('Articles controller', () => {
     });
   });
 });
-

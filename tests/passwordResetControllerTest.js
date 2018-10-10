@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 let resetToken;
 
 describe('Password reset controller', () => {
-  beforeEach((done) => {
+  before((done) => {
     chai
       .request(app)
       .post('/api/auth/signup')
@@ -32,6 +32,8 @@ describe('Password reset controller', () => {
           });
       });
   });
+
+  console.log('loooooog', resetToken);
 
   after((done) => {
     resetDB();

@@ -2,9 +2,8 @@ const jwt = require('jsonwebtoken');
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
-const profileController = require('../controllers/profileController');
 require('dotenv').config();
-
+const profileController = require('../controllers/profileController');
 
 const { User } = db;
 
@@ -109,5 +108,4 @@ module.exports = {
       return res.status(500).send({ message: 'Internal server error' });
     });
   },
-
 };
