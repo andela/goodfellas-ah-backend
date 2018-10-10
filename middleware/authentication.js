@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
+require('dotenv').config();
 
 module.exports = (req, res, next) => {
   const token = req.headers.authorization;
   if (token) {
-    jwt.verify(token, config.secret, (error, decoded) => {
+    jwt.verify(token, process.env.SECRET, (error, decoded) => {
       if (error) {
         res.status(401).send({ message: error.message });
       } else {
@@ -13,6 +13,8 @@ module.exports = (req, res, next) => {
       }
     });
   } else {
-    return res.status(401).send({ message: 'Unauthorized request, please login' });
+    return res
+      .status(401)
+      .send({ message: 'Unauthorized request, please login' });
   }
 };
