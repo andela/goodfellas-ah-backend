@@ -31,6 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  Profiles.associate = () => {};
+  Profiles.associate = (models) => {
+    Profiles.hasMany(models.Articles, { as: 'article', foreignKey: 'authorId' });
+  };
   return Profiles;
 };

@@ -78,6 +78,50 @@ exports.profileValidation = (req, res) => {
   extraFields(req, res);
 };
 
+const alphaNumeric = (inputTxt) => {
+  const letterNumber = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i;
+  if (inputTxt.match(letterNumber)) {
+    return true;
+  }
+  return false;
+};
+
+exports.checkNullInput = (req, res, next) => {
+  let isUndefined = false;
+  let isNull = false;
+  let isString = true;
+  const {
+    title,
+    description,
+    body
+  } = req.body;
+  [title, description, body].forEach((field) => {
+    if (field === undefined) {
+      isUndefined = true;
+    }
+    if (!isUndefined && !alphaNumeric(field)) {
+      if (Number.isInteger(parseFloat(field))) {
+        isString = false;
+      }
+    }
+    if (!isUndefined) {
+      if (field.trim().length < 1) {
+        isNull = true;
+      }
+    }
+  });
+  if (isUndefined) {
+    return res.status(400).send({ error: 'Invalid Input' });
+  }
+  if (isNull) {
+    return res.status(400).send({ error: 'A field does not contain any input' });
+  }
+  if (!isString) {
+    return res.status(400).send({ error: 'Input cannot be numbers only!' });
+  }
+  return next();
+};
+
 exports.validate = route => (req, res, next) => {
   const userDetails = req.body;
   const tooManyFields = checkFieldLength(route, userDetails);

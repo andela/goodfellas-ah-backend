@@ -1,9 +1,16 @@
+import {
+  createArticle, modifyArticle, deleteArticle, getAllArticles, getAnArticle
+} from '../../controllers/articleController';
+import authenticate from '../../middleware/authentication';
+import { checkNullInput } from '../../middleware/validation';
+
 const router = require('express').Router();
 
-const authenticate = require('../../middleware/authentication');
+router.post('/articles', authenticate, checkNullInput, createArticle);
+router.put('/articles/:articleId', authenticate, checkNullInput, modifyArticle);
+router.delete('/articles/:articleId', authenticate, deleteArticle);
+router.get('/articles', authenticate, getAllArticles);
+router.get('/articles/:articleId', authenticate, getAnArticle);
 
-router.get('/articles', authenticate, (req, res) => {
-  res.send({ message: 'All Articles Retrieved Successfully' });
-});
 
-module.exports = router;
+export default router;
