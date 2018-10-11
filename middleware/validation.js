@@ -1,3 +1,8 @@
+const operator = require('sequelize').Op;
+const db = require('../models');
+
+const { User } = db;
+
 const generateErrorMessage = (missing) => {
   let errorString = 'Please fill the ';
   missing.forEach((field) => {
@@ -78,6 +83,7 @@ exports.profileValidation = (req, res) => {
   extraFields(req, res);
 };
 
+// middleware for validating signup fields
 exports.validate = route => (req, res, next) => {
   const userDetails = req.body;
   const tooManyFields = checkFieldLength(route, userDetails);
@@ -100,4 +106,66 @@ exports.validate = route => (req, res, next) => {
     return res.status(400).send({ message: 'Too many fields' });
   }
   next();
+};
+
+
+// middleware for validating passwords
+exports.validateResetPassword = (req, res, next) => {
+  const emptyFields = checkEmptyFields(req.body);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (req.body.password.length < 5) {
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+  }
+  if (req.body.password.length !== req.body.confirm_password.length) {
+    return res.status(400).send({ message: 'Passwords do not match' });
+  }
+
+  next();
+};
+
+
+// middleware for validating forgot password
+exports.validateForgotPassword = (req, res, next) => {
+  const isEmailValid = checkValidEmail(req.body.email);
+  const emptyFields = checkEmptyFields(req.body);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (!isEmailValid) {
+    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
+  }
+
+  req.email = req.body.email.trim();
+  next();
+};
+
+exports.findUserByToken = (req, res, next) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(404).send({
+      message: 'An account can not be found'
+    });
+  }
+
+  return User.findOne({
+    where: {
+      password_reset_token: token,
+      password_reset_time: { [operator.gt]: Date.now() }
+    }
+  }).then((user) => {
+    if (!user) {
+      return res.status(404).send({
+        message: 'An account can not be found'
+      });
+    }
+
+    req.user = user;
+    next();
+  });
 };

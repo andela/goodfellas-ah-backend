@@ -19,12 +19,12 @@ describe('Social Login Authentication', () => {
   // UNIT TESTS
   describe('Mock passport strategy', () => {
     it('should fail when strategy name is not declared', (done) => {
-      expect(() => passport.use(new Strategy('', () => {}))).to.throw(TypeError);
+      expect(() => passport.use(new Strategy('', () => { }))).to.throw('DevStrategy requires a Strategy name');
       done();
     });
 
     it('should fail when strategy name is null', (done) => {
-      expect(() => passport.use(new Strategy(null, () => {}))).to.throw(TypeError);
+      expect(() => passport.use(new Strategy(null, () => { }))).to.throw('Authentication strategies must have a name');
       done();
     });
   });
@@ -39,7 +39,7 @@ describe('Social Login Authentication', () => {
         .end((err, res) => {
           jwtToken = res.body.token;
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('Successfully created your account');
+          expect(res.body.message).to.equal('User created Successfully');
           expect(res.body.token).to.be.a('string');
           done();
         });
@@ -148,7 +148,7 @@ describe('Social Login Authentication', () => {
         .end((err, res) => {
           jwtToken = res.body.token;
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('Successfully created your account');
+          expect(res.body.message).to.equal('User created Successfully');
           expect(res.body.token).to.be.a('string');
           done();
         });
@@ -256,7 +256,7 @@ describe('Social Login Authentication', () => {
         .end((err, res) => {
           jwtToken = res.body.token;
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('Successfully created your account');
+          expect(res.body.message).to.equal('User created Successfully');
           expect(res.body.token).to.be.a('string');
           done();
         });
