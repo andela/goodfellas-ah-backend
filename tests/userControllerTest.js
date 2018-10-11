@@ -434,10 +434,20 @@ describe('User controller', () => {
       });
       expect(response.body.message).to.equal('Retrieved followed users');
     });
+    it('should return error if specified user does not exist', async () => {
+      const response = await chai
+        .request(app)
+        .get(`${rootUrl}/user/followed/${userBId + 3}`)
+        .set('authorization', userAToken)
+        .send();
+
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal('Error: User doen\'t exist');
+    });
     it('should return error if token is compromised', async () => {
       const response = await chai
         .request(app)
-        .get(`${rootUrl}/user/followers/${userCId}`)
+        .get(`${rootUrl}/user/followed/${userCId}`)
         .set('authorization', 'userTokenHasBeenCompromised')
         .send();
 
@@ -447,7 +457,7 @@ describe('User controller', () => {
     it('should return error if token is not given', async () => {
       const response = await chai
         .request(app)
-        .get(`${rootUrl}/user/followers/${userCId}`)
+        .get(`${rootUrl}/user/followed/${userCId}`)
         .send();
 
       expect(response).to.have.status(401);
@@ -502,6 +512,15 @@ describe('User controller', () => {
         followersCount: 2
       });
       expect(response.body.message).to.equal('Retrieved followers');
+    });
+    it('should return error if specified user does not exist', async () => {
+      const response = await chai
+        .request(app)
+        .get(`${rootUrl}/user/followed/${userCId + 3}`)
+        .set('authorization', userAToken)
+        .send();
+      expect(response.status).to.equal(400);
+      expect(response.body.message).to.equal('Error: User doen\'t exist');
     });
     it('should return error if token is compromised', async () => {
       const response = await chai
