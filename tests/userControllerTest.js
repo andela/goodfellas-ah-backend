@@ -18,7 +18,12 @@ describe('Authentication controller', () => {
       chai
         .request(app)
         .post('/api/auth/signup')
-        .send(userDetail)
+        .send({
+          firstname: 'Anthony',
+          lastname: 'Ugwu',
+          email: 'goodfellas@gmail.com',
+          password: 'password'
+        })
         .end((err, res) => {
           expect(res.status).to.equal(201);
           expect(res.body.token).to.be.a('string');

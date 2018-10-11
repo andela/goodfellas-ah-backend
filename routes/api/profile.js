@@ -1,7 +1,8 @@
 import multiparty from 'connect-multiparty';
 
-import { updateProfile, getProfile } from '../../controllers/profileController';
+import profileController from '../../controllers/profileController';
 import authenticate from '../../middleware/authentication';
+import validate from '../../middleware/validation';
 
 const router = require('express').Router();
 
@@ -11,9 +12,11 @@ router.put(
   '/user/profile',
   authenticate,
   multipart,
-  updateProfile
+  validate.profileValidation,
+  profileController.updateProfile
 );
 
-router.get('/user/profile/:userId', getProfile);
+router.get('/user/profile/:userId', profileController.getProfile);
+router.get('/user/profiles', authenticate, profileController.getProfiles);
 
 export default router;

@@ -1,3 +1,8 @@
+const operator = require('sequelize').Op;
+const db = require('../models');
+
+const { User } = db;
+
 const generateErrorMessage = (missing) => {
   let errorString = 'Please fill the ';
   missing.forEach((field) => {
@@ -37,7 +42,7 @@ const checkFieldLength = (route, fields) => {
   return false;
 };
 
-// checking for undefined fields
+/* // checking for undefined fields
 const undefinedFields = (req, res) => {
   const { username, bio } = req.body;
 
@@ -76,7 +81,7 @@ exports.profileValidation = (req, res) => {
   undefinedFields(req, res);
   emptyField(req, res);
   extraFields(req, res);
-};
+}; */
 
 const alphaNumeric = (inputTxt) => {
   const letterNumber = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i;
@@ -122,6 +127,7 @@ exports.checkNullInput = (req, res, next) => {
   return next();
 };
 
+// middleware for validating signup fields
 exports.validate = route => (req, res, next) => {
   const userDetails = req.body;
   const tooManyFields = checkFieldLength(route, userDetails);
@@ -142,6 +148,116 @@ exports.validate = route => (req, res, next) => {
   }
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });
+  }
+  next();
+};
+
+
+// middleware for validating passwords
+exports.validateResetPassword = (req, res, next) => {
+  const emptyFields = checkEmptyFields(req.body);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (req.body.password.length < 5) {
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+  }
+  if (req.body.password.length !== req.body.confirm_password.length) {
+    return res.status(400).send({ message: 'Passwords do not match' });
+  }
+
+  next();
+};
+
+
+// middleware for validating forgot password
+exports.validateForgotPassword = (req, res, next) => {
+  const isEmailValid = checkValidEmail(req.body.email);
+  const emptyFields = checkEmptyFields(req.body);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (!isEmailValid) {
+    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
+  }
+
+  req.email = req.body.email.trim();
+  next();
+};
+
+exports.findUserByToken = (req, res, next) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(404).send({
+      message: 'An account can not be found'
+    });
+  }
+
+  return User.findOne({
+    where: {
+      password_reset_token: token,
+      password_reset_time: { [operator.gt]: Date.now() }
+    }
+  }).then((user) => {
+    if (!user) {
+      return res.status(404).send({
+        message: 'An account can not be found'
+      });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+const undefinedFields = (data) => {
+  const { username, bio } = data;
+  if (username === undefined || bio === undefined) {
+    return true;
+  }
+};
+
+// checking for any unwanted field
+const extraFields = (data) => {
+  const fieldLength = Object.keys(data).length;
+  if (fieldLength !== 2) {
+    return true;
+  }
+};
+const imageField = (data) => {
+  if (typeof data.files.profileImage === 'undefined') {
+    return true;
+  }
+};
+const filesFieldLength = (data) => {
+  if (Object.keys(data.files).length > 1) {
+    return true;
+  }
+};
+
+exports.profileValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const extraFieldsError = extraFields(req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (extraFieldsError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  const imageFieldError = imageField(req);
+  if (imageFieldError) {
+    return res.status(400).send({ message: 'Profile Image is required' });
+  }
+  const filesFieldLengthError = filesFieldLength(req);
+  if (filesFieldLengthError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
   }
   next();
 };
