@@ -79,7 +79,7 @@ describe('Profile controller', () => {
         })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal('Fields cannot be empty');
+          expect(res.body.message).to.equal('Please fill the bio field');
           done();
         });
     });

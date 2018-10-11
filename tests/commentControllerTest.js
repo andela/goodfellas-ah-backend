@@ -26,17 +26,17 @@ describe('Comment controller', () => {
     done();
   });
 
-  describe('POST comment ', () => {
-    it('POST /api/articles/:slug/comments should return a comment', (done) => {
-      chai
-        .request(app)
-        .get('api/articles:slug/comments')
-        .set({ authorization: testToken, Accept: 'application/json' })
-        // .send({ body: 'This is my first comment' })
-        .end((err, res) => {
-          expect(res.status).to.equal(200);
-          done();
-        });
-    });
-  });
+  // describe('POST comment ', () => {
+  //   it('POST /api/articles/:slug/comments should return a comment', (done) => {
+  //     chai
+  //       .request(app)
+  //       .get('api/articles:slug/comments')
+  //       .set({ authorization: testToken, Accept: 'application/json' })
+  //       // .send({ body: 'This is my first comment' })
+  //       .end((err, res) => {
+  //         expect(res.status).to.equal(200);
+  //         done();
+  //       });
+  //   });
+  // });
 });
