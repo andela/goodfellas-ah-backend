@@ -15,7 +15,9 @@ const generateErrorMessage = (missing) => {
 const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 const checkEmptyFields = (data) => {
   const emptyFields = {};
-  const missingFields = Object.keys(data).filter(field => !data[field] || !/\S/.test(data[field]));
+  const missingFields = Object.keys(data).filter(
+    field => !data[field] || !/\S/.test(data[field])
+  );
 
   if (missingFields.length > 0) {
     emptyFields.status = true;
@@ -38,44 +40,53 @@ const checkFieldLength = (route, fields) => {
 };
 
 // checking for undefined fields
-const undefinedFields = (req, res) => {
-  const { username, bio } = req.body;
-
+const undefinedFields = (data) => {
+  const { username, bio } = data;
   if (username === undefined || bio === undefined) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'All fields are required'
-    });
-  }
-};
-
-// checking for any empty field
-const emptyField = (req, res) => {
-  const { username, bio } = req.body;
-
-  if (!username.trim() || !bio.trim()) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Fields cannot be empty'
-    });
+    return true;
   }
 };
 
 // checking for any unwanted field
-const extraFields = (req, res) => {
-  const fieldLength = Object.keys(req.body).length;
+const extraFields = (data) => {
+  const fieldLength = Object.keys(data).length;
   if (fieldLength !== 2) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Extra field(s) not required'
-    });
+    return true;
+  }
+};
+const imageField = (data) => {
+  if (typeof data.files.profileImage === 'undefined') {
+    return true;
+  }
+};
+const filesFieldLength = (data) => {
+  if (Object.keys(data.files).length > 1) {
+    return true;
   }
 };
 
-exports.profileValidation = (req, res) => {
-  undefinedFields(req, res);
-  emptyField(req, res);
-  extraFields(req, res);
+exports.profileValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const extraFieldsError = extraFields(req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (extraFieldsError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  const imageFieldError = imageField(req);
+  if (imageFieldError) {
+    return res.status(400).send({ message: 'Profile Image is required' });
+  }
+  const filesFieldLengthError = filesFieldLength(req);
+  if (filesFieldLengthError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
 };
 
 exports.validate = route => (req, res, next) => {

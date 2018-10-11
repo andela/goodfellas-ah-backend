@@ -71,7 +71,7 @@ describe('Profile controller', () => {
       });
     });
     describe('update profile', () => {
-      it('PUT /api/user/profile should return an error if the profile image field is undefined', (done) => {
+      it('PUT /api/user/profile should return an error if user sends an empty field', (done) => {
         chai
           .request(app)
           .put('/api/user/profile')
@@ -82,7 +82,7 @@ describe('Profile controller', () => {
           })
           .end((err, res) => {
             expect(res.status).to.equal(400);
-            expect(res.body.message).to.equal('Fields cannot be empty');
+            expect(res.body.message).to.equal('Please fill the bio field');
             done();
           });
       });
@@ -96,12 +96,26 @@ describe('Profile controller', () => {
           .send({
             username: 'testname',
             bio: 'ddd',
-            profileImage: 'juha',
             extra2: 'jj'
           })
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.message).to.equal('Extra field(s) not required');
+            done();
+          });
+      });
+    });
+    describe('update profile', () => {
+      it('PUT /api/user/profile should return an error if image field is undefined', (done) => {
+        chai
+          .request(app)
+          .put('/api/user/profile')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .field('username', 'trr')
+          .field('bio', 'trr')
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('Profile Image is required');
             done();
           });
       });

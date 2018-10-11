@@ -3,6 +3,7 @@ const multiparty = require('connect-multiparty');
 
 const profileController = require('../../controllers/profileController');
 const authenticate = require('../../middleware/authentication');
+const validate = require('../../middleware/validation');
 
 const multipart = multiparty();
 
@@ -10,6 +11,7 @@ router.put(
   '/user/profile',
   authenticate,
   multipart,
+  validate.profileValidation,
   profileController.updateProfile
 );
 

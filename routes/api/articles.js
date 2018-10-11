@@ -6,4 +6,8 @@ router.get('/articles', authenticate, (req, res) => {
   res.send({ message: 'All Articles Retrieved Successfully' });
 });
 
+router.get('/articles:slug/comments', authenticate, (req, res) => {
+  res.send({ message: 'All Articles Retrieved Successfully' });
+});
+
 module.exports = router;
