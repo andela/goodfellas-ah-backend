@@ -1,8 +1,6 @@
-
-const db = require('../models');
-const utility = require('../lib/utility');
-const profileSearch = require('../lib/profile');
-const imageUploadHelper = require('../lib/utility');
+import db from '../models';
+import utility from '../lib/utility';
+import helper from '../lib/helper';
 
 const { Profiles, User } = db;
 
@@ -14,7 +12,7 @@ module.exports = {
   },
   async updateProfile(req, res) {
     try {
-      const url = await imageUploadHelper.imageUpload(req.files);
+      const url = await utility.imageUpload(req.files);
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
       const { userID } = req;
@@ -39,7 +37,7 @@ module.exports = {
   },
   async getProfile(req, res) {
     const { userId } = req.params;
-    const existingProfile = await profileSearch.findProfile(userId);
+    const existingProfile = await helper.findProfile(userId);
     if (!existingProfile) {
       return res.status(409).json({
         error: true,

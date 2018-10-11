@@ -1,7 +1,5 @@
 import models from '../models';
-
-const articleHelper = require('../lib/article');
-
+import helper from '../lib/helper';
 
 const { Articles } = models;
 
@@ -40,7 +38,7 @@ const createArticle = (req, res) => {
 const updateArticle = async (req, res) => {
   const { articleId } = req.params;
 
-  const existingArticle = await articleHelper.findArticle(articleId);
+  const existingArticle = await helper.findArticle(articleId);
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -68,7 +66,7 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { articleId } = req.params;
-  const existingArticle = await articleHelper.findArticle(articleId);
+  const existingArticle = await helper.findArticle(articleId);
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -112,7 +110,7 @@ const getAllArticles = (req, res) => Articles
 const getAnArticle = async (req, res) => {
   const { articleId } = req.params;
   try {
-    const existingArticle = await articleHelper.findArticle(articleId);
+    const existingArticle = await helper.findArticle(articleId);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
