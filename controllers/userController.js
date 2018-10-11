@@ -88,7 +88,6 @@ module.exports = {
         if (sentMail) {
           return res.status(200).send(message);
         }
-        return res.status(500).send({ message: 'Internal server error' });
       });
   },
 
@@ -105,7 +104,6 @@ module.exports = {
       if (sentMail) {
         return res.status(200).send(message);
       }
-      return res.status(500).send({ message: 'Internal server error' });
     });
   },
 };

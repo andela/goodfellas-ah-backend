@@ -211,6 +211,7 @@ describe('Password reset controller', () => {
         });
     });
 
+
     // sends email to registered user who forgot their password
     it('Should reset password when token is valid', (done) => {
       chai

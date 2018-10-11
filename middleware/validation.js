@@ -32,12 +32,6 @@ const checkEmptyFields = (data) => {
 const checkFieldLength = (route, fields) => {
   const fieldLength = Object.keys(fields).length;
 
-  if (route === 'resetPassword' && fieldLength > 2) {
-    return true;
-  }
-  if (route === 'forgotPassword' && fieldLength > 1) {
-    return true;
-  }
   if (route === 'signin' && fieldLength > 2) {
     return true;
   }
