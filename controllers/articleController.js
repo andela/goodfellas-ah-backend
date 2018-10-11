@@ -15,13 +15,15 @@ const createArticle = (req, res) => {
   const {
     title,
     description,
-    body
+    body,
+    image
   } = req.body;
   return Articles
     .create({
       title,
       description,
       body,
+      image,
       authorId: req.userId
     })
     .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))
@@ -51,6 +53,7 @@ const updateArticle = async (req, res) => {
     title: req.body.title || existingArticle.title,
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
+    image: req.body.image || existingArticle.image,
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
     .catch(error => res.status(500).send({ error: error.message }));

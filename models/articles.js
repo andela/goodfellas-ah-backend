@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     tagList: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true

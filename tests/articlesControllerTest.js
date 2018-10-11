@@ -33,7 +33,8 @@ describe('Articles controller', () => {
       const article = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
-        body: 'My people the time has come to revolt against this new government'
+        body: 'My people the time has come to revolt against this new government',
+        image: 'null'
       };
       chai
         .request(app)
@@ -136,7 +137,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Retuens the right response when a paricular article to be updated is not found', (done) => {
+      it('Returns the right response when a paricular article to be updated is not found', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',

@@ -23,6 +23,10 @@ module.exports = {
       type: Sequelize.TEXT,
       allowNull: false
     },
+    image: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     tagList: {
       type: Sequelize.ARRAY(Sequelize.STRING),
       allowNull: true
