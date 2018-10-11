@@ -24,7 +24,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should fail when strategy name is null', (done) => {
-      expect(() => passport.use(new Strategy(null, () => { }))).to.throw('Authentication strategies must have a name');
+      expect(() => passport.use(new Strategy(null, () => { }))).to.throw('DevStrategy requires a Strategy name');
       done();
     });
   });
