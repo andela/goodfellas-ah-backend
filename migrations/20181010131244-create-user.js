@@ -24,6 +24,12 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false
     },
+    password_reset_token: {
+      type: Sequelize.STRING,
+    },
+    password_reset_time: {
+      type: Sequelize.DATE,
+    },
     role: {
       type: Sequelize.ENUM,
       defaultValue: 'User',
