@@ -31,6 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  Profiles.associate = () => {};
+  Profiles.associate = (models) => {
+    Profiles.belongsTo(models.User, { as: 'user' });
+  };
   return Profiles;
 };
