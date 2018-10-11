@@ -15,7 +15,7 @@ module.exports = {
       const url = await utility.imageUpload(req.files);
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
-      const { userID } = req;
+      const { userId } = req;
 
       const userProfile = await Profiles.update(
         {
@@ -23,7 +23,7 @@ module.exports = {
           bio,
           image: url
         },
-        { returning: true, where: { userId: userID } }
+        { returning: true, where: { userId } }
       );
 
       res.status(200).send({
