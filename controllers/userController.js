@@ -1,6 +1,8 @@
+const jwt = require('jsonwebtoken');
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
+require('dotenv').config();
 const profileController = require('../controllers/profileController');
 
 const { User } = db;
@@ -66,5 +68,42 @@ module.exports = {
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
-  }
+  },
+
+  async forgotPassword(req, res) {
+    const user = await userHelper.findUser(req.email);
+    if (!user) {
+      return res.status(404).send({
+        message: 'The account with this email does not exist'
+      });
+    }
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 60 * 60 });
+    const expiration = new Date(Date.now() + (60 * 60 * 1000));
+    const mailMessage = `Click <a href="http://127.0.0.1:3000/api/resetPassword?token=
+    ${token}">here</a> to reset your password`;
+    user.update({ password_reset_token: token, password_reset_time: expiration })
+      .then(async () => {
+        const message = { message: 'An email has been sent to your account', token };
+        const sentMail = utility.sendEmail(req.email, mailMessage);
+        if (sentMail) {
+          return res.status(200).send(message);
+        }
+      });
+  },
+
+  async resetPassword(req, res) {
+    const encryptedPassword = await utility.encryptPassword(req.body.password.trim());
+    return req.user.update({
+      password: encryptedPassword,
+      password_reset_time: null,
+      password_reset_token: null
+    }).then(async (user) => {
+      const mailMessage = 'Your password has been reset successfully';
+      const message = { message: 'Password reset successful' };
+      const sentMail = await utility.sendEmail(user.email, mailMessage);
+      if (sentMail) {
+        return res.status(200).send(message);
+      }
+    });
+  },
 };

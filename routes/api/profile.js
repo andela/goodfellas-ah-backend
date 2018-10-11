@@ -16,5 +16,6 @@ router.put(
 );
 
 router.get('/user/profile/:userId', profileController.getProfile);
+router.get('/user/profiles', authenticate, profileController.getProfiles);
 
 module.exports = router;

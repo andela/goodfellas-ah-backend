@@ -5,7 +5,7 @@ const profileSearch = require('../lib/profile');
 // const validate = require('../middleware/validation');
 const imageUploadHelper = require('../lib/utility');
 
-const { Profiles } = db;
+const { Profiles, User } = db;
 
 module.exports = {
   createProfile(newUser) {
@@ -51,5 +51,18 @@ module.exports = {
       error: false,
       data: profile
     }));
+  },
+  async getProfiles(req, res) {
+    const profileList = await Profiles.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['firstname', 'lastname', 'email', 'role']
+      }]
+    });
+    res.send({
+      message: 'Successfully retrieved a list of author profiles',
+      data: profileList
+    });
   }
 };
