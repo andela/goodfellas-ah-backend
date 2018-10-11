@@ -1,35 +1,47 @@
+const jwt = require('jsonwebtoken');
 const db = require('../models');
 const utility = require('../lib/utility');
 const userHelper = require('../lib/user');
+require('dotenv').config();
+const profileController = require('../controllers/profileController');
 
 const { User, FollowersTable } = db;
 
 module.exports = {
   async signup(req, res) {
-    const values = utility.trimValues(req.body);
-    const {
-      firstname, lastname, email, password
-    } = values;
+    try {
+      const values = utility.trimValues(req.body);
+      const {
+        firstname, lastname, email, password
+      } = values;
 
-    const existingUser = await userHelper.findUser(email);
+      const existingUser = await userHelper.findUser(email);
 
-    if (existingUser) {
-      return res.status(409).send({ message: 'Email is in use' });
+      if (existingUser) {
+        return res.status(409).send({ message: 'Email is in use' });
+      }
+
+      const encryptedPassword = await utility.encryptPassword(password);
+
+      User.create({
+        firstname,
+        lastname,
+        email,
+        password: encryptedPassword
+      })
+        .then((newUser) => {
+          profileController.createProfile(newUser);
+          return res.status(201).json({
+            error: false,
+            token: utility.createToken(newUser),
+            userId: newUser.id,
+            message: 'User created Successfully'
+          });
+        })
+        .catch(() => res.status(500).send({ error: 'Internal server error' }));
+    } catch (err) {
+      res.status(500).send({ error: 'Internal server error' });
     }
-
-    const encryptedPassword = await utility.encryptPassword(password);
-
-    User.create({
-      firstname,
-      lastname,
-      email,
-      password: encryptedPassword
-    })
-      .then(newUser => res.status(201).send({
-        message: 'Successfully created your account',
-        token: utility.createToken(newUser)
-      }))
-      .catch(() => res.status(500).send({ error: 'Internal server error' }));
   },
   async signin(req, res) {
     const values = utility.trimValues(req.body);
@@ -38,15 +50,20 @@ module.exports = {
     const existingUser = await userHelper.findUser(email);
 
     if (!existingUser) {
-      return res.status(400).send({ message: 'The account with this email does not exist' });
+      return res
+        .status(400)
+        .send({ message: 'The account with this email does not exist' });
     }
 
-    const match = await utility.comparePasswords(password, existingUser.dataValues.password);
+    const match = await utility.comparePasswords(
+      password,
+      existingUser.dataValues.password
+    );
 
     if (match) {
       res.status(200).send({
         message: 'Successfully signed in',
-        token: utility.createToken(existingUser.dataValues.id),
+        token: utility.createToken(existingUser.dataValues)
       });
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
@@ -141,5 +158,41 @@ module.exports = {
         message: err.message
       });
     }
+  },
+  async forgotPassword(req, res) {
+    const user = await userHelper.findUser(req.email);
+    if (!user) {
+      return res.status(404).send({
+        message: 'The account with this email does not exist'
+      });
+    }
+    const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 60 * 60 });
+    const expiration = new Date(Date.now() + (60 * 60 * 1000));
+    const mailMessage = `Click <a href="http://127.0.0.1:3000/api/resetPassword?token=
+  ${token}">here</a> to reset your password`;
+    user.update({ password_reset_token: token, password_reset_time: expiration })
+      .then(async () => {
+        const message = { message: 'An email has been sent to your account', token };
+        const sentMail = utility.sendEmail(req.email, mailMessage);
+        if (sentMail) {
+          return res.status(200).send(message);
+        }
+      });
+  },
+
+  async resetPassword(req, res) {
+    const encryptedPassword = await utility.encryptPassword(req.body.password.trim());
+    return req.user.update({
+      password: encryptedPassword,
+      password_reset_time: null,
+      password_reset_token: null
+    }).then(async (user) => {
+      const mailMessage = 'Your password has been reset successfully';
+      const message = { message: 'Password reset successful' };
+      const sentMail = await utility.sendEmail(user.email, mailMessage);
+      if (sentMail) {
+        return res.status(200).send(message);
+      }
+    });
   },
 };

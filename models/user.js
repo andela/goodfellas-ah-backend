@@ -17,6 +17,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    password_reset_token: {
+      type: DataTypes.STRING,
+    },
+    password_reset_time: {
+      type: DataTypes.DATE,
+    },
     role: {
       type: DataTypes.ENUM,
       defaultValue: 'User',
