@@ -125,7 +125,7 @@ const getAnArticle = async (req, res) => {
   }
 };
 
-export {
+export default {
   createArticle,
   modifyArticle,
   deleteArticle,

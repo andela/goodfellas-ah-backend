@@ -2,7 +2,6 @@
 const db = require('../models');
 const utility = require('../lib/utility');
 const profileSearch = require('../lib/profile');
-// const validate = require('../middleware/validation');
 const imageUploadHelper = require('../lib/utility');
 
 const { Profiles, User } = db;
@@ -15,7 +14,6 @@ module.exports = {
   },
   async updateProfile(req, res) {
     try {
-      // validate.profileValidation(req, res);
       const url = await imageUploadHelper.imageUpload(req.files);
       const values = utility.trimValues(req.body);
       const { username, bio } = values;

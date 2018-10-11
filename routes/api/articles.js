@@ -1,20 +1,14 @@
-import {
-  createArticle,
-  modifyArticle,
-  deleteArticle,
-  getAllArticles,
-  getAnArticle
-} from '../../controllers/articleController';
+import articleController from '../../controllers/articleController';
 import authenticate from '../../middleware/authentication';
 import { checkNullInput } from '../../middleware/validation';
 
 const router = require('express').Router();
 
-router.post('/articles', authenticate, checkNullInput, createArticle);
-router.put('/articles/:articleId', authenticate, checkNullInput, modifyArticle);
-router.delete('/articles/:articleId', authenticate, deleteArticle);
-router.get('/articles', authenticate, getAllArticles);
-router.get('/articles/:articleId', authenticate, getAnArticle);
+router.post('/articles', authenticate, checkNullInput, articleController.createArticle);
+router.put('/articles/:articleId', authenticate, checkNullInput, articleController.modifyArticle);
+router.delete('/articles/:articleId', authenticate, articleController.deleteArticle);
+router.get('/articles', authenticate, articleController.getAllArticles);
+router.get('/articles/:articleId', authenticate, articleController.getAnArticle);
 
 
 export default router;

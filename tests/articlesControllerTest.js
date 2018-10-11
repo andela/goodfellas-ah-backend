@@ -29,7 +29,7 @@ describe('Articles controller', () => {
   });
 
   describe('POST an article', () => {
-    it('Responds with the right response when an article is created', (done) => {
+    it('Returns the right response when an article is created', (done) => {
       const article = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
@@ -51,7 +51,7 @@ describe('Articles controller', () => {
         });
     });
 
-    it('responds with the right reponse when some of the request body field is empty', (done) => {
+    it('returns the right reponse when a request body field is empty', (done) => {
       const article = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
@@ -68,7 +68,7 @@ describe('Articles controller', () => {
           done();
         });
     });
-    it('responds with the right reponse when some of the request body field contains only whitespaces', (done) => {
+    it('returns the right reponse when a body field contains only whitespaces', (done) => {
       const article = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
@@ -85,7 +85,7 @@ describe('Articles controller', () => {
           done();
         });
     });
-    it('responds with the right reponse when some of the request body field contains only digits', (done) => {
+    it('returns the right reponse when a request body field contains only digits', (done) => {
       const article = {
         title: 'Enough is Enough!',
         description: '7665645544344433443',
@@ -102,7 +102,7 @@ describe('Articles controller', () => {
           done();
         });
     });
-    it('responds with the right reponse when some of the request body field is undefined', (done) => {
+    it('returns the right reponse when a request body field is undefined', (done) => {
       const article = {
         description: 'This is a call for Revolt',
         body: 'My people the time has come to revolt against this new government'
@@ -119,7 +119,7 @@ describe('Articles controller', () => {
         });
     });
     describe('PUT an article', () => {
-      it('Responds with the right response when a paricular article is updated', (done) => {
+      it('Returns the right response when a paricular article is updated', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -136,7 +136,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Responds with the right response when a paricular article to be updated is not found', (done) => {
+      it('Retuens the right response when a paricular article to be updated is not found', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -153,7 +153,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Responds with the right response when some request body field is empty', (done) => {
+      it('Returnsh the right response when a request body field is empty', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -170,7 +170,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Responds with the right response when some request body field contains only whitespaces', (done) => {
+      it('Returns the right response when a request body field contains only whitespaces', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -187,7 +187,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Responds with the right response when some request body field contains only didgits', (done) => {
+      it('Returns the right response when a request body field contains only didgits', (done) => {
         const article = {
           title: '6777747747474',
           description: 'This is a call for Revolt',
@@ -206,7 +206,7 @@ describe('Articles controller', () => {
       });
     });
     describe('GET an article', () => {
-      it('Responds with the right response when a paricular article gotten/fetched', (done) => {
+      it('Returns the right response when a paricular article gotten/fetched', (done) => {
         chai
           .request(app)
           .get(`/api/articles/${id}`)
@@ -217,7 +217,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Responds with the right response when a paricular article to get is not found', (done) => {
+      it('Returns the right response when a paricular article to get is not found', (done) => {
         chai
           .request(app)
           .get('/api/articles/3')
@@ -229,7 +229,7 @@ describe('Articles controller', () => {
           });
       });
       describe('GET all articles', () => {
-        it('Responds with the right response when all the articles are gotten/fetched', (done) => {
+        it('Returns the right response when all the articles are gotten/fetched', (done) => {
           chai
             .request(app)
             .get('/api/articles')
@@ -241,7 +241,7 @@ describe('Articles controller', () => {
             });
         });
         describe('DELETE an article', () => {
-          it('Responds with the right response when a particular article is deleted', (done) => {
+          it('Returns the right response when a particular article is deleted', (done) => {
             chai
               .request(app)
               .delete(`/api/articles/${id}`)
@@ -252,7 +252,7 @@ describe('Articles controller', () => {
                 done();
               });
           });
-          it('Responds with the right response when a particular article to be deleted is not found', (done) => {
+          it('Returns the right response when a particular article to be deleted is not found', (done) => {
             chai
               .request(app)
               .delete('/api/articles/3')
