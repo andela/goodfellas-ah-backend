@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
       if (error) {
         res.status(401).send({ message: error.message });
       } else {
-        req.userID = decoded.id;
+        req.userId = decoded.id;
         next();
       }
     });

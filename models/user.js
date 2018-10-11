@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     firstname: {
@@ -30,8 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       values: ['SuperAdmin', 'Admin', 'User']
     }
   }, {});
-  User.associate = () => {
-    // associations can be defined here
+  User.associate = (models) => {
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followedUserId'
+    });
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followerId'
+    });
   };
   return User;
 };

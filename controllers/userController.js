@@ -5,7 +5,7 @@ const userHelper = require('../lib/user');
 require('dotenv').config();
 const profileController = require('../controllers/profileController');
 
-const { User } = db;
+const { User, FollowersTable } = db;
 
 module.exports = {
   async signup(req, res) {
@@ -69,7 +69,96 @@ module.exports = {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
   },
-
+  async follow(req, res) {
+    const followerId = req.userId;
+    const followedUserId = req.params.userId;
+    try {
+      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
+      await userHelper.throwErrorOnBadRequest(followerId, followedUserId);
+      await FollowersTable.create({ followerId, followedUserId });
+      res.status(201).send({
+        message: `You're now following ${user.dataValues.firstname} ${user.dataValues.lastname}`
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async unfollow(req, res) {
+    const followerId = req.userId;
+    const followedUserId = req.params.userId;
+    try {
+      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
+      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
+      if (userUnfollow === 0) throw new Error('You\'re not following this user');
+      res.status(201).send({
+        message: `You unfollowed ${user.dataValues.firstname} ${user.dataValues.lastname}`
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async listOfFollowedUsers(req, res) {
+    const { userId } = req.params;
+    try {
+      await userHelper.throwErrorOnNonExistingUser(userId);
+      const followedUsers = await FollowersTable.findAndCountAll({
+        where: { followerId: userId },
+        attributes: { exclude: ['followerId', 'followedUserId'] },
+        include: {
+          model: User,
+          as: 'followedUser',
+          attributes: {
+            include: [['id', 'userId']],
+            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
+          }
+        }
+      });
+      res.status(200).send({
+        data: {
+          followedUsers: followedUsers.rows,
+          followedUsersCount: followedUsers.count
+        },
+        message: 'Retrieved followed users'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async listOfFollowers(req, res) {
+    const { userId } = req.params;
+    try {
+      await userHelper.throwErrorOnNonExistingUser(userId);
+      const followers = await FollowersTable.findAndCountAll({
+        where: { followedUserId: userId },
+        attributes: { exclude: ['followedUserId'] },
+        include: {
+          model: User,
+          as: 'follower',
+          attributes: {
+            include: [['id', 'userId']],
+            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
+          }
+        }
+      });
+      res.status(200).send({
+        data: {
+          followers: followers.rows,
+          followersCount: followers.count
+        },
+        message: 'Retrieved followers'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
   async forgotPassword(req, res) {
     const user = await userHelper.findUser(req.email);
     if (!user) {
@@ -80,7 +169,7 @@ module.exports = {
     const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 60 * 60 });
     const expiration = new Date(Date.now() + (60 * 60 * 1000));
     const mailMessage = `Click <a href="http://127.0.0.1:3000/api/resetPassword?token=
-    ${token}">here</a> to reset your password`;
+  ${token}">here</a> to reset your password`;
     user.update({ password_reset_token: token, password_reset_time: expiration })
       .then(async () => {
         const message = { message: 'An email has been sent to your account', token };
