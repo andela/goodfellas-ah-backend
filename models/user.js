@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     firstname: {
@@ -32,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   User.associate = (models) => {
     User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followedUserId'
+    });
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followerId'
+    });
   };
   return User;
 };

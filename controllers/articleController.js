@@ -19,13 +19,12 @@ const createArticle = (req, res) => {
     description,
     body
   } = req.body;
-
   return Articles
     .create({
       title,
       description,
       body,
-      authorId: req.userID
+      authorId: req.userId
     })
     .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))
     .catch(error => res.status(500).send({ error: error.message }));
@@ -38,16 +37,15 @@ const createArticle = (req, res) => {
  * @returns {object} res.
  */
 
-const modifyArticle = async (req, res) => {
+const updateArticle = async (req, res) => {
   const { articleId } = req.params;
 
   const existingArticle = await articleHelper.findArticle(articleId);
-
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
 
-  if (existingArticle !== null && existingArticle.authorId !== req.userID) {
+  if (existingArticle !== null && existingArticle.authorId !== req.userId) {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
 
@@ -75,7 +73,7 @@ const deleteArticle = async (req, res) => {
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
-  if (existingArticle.authorId !== req.userID) {
+  if (existingArticle.authorId !== req.userId) {
     return res.status(403).send({ error: 'You cannot delete an article added by another user' });
   }
   return existingArticle.destroy()
@@ -127,7 +125,7 @@ const getAnArticle = async (req, res) => {
 
 export default {
   createArticle,
-  modifyArticle,
+  updateArticle,
   deleteArticle,
   getAllArticles,
   getAnArticle

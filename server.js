@@ -17,7 +17,7 @@ app.use(urlencoded({ extended: false }));
 app.use(json());
 app.use(router);
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3000;
 
 app.listen(port);
 
