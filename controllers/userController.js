@@ -70,6 +70,51 @@ module.exports = {
       res.status(400).send({ message: 'Incorrect email or password' });
     }
   },
+  async socialAuth(req, res) {
+    // Check if user exists
+
+    const existingUser = await userHelper.findUser(req.user.email);
+
+    if (existingUser) {
+      // If Yes, check if it was with the same social account
+      const { password } = req.user;
+
+      const match = await utility.comparePasswords(password, existingUser.dataValues.password);
+      // If yes then authenticate user
+      if (match) {
+        res
+          .status(200)
+          .send({
+            message: 'Successfully signed in',
+            token: utility.createToken(existingUser.dataValues)
+          });
+      } else {
+        // If no, return error message
+        res.status(400).send({ message: 'You can\'t login through this platform' });
+      }
+    } else {
+      // If No, create user then authenticate user
+      const encryptedPassword = await utility.encryptPassword(req.user.password);
+      User.create({
+        firstname: req.user.firstName,
+        lastname: req.user.lastName,
+        email: req.user.email,
+        password: encryptedPassword,
+        account_type: req.user.account_type
+      })
+        .then((newUser) => {
+          profileController.createProfile(newUser);
+          return res.status(201).json({
+            error: false,
+            token: utility.createToken(newUser),
+            userId: newUser.id,
+            message: 'User created Successfully'
+          });
+        })
+        .catch(() => res.status(500).send({ error: 'Internal server error' }));
+    }
+  },
+
   async follow(req, res) {
     const followerId = req.userId;
     const followedUserId = req.params.userId;
