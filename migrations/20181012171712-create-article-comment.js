@@ -11,6 +11,12 @@ module.exports = {
       body: {
         type: Sequelize.STRING
       },
+      article_slug: {
+        type: Sequelize.STRING
+      },
+      user_id: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

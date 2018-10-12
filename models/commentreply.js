@@ -1,10 +1,14 @@
-'use strict';
+
+
 module.exports = (sequelize, DataTypes) => {
   const CommentReply = sequelize.define('CommentReply', {
-    body: DataTypes.STRING
+    body: DataTypes.STRING,
+    comment_id: DataTypes.INTEGER,
+    user_id: DataTypes.INTEGER
   }, {});
-  CommentReply.associate = function(models) {
-    // associations can be defined here
+  CommentReply.associate = (models) => {
+    CommentReply.belongsTo(models.User, { as: 'user' });
+    CommentReply.belongsTo(models.ArticleComment, { as: 'article' });
   };
   return CommentReply;
 };
