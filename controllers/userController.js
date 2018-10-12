@@ -22,15 +22,18 @@ module.exports = {
       }
 
       const encryptedPassword = await utility.encryptPassword(password);
+      const encryptedToken = utility.encryptToken();
 
       User.create({
         firstname,
         lastname,
         email,
-        password: encryptedPassword
+        password: encryptedPassword,
+        verification_token: encryptedToken
       })
         .then((newUser) => {
           profileController.createProfile(newUser);
+          // Catch user object and send email link here
           return res.status(201).json({
             error: false,
             token: utility.createToken(newUser),

@@ -22,6 +22,14 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'Local',
       values: ['Local', 'google', 'facebook', 'twitter']
     },
+    verification_token: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     password_reset_token: {
       type: DataTypes.STRING,
     },
