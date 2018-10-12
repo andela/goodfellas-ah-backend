@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    account_type: {
+      type: DataTypes.ENUM,
+      defaultValue: 'Local',
+      values: ['Local', 'google', 'facebook', 'twitter']
+    },
     password_reset_token: {
       type: DataTypes.STRING,
     },

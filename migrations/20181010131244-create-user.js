@@ -24,6 +24,11 @@ module.exports = {
       type: Sequelize.STRING,
       allowNull: false
     },
+    account_type: {
+      type: Sequelize.ENUM,
+      defaultValue: 'Local',
+      values: ['Local', 'google', 'facebook', 'twitter']
+    },
     password_reset_token: {
       type: Sequelize.STRING,
     },
