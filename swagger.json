@@ -18,60 +18,89 @@
   ],
   "schemes": ["https"],
   "paths": {
-    "/auth/signup": {
+    "/auth/google": {
       "post": {
-        "tags": ["User"],
-        "summary": "Register's a user",
-        "description": "Returns a user.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with google",
+        "description": "User can sign up and sign in for an account on the platform with their existing google account.",
         "parameters": [
           {
-            "name": "Email",
             "in": "body",
-            "description": "users email",
+            "name": "body",
+            "description": "The details of a new user provided by google at the sign up and sign in page.",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "Firstname",
-            "in": "body",
-            "description": "user's firstname",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "Lastname",
-            "in": "body",
-            "description": "user's lastname",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "description": "User's password",
-            "required": true,
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
           "201": {
-            "description": "A user",
+            "description": "A new user was created",
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "userId": {
-                    "type": "integer"
-                  },
-                  "token": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string"
-                  },
-                  "error": {
-                    "type": "string"
-                  }
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -79,40 +108,89 @@
         }
       }
     },
-    "/auth/signin": {
+    "/auth/facebook": {
       "post": {
-        "tags": ["User"],
-        "summary": "Authenticates a user",
-        "description": "Returns an authentication token.",
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with facebook",
+        "description": "User can sign up and sign in for an account on the platform with their existing facebook account.",
         "parameters": [
           {
-            "name": "Email",
             "in": "body",
-            "description": "users email",
+            "name": "body",
+            "description": "The details of a new user provided by facebook at the sign up and sign in page.",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "password",
-            "in": "body",
-            "description": "User's password",
-            "required": true,
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Token",
+          "201": {
+            "description": "A new user was created",
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "token": {
-                    "type": "string"
-                  },
-                  "message": {
-                    "type": "string"
-                  }
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -120,106 +198,89 @@
         }
       }
     },
-    "/api/profile/user": {
-      "get": {
-        "tags": ["User"],
-        "summary": "Get a user's profile",
-        "description": "Returns a user's profile.",
+    "/auth/twitter": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign up and sign in with Twitter",
+        "description": "User can sign up and sign in for an account on the platform with their existing Twitter account.",
         "parameters": [
           {
-            "name": "userId",
-            "in": "url",
-            "description": "unique identifier for the user",
+            "in": "body",
+            "name": "body",
+            "description": "The details of a new user provided by Twitter at the sign up and sign in page.",
             "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A User's Profile",
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "bio": {
-                    "type": "string"
-                  },
-                  "image": {
-                    "type": "image"
-                  },
-                  "following": {
-                    "type": "binary"
-                  },
-                  "UserId": {
-                    "type": "integer"
-                  },
-                  "createdAt": {
-                    "type": "date"
-                  },
-                  "updatedAt": {
-                    "type": "date"
-                  }
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string"
+                },
+                "lastName": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "account_type": {
+                  "type": "string"
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/profile/user": {
-      "put": {
-        "tags": ["User"],
-        "summary": "Updates User's profile",
-        "description": "Returns a user's profile.",
-        "parameters": [
-          {
-            "name": "Username",
-            "in": "body",
-            "description": "username of the user",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "Bio",
-            "in": "body",
-            "description": "user's bio",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "profielImage",
-            "in": "body",
-            "description": "user's profile image",
-            "required": true,
-            "type": "file"
-          },
-          {
-            "name": "token",
-            "in": "header",
-            "description": "Authentication token",
-            "required": true,
-            "type": "string"
-          }
         ],
         "responses": {
-          "200": {
-            "description": "user's profile",
+          "201": {
+            "description": "A new user was created",
             "schema": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "data": {
-                    "type": "object"
-                  },
-                  "error": {
-                    "type": "string"
-                  }
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "An existing user signs in",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message":{
+                  "type":"string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error logging in",
+            "schema":{
+              "type": "string",
+              "properties":{
+                "message":{
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties":{
+                "error": {
+                  "type": "string"
                 }
               }
             }
@@ -273,6 +334,10 @@
         "email": {
           "type": "email",
           "description": "User email."
+        },
+        "account_type":{
+          "type": "string",
+          "description": "Platform with which the user joined the platform"
         },
         "created_at": {
           "type": "date",

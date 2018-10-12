@@ -19,6 +19,7 @@
     "no-shadow": ["error", { "allow": ["req", "res", "err"] }],
     "import/extensions": 0,
     "no-console": 0,
+    "no-else-return": ["error", { "allowElseIf": true }],
     "valid-jsdoc": ["error", {
       "requireReturn": true,
       "requireReturnType": true,

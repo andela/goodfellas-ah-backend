@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     firstname: {
@@ -18,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    account_type: {
+      type: DataTypes.ENUM,
+      defaultValue: 'Local',
+      values: ['Local', 'google', 'facebook', 'twitter']
+    },
     password_reset_token: {
       type: DataTypes.STRING,
     },
@@ -30,8 +34,14 @@ module.exports = (sequelize, DataTypes) => {
       values: ['SuperAdmin', 'Admin', 'User']
     }
   }, {});
-  User.associate = () => {
-    // associations can be defined here
+  User.associate = (models) => {
+    User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followedUserId'
+    });
+    User.hasMany(models.FollowersTable, {
+      foreignKey: 'followerId'
+    });
   };
   return User;
 };

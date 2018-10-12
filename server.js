@@ -1,24 +1,30 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const morgan = require('morgan');
-const swaggerUi = require('swagger-ui-express');
-const router = require('./routes');
+import express from 'express';
+import { urlencoded, json } from 'body-parser';
+import session from 'express-session';
+import morgan from 'morgan';
+import { serve, setup } from 'swagger-ui-express';
+import router from './routes';
+
+
+import swaggerDocument from './swagger.json';
 
 const app = express();
 
-
-const swaggerDocument = require('./swagger.json');
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', serve, setup(swaggerDocument));
 
 app.use(morgan('dev'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(session({ secret: process.env.SESSION_SECRET }));
+
+app.use(urlencoded({ extended: false }));
+app.use(json());
+
 app.use(router);
 
 const port = process.env.PORT || 3000;
 
-app.listen(port);
+app.listen(port, () => {
+  console.log(`Now listening on port ${port}`);
+});
 
 module.exports = { app };

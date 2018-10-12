@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { castLoggingBoolean } = require('../lib/utility');
 
 module.exports = {
   development: {
@@ -6,6 +7,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
     host: process.env.DB_HOST,
+    logging: castLoggingBoolean(process.env.SQL_LOGGING),
     dialect: 'postgres'
   },
   test: {
@@ -13,6 +15,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.TEST_DATABASE,
     host: process.env.DB_HOST,
+    logging: castLoggingBoolean(process.env.SQL_LOGGING),
     dialect: 'postgres'
   },
   production: {
@@ -21,6 +24,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DATABASE,
     host: process.env.DB_HOST,
+    logging: castLoggingBoolean(process.env.SQL_LOGGING),
     dialect: 'postgres'
   }
 };

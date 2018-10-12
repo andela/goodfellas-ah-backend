@@ -1,13 +1,14 @@
+import articleController from '../../controllers/articleController';
+import authenticate from '../../middleware/authentication';
+import { checkNullInput } from '../../middleware/validation';
+
 const router = require('express').Router();
 
-const authenticate = require('../../middleware/authentication');
+router.post('/articles', authenticate, checkNullInput, articleController.createArticle);
+router.put('/articles/:articleId', authenticate, checkNullInput, articleController.updateArticle);
+router.delete('/articles/:articleId', authenticate, articleController.deleteArticle);
+router.get('/articles', authenticate, articleController.getAllArticles);
+router.get('/articles/:articleId', authenticate, articleController.getAnArticle);
 
-router.get('/articles', authenticate, (req, res) => {
-  res.send({ message: 'All Articles Retrieved Successfully' });
-});
 
-router.get('/articles:slug/comments', authenticate, (req, res) => {
-  res.send({ message: 'All Articles Retrieved Successfully' });
-});
-
-module.exports = router;
+export default router;

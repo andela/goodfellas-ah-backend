@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-router.use('/api', require('./api'));
+router.use('/api', require('./api').default);
 
 router.all('*', (req, res) => {
   res.status(404).json({
@@ -8,4 +8,4 @@ router.all('*', (req, res) => {
   });
 });
 
-module.exports = router;
+export default router;

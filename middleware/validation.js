@@ -44,54 +44,48 @@ const checkFieldLength = (route, fields) => {
   return false;
 };
 
-// checking for undefined fields
-const undefinedFields = (data) => {
-  const { username, bio } = data;
-  if (username === undefined || bio === undefined) {
+const alphaNumeric = (inputTxt) => {
+  const letterNumber = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i;
+  if (inputTxt.match(letterNumber)) {
     return true;
   }
+  return false;
 };
 
-// checking for any unwanted field
-const extraFields = (data) => {
-  const fieldLength = Object.keys(data).length;
-  if (fieldLength !== 2) {
-    return true;
+exports.checkNullInput = (req, res, next) => {
+  let isUndefined = false;
+  let isNull = false;
+  let isString = true;
+  const {
+    title,
+    description,
+    body
+  } = req.body;
+  [title, description, body].forEach((field) => {
+    if (field === undefined) {
+      isUndefined = true;
+    }
+    if (!isUndefined && !alphaNumeric(field)) {
+      if (Number.isInteger(parseFloat(field))) {
+        isString = false;
+      }
+    }
+    if (!isUndefined) {
+      if (field.trim().length < 1) {
+        isNull = true;
+      }
+    }
+  });
+  if (isUndefined) {
+    return res.status(400).send({ error: 'Invalid Input' });
   }
-};
-const imageField = (data) => {
-  if (typeof data.files.profileImage === 'undefined') {
-    return true;
+  if (isNull) {
+    return res.status(400).send({ error: 'A field does not contain any input' });
   }
-};
-const filesFieldLength = (data) => {
-  if (Object.keys(data.files).length > 1) {
-    return true;
+  if (!isString) {
+    return res.status(400).send({ error: 'Input cannot be numbers only!' });
   }
-};
-
-exports.profileValidation = (req, res, next) => {
-  const undefinedFieldError = undefinedFields(req.body);
-  if (undefinedFieldError) {
-    return res.status(400).send({ message: 'All fields are required' });
-  }
-  const emptyFields = checkEmptyFields(req.body);
-  const extraFieldsError = extraFields(req.body);
-  if (emptyFields.status) {
-    return res.status(400).send({ message: emptyFields.message });
-  }
-  if (extraFieldsError) {
-    return res.status(400).send({ message: 'Extra field(s) not required' });
-  }
-  const imageFieldError = imageField(req);
-  if (imageFieldError) {
-    return res.status(400).send({ message: 'Profile Image is required' });
-  }
-  const filesFieldLengthError = filesFieldLength(req);
-  if (filesFieldLengthError) {
-    return res.status(400).send({ message: 'Extra field(s) not required' });
-  }
-  next();
+  return next();
 };
 
 // middleware for validating signup fields
@@ -175,8 +169,56 @@ exports.findUserByToken = (req, res, next) => {
         message: 'An account can not be found'
       });
     }
-
     req.user = user;
     next();
   });
+};
+
+const undefinedFields = (data) => {
+  const { username, bio } = data;
+  if (username === undefined || bio === undefined) {
+    return true;
+  }
+};
+
+// checking for any unwanted field
+const extraFields = (data) => {
+  const fieldLength = Object.keys(data).length;
+  if (fieldLength !== 2) {
+    return true;
+  }
+};
+const imageField = (data) => {
+  if (typeof data.files.profileImage === 'undefined') {
+    return true;
+  }
+};
+const filesFieldLength = (data) => {
+  if (Object.keys(data.files).length > 1) {
+    return true;
+  }
+};
+
+exports.profileValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const extraFieldsError = extraFields(req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (extraFieldsError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  const imageFieldError = imageField(req);
+  if (imageFieldError) {
+    return res.status(400).send({ message: 'Profile Image is required' });
+  }
+  const filesFieldLengthError = filesFieldLength(req);
+  if (filesFieldLengthError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
 };
