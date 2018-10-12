@@ -73,7 +73,7 @@ module.exports = {
   async socialAuth(req, res) {
     // Check if user exists
 
-    const existingUser = await userHelper.findUser(req.user.email);
+    const existingUser = await helper.findUser(req.user.email);
 
     if (existingUser) {
       // If Yes, check if it was with the same social account

@@ -1,6 +1,6 @@
+import passport from 'passport';
 import userController from '../../controllers/userController';
 import { validate } from '../../middleware/validation';
-import passport from  'passport';
 import googleStrategy from '../../config/passportAuthentication/googleAuthentication';
 import facebookStrategy from '../../config/passportAuthentication/facebookAuthentication';
 import twitterStrategy from '../../config/passportAuthentication/twitterAuthentication';

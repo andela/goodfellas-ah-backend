@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { urlencoded, json } from 'body-parser';
 import session from 'express-session';
@@ -17,8 +16,8 @@ app.use(morgan('dev'));
 
 app.use(session({ secret: process.env.SESSION_SECRET }));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(urlencoded({ extended: false }));
+app.use(json());
 
 app.use(router);
 
