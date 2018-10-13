@@ -75,18 +75,42 @@ exports.deleteComment = async (req, res) => {
     const { commentId } = req.params;
     const { userId } = req;
     const { slug } = req.params;
-    console.log(commentId, userId, slug);
-    const comment = await ArticleComment.destroy({
+    await ArticleComment.destroy({
       where: {
         article_slug: slug,
         user_id: userId,
         id: commentId
       }
     });
+    res.status(204).json({
+      error: false,
+      message: 'comment deleted successfully'
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};
+exports.updateComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { userId } = req;
+    const { slug } = req.params;
+    const { body } = req.body;
+    const comment = await ArticleComment.update(
+      { body },
+      {
+        returning: true,
+        where: {
+          article_slug: slug,
+          user_id: userId,
+          id: commentId
+        }
+      }
+    );
     res.status(200).json({
       error: false,
-      message: 'comment deleted successfully',
-      comment,
+      message: 'comment updated successfully',
+      comment
     });
   } catch (error) {
     res.send(error);
@@ -94,7 +118,7 @@ exports.deleteComment = async (req, res) => {
 };
 
 
-exports.commentReply = async (req, res) => {
+exports.replyComment = async (req, res) => {
   try {
     const { commentId } = req.params;
     const { body } = req.body;
