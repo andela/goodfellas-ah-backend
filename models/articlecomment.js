@@ -6,9 +6,14 @@ module.exports = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER
   }, {});
   ArticleComment.associate = (models) => {
-    ArticleComment.belongsTo(models.User, { as: 'user' });
     ArticleComment.hasMany(models.CommentReply, {
-      foreignKey: 'article_id'
+      foreignKey: 'comment_id'
+    });
+    ArticleComment.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      sourceKey: 'user_id',
+      as: 'user',
+      onDelete: 'CASCADE',
     });
   };
   return ArticleComment;

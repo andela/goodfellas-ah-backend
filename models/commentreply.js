@@ -7,8 +7,12 @@ module.exports = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER
   }, {});
   CommentReply.associate = (models) => {
-    CommentReply.belongsTo(models.User, { as: 'user' });
-    CommentReply.belongsTo(models.ArticleComment, { as: 'article' });
+    CommentReply.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      sourceKey: 'user_id',
+      as: 'user',
+      onDelete: 'CASCADE',
+    });
   };
   return CommentReply;
 };
