@@ -38,9 +38,9 @@ const createArticle = (req, res) => {
  */
 
 const updateArticle = async (req, res) => {
-  const { articleId } = req.params;
+  const { slug } = req.params;
 
-  const existingArticle = await helper.findArticle(articleId);
+  const existingArticle = await helper.findArticle(slug);
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -68,8 +68,8 @@ const updateArticle = async (req, res) => {
  */
 
 const deleteArticle = async (req, res) => {
-  const { articleId } = req.params;
-  const existingArticle = await helper.findArticle(articleId);
+  const { slug } = req.params;
+  const existingArticle = await helper.findArticle(slug);
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -111,9 +111,9 @@ const getAllArticles = (req, res) => Articles
  */
 
 const getAnArticle = async (req, res) => {
-  const { articleId } = req.params;
+  const { slug } = req.params;
   try {
-    const existingArticle = await helper.findArticle(articleId);
+    const existingArticle = await helper.findArticle(slug);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
