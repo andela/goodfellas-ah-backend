@@ -82,7 +82,7 @@ exports.deleteComment = async (req, res) => {
         id: commentId
       }
     });
-    res.status(204).json({
+    res.status(200).json({
       error: false,
       message: 'comment deleted successfully'
     });
@@ -158,6 +158,55 @@ exports.updateReply = async (req, res) => {
       error: false,
       message: 'reply updated successfully',
       reply
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+exports.deleteReply = async (req, res) => {
+  try {
+    const { replyId } = req.params;
+    const { userId } = req;
+    console.log(replyId, userId);
+    await CommentReply.destroy({
+      where: {
+        user_id: userId,
+        id: replyId
+      }
+    });
+    res.status(200).json({
+      error: false,
+      message: 'reply deleted successfully'
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+
+exports.getReply = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const reply = await CommentReply.findAll({
+      where: { comment_id: commentId },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: userAttributes,
+        include: [{
+          model: Profiles,
+          as: 'profile',
+          attributes: profileAtrributes
+        }]
+      },
+      ],
+    });
+
+    res.status(200).json({
+      error: false,
+      message: 'reply retrieved successfully',
+      reply,
     });
   } catch (error) {
     res.send(error);
