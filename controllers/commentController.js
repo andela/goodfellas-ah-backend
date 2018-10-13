@@ -18,7 +18,11 @@ exports.postComment = async (req, res) => {
       user_id: userId
 
     });
-    res.send(comment);
+    res.status(201).json({
+      error: false,
+      message: 'comment posted successfully',
+      comment,
+    });
   } catch (error) {
     res.send(error);
   }
@@ -56,7 +60,34 @@ exports.getComment = async (req, res) => {
       ],
     });
 
-    res.send(comments);
+    res.status(200).json({
+      error: false,
+      message: 'comments retrieved successfully',
+      comments,
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const { userId } = req;
+    const { slug } = req.params;
+    console.log(commentId, userId, slug);
+    const comment = await ArticleComment.destroy({
+      where: {
+        article_slug: slug,
+        user_id: userId,
+        id: commentId
+      }
+    });
+    res.status(200).json({
+      error: false,
+      message: 'comment deleted successfully',
+      comment,
+    });
   } catch (error) {
     res.send(error);
   }
@@ -68,13 +99,17 @@ exports.commentReply = async (req, res) => {
     const { commentId } = req.params;
     const { body } = req.body;
     const { userId } = req;
-    const comment = await CommentReply.create({
+    const reply = await CommentReply.create({
       comment_id: commentId,
       body,
       user_id: userId
 
     });
-    res.send(comment);
+    res.status(200).json({
+      error: false,
+      message: 'reply posted successfully',
+      reply,
+    });
   } catch (error) {
     res.send(error);
   }

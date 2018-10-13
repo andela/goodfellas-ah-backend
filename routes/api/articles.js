@@ -13,6 +13,8 @@ router.get('/articles/:articleId', authenticate, articleController.getAnArticle)
 
 router.post('/articles/:slug/comments', authenticate, commentController.postComment);
 router.get('/articles/:slug/comments', commentController.getComment);
+router.delete('/articles/:slug/comments/:commentId', authenticate, commentController.deleteComment);
+
 router.post('/articles/comments/reply/:commentId', authenticate, commentController.commentReply);
 
 export default router;
