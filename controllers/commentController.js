@@ -168,7 +168,6 @@ exports.deleteReply = async (req, res) => {
   try {
     const { replyId } = req.params;
     const { userId } = req;
-    console.log(replyId, userId);
     await CommentReply.destroy({
       where: {
         user_id: userId,
