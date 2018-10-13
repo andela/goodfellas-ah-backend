@@ -1,6 +1,8 @@
 const db = require('../models');
 
-const { User, FollowersTable, ArticleComment, CommentReply } = db;
+const {
+  User, FollowersTable, ArticleComment, CommentReply, Profiles, Articles
+} = db;
 
 module.exports = {
   resetDB() {
@@ -8,5 +10,7 @@ module.exports = {
     User.destroy({ truncate: true, cascade: true });
     ArticleComment.destroy({ truncate: true, cascade: true });
     CommentReply.destroy({ truncate: true, cascade: true });
+    Profiles.destroy({ truncate: true, cascade: true });
+    Articles.destroy({ truncate: true, cascade: true });
   },
 };
