@@ -21,6 +21,6 @@ router.post('/articles/comments/reply/:commentId', authenticate, commentControll
 router.put('/articles/comments/reply/:replyId', authenticate, commentController.updateReply);
 router.delete('/articles/comments/reply/:replyId', authenticate, commentController.deleteReply);
 
-router.get('/articles/comments/reply/:commentId', authenticate, commentController.getReply);
+router.get('/articles/comments/reply/:commentId', commentController.getReply);
 
 export default router;

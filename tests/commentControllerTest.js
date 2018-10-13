@@ -69,10 +69,78 @@ describe('Comment controller', () => {
       chai
         .request(app)
         .get(`/api/articles/${slug}/comments`)
-        .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('comments retrieved successfully');
+          done();
+        });
+    });
+    it('DELETE /api/articles/slug/comments deletes a comment', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${slug}/comments/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('comment deleted successfully');
+          done();
+        });
+    });
+    it('PUT /api/articles/slug/comments should update a  comment', (done) => {
+      chai
+        .request(app)
+        .put(`/api/articles/${slug}/comments/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({ body: 'This is my first comment update' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('comment updated successfully');
+          done();
+        });
+    });
+    it('POST /articles/comments/reply/:commentId should reply a comment', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/comments/reply/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({ body: 'This is my first comment reply' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('reply posted successfully');
+          done();
+        });
+    });
+    it('PUT /articles/comments/reply/:commentId should update the reply to a comment', (done) => {
+      chai
+        .request(app)
+        .put(`/api/articles/comments/reply/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({ body: 'This is my first reply update' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('reply updated successfully');
+          done();
+        });
+    });
+
+    it('GET /articles/comments/reply/:commentId gets all replies to a comment', (done) => {
+      chai
+        .request(app)
+        .get(`/api/articles/comments/reply/${commentId}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('reply retrieved successfully');
+          done();
+        });
+    });
+    it('DELETE /articles/comments/reply/:replyId deletes the reply to a comment', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/comments/reply/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('reply deleted successfully');
           done();
         });
     });
