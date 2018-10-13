@@ -138,3 +138,28 @@ exports.replyComment = async (req, res) => {
     res.send(error);
   }
 };
+
+exports.updateReply = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { body } = req.body;
+    const { replyId } = req.params;
+    const reply = await CommentReply.update(
+      { body },
+      {
+        returning: true,
+        where: {
+          user_id: userId,
+          id: replyId
+        }
+      }
+    );
+    res.status(200).json({
+      error: false,
+      message: 'reply updated successfully',
+      reply
+    });
+  } catch (error) {
+    res.send(error);
+  }
+};

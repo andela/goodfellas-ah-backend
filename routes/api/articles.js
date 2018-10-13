@@ -18,4 +18,6 @@ router.put('/articles/:slug/comments/:commentId', authenticate, commentControlle
 
 router.post('/articles/comments/reply/:commentId', authenticate, commentController.replyComment);
 
+router.put('/articles/comments/reply/:replyId', authenticate, commentController.updateReply);
+
 export default router;
