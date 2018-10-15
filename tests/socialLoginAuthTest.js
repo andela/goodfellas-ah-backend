@@ -58,14 +58,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });
@@ -99,14 +99,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });
@@ -167,14 +167,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });
@@ -208,14 +208,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });
@@ -275,14 +275,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });
@@ -316,14 +316,14 @@ describe('Social Login Authentication', () => {
         });
     });
 
-    it('should allow authenticated user access protected route', (done) => {
+    it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       chai
         .request(app)
         .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('All Articles Retrieved Successfully');
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Article Not found!');
           done();
         });
     });

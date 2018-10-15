@@ -1,9 +1,16 @@
-const router = require('express').Router();
+import express from 'express';
+import auth from './auth';
+import user from './user';
+import profile from './profile';
+import articles from './articles';
+import passwordReset from './passwordReset';
 
-router.use('/', require('./auth'));
-router.use('/', require('./user'));
-router.use('/', require('./profile'));
-router.use('/', require('./articles'));
-router.use('/', require('./passwordReset'));
+const router = express.Router();
 
-module.exports = router;
+router.use('/', auth);
+router.use('/', user);
+router.use('/', profile);
+router.use('/', articles);
+router.use('/', passwordReset);
+
+export default router;

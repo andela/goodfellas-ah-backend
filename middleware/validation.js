@@ -42,45 +42,48 @@ const checkFieldLength = (route, fields) => {
   return false;
 };
 
-// checking for undefined fields
-const undefinedFields = (req, res) => {
-  const { username, bio } = req.body;
-
-  if (username === undefined || bio === undefined) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'All fields are required'
-    });
+const alphaNumeric = (inputTxt) => {
+  const letterNumber = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i;
+  if (inputTxt.match(letterNumber)) {
+    return true;
   }
+  return false;
 };
 
-// checking for any empty field
-const emptyField = (req, res) => {
-  const { username, bio } = req.body;
-
-  if (!username.trim() || !bio.trim()) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Fields cannot be empty'
-    });
+exports.checkNullInput = (req, res, next) => {
+  let isUndefined = false;
+  let isNull = false;
+  let isString = true;
+  const {
+    title,
+    description,
+    body
+  } = req.body;
+  [title, description, body].forEach((field) => {
+    if (field === undefined) {
+      isUndefined = true;
+    }
+    if (!isUndefined && !alphaNumeric(field)) {
+      if (Number.isInteger(parseFloat(field))) {
+        isString = false;
+      }
+    }
+    if (!isUndefined) {
+      if (field.trim().length < 1) {
+        isNull = true;
+      }
+    }
+  });
+  if (isUndefined) {
+    return res.status(400).send({ error: 'Invalid Input' });
   }
-};
-
-// checking for any unwanted field
-const extraFields = (req, res) => {
-  const fieldLength = Object.keys(req.body).length;
-  if (fieldLength !== 2) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Extra field(s) not required'
-    });
+  if (isNull) {
+    return res.status(400).send({ error: 'A field does not contain any input' });
   }
-};
-
-exports.profileValidation = (req, res) => {
-  undefinedFields(req, res);
-  emptyField(req, res);
-  extraFields(req, res);
+  if (!isString) {
+    return res.status(400).send({ error: 'Input cannot be numbers only!' });
+  }
+  return next();
 };
 
 // middleware for validating signup fields
@@ -164,8 +167,56 @@ exports.findUserByToken = (req, res, next) => {
         message: 'An account can not be found'
       });
     }
-
     req.user = user;
     next();
   });
+};
+
+const undefinedFields = (data) => {
+  const { username, bio } = data;
+  if (username === undefined || bio === undefined) {
+    return true;
+  }
+};
+
+// checking for any unwanted field
+const extraFields = (data) => {
+  const fieldLength = Object.keys(data).length;
+  if (fieldLength !== 2) {
+    return true;
+  }
+};
+const imageField = (data) => {
+  if (typeof data.files.profileImage === 'undefined') {
+    return true;
+  }
+};
+const filesFieldLength = (data) => {
+  if (Object.keys(data.files).length > 1) {
+    return true;
+  }
+};
+
+exports.profileValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const extraFieldsError = extraFields(req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (extraFieldsError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  const imageFieldError = imageField(req);
+  if (imageFieldError) {
+    return res.status(400).send({ message: 'Profile Image is required' });
+  }
+  const filesFieldLengthError = filesFieldLength(req);
+  if (filesFieldLengthError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
 };

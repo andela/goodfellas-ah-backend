@@ -1,10 +1,11 @@
-const jwt = require('jsonwebtoken');
-const db = require('../models');
-const utility = require('../lib/utility');
-const userHelper = require('../lib/user');
-require('dotenv').config();
-const profileController = require('../controllers/profileController');
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import db from '../models';
+import utility from '../lib/utility';
+import helper from '../lib/helper';
+import profileController from './profileController';
 
+dotenv.config();
 const { User, FollowersTable } = db;
 
 module.exports = {
@@ -15,7 +16,7 @@ module.exports = {
         firstname, lastname, email, password
       } = values;
 
-      const existingUser = await userHelper.findUser(email);
+      const existingUser = await helper.findUser(email);
 
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
@@ -50,7 +51,7 @@ module.exports = {
     const values = utility.trimValues(req.body);
     const { email, password } = values;
 
-    const existingUser = await userHelper.findUser(email);
+    const existingUser = await helper.findUser(email);
 
     if (!existingUser) {
       return res
@@ -75,7 +76,7 @@ module.exports = {
   async socialAuth(req, res) {
     // Check if user exists
 
-    const existingUser = await userHelper.findUser(req.user.email);
+    const existingUser = await helper.findUser(req.user.email);
 
     if (existingUser) {
       // If Yes, check if it was with the same social account
@@ -121,8 +122,8 @@ module.exports = {
     const followerId = req.userId;
     const followedUserId = req.params.userId;
     try {
-      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
-      await userHelper.throwErrorOnBadRequest(followerId, followedUserId);
+      const user = await helper.throwErrorOnNonExistingUser(followedUserId);
+      await helper.throwErrorOnBadRequest(followerId, followedUserId);
       await FollowersTable.create({ followerId, followedUserId });
       res.status(201).send({
         message: `You're now following ${user.dataValues.firstname} ${user.dataValues.lastname}`
@@ -137,7 +138,7 @@ module.exports = {
     const followerId = req.userId;
     const followedUserId = req.params.userId;
     try {
-      const user = await userHelper.throwErrorOnNonExistingUser(followedUserId);
+      const user = await helper.throwErrorOnNonExistingUser(followedUserId);
       const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
       if (userUnfollow === 0) throw new Error('You\'re not following this user');
       res.status(201).send({
@@ -152,7 +153,7 @@ module.exports = {
   async listOfFollowedUsers(req, res) {
     const { userId } = req.params;
     try {
-      await userHelper.throwErrorOnNonExistingUser(userId);
+      await helper.throwErrorOnNonExistingUser(userId);
       const followedUsers = await FollowersTable.findAndCountAll({
         where: { followerId: userId },
         attributes: { exclude: ['followerId', 'followedUserId'] },
@@ -181,7 +182,7 @@ module.exports = {
   async listOfFollowers(req, res) {
     const { userId } = req.params;
     try {
-      await userHelper.throwErrorOnNonExistingUser(userId);
+      await helper.throwErrorOnNonExistingUser(userId);
       const followers = await FollowersTable.findAndCountAll({
         where: { followedUserId: userId },
         attributes: { exclude: ['followedUserId'] },
@@ -208,7 +209,7 @@ module.exports = {
     }
   },
   async forgotPassword(req, res) {
-    const user = await userHelper.findUser(req.email);
+    const user = await helper.findUser(req.email);
     if (!user) {
       return res.status(404).send({
         message: 'The account with this email does not exist'
