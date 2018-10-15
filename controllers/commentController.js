@@ -3,8 +3,23 @@ import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const {
-  ArticleComment, CommentReply, User, Profiles
+  ArticleComment, CommentReply, User, Profiles, Articles
 } = db;
+
+const noArticle = {
+  error: true,
+  message: 'Article does not exist'
+};
+
+const noComment = {
+  error: true,
+  message: 'Comment does not exist'
+};
+
+const noReply = {
+  error: true,
+  message: 'Reply does not exist'
+};
 
 const userAttributes = ['firstname', 'lastname', 'email'];
 const profileAtrributes = ['username', 'bio', 'image'];
@@ -15,12 +30,9 @@ exports.postComment = async (req, res) => {
     const { body } = values;
     const { slug } = req.params;
     const { userId } = req;
-    const existingArticle = await helper.findArticleSlug(slug);
+    const existingArticle = await helper.checkExistence(Articles, { slug });
     if (!existingArticle) {
-      return res.status(400).json({
-        error: true,
-        message: 'Article does not exist'
-      });
+      return res.status(400).json(noArticle);
     }
     const comment = await ArticleComment.create({
       article_slug: slug,
@@ -42,12 +54,9 @@ exports.postComment = async (req, res) => {
 exports.getComment = async (req, res) => {
   try {
     const { slug } = req.params;
-    const existingArticle = await helper.findArticleSlug(slug);
+    const existingArticle = await helper.checkExistence(Articles, { slug });
     if (!existingArticle) {
-      return res.status(400).json({
-        error: true,
-        message: 'Article does not exist'
-      });
+      return res.status(400).json(noArticle);
     }
     const comments = await ArticleComment.findAll({
       where: { article_slug: slug },
@@ -92,19 +101,15 @@ exports.deleteComment = async (req, res) => {
     const { commentId } = req.params;
     const { userId } = req;
     const { slug } = req.params;
-    const existingArticle = await helper.findArticleSlug(slug);
-    const existingComment = await helper.findComment(commentId, slug);
+    const existingArticle = await helper.checkExistence(Articles, { slug });
+    const existingComment = await helper.checkExistence(ArticleComment, {
+      id: commentId
+    });
     if (!existingArticle) {
-      return res.status(400).json({
-        error: true,
-        message: 'Article does not exist'
-      });
+      return res.status(400).json(noArticle);
     }
     if (!existingComment) {
-      return res.status(400).json({
-        error: true,
-        message: 'Comment does not exist'
-      });
+      return res.status(400).json(noComment);
     }
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
@@ -124,7 +129,7 @@ exports.deleteComment = async (req, res) => {
       message: 'comment deleted successfully'
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };
 exports.updateComment = async (req, res) => {
@@ -133,19 +138,15 @@ exports.updateComment = async (req, res) => {
     const { userId } = req;
     const { slug } = req.params;
     const { body } = req.body;
-    const existingArticle = await helper.findArticleSlug(slug);
-    const existingComment = await helper.findComment(commentId);
+    const existingArticle = await helper.checkExistence(Articles, { slug });
+    const existingComment = await helper.checkExistence(ArticleComment, {
+      id: commentId
+    });
     if (!existingArticle) {
-      return res.status(400).json({
-        error: true,
-        message: 'Article does not exist'
-      });
+      return res.status(400).json(noArticle);
     }
     if (!existingComment) {
-      return res.status(400).json({
-        error: true,
-        message: 'Comment does not exist'
-      });
+      return res.status(400).json(noComment);
     }
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
@@ -170,7 +171,7 @@ exports.updateComment = async (req, res) => {
       comment
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };
 
@@ -180,12 +181,11 @@ exports.replyComment = async (req, res) => {
     const { commentId } = req.params;
     const { body } = req.body;
     const { userId } = req;
-    const existingComment = await helper.findComment(commentId);
+    const existingComment = await helper.checkExistence(ArticleComment, {
+      id: commentId
+    });
     if (!existingComment) {
-      return res.status(400).json({
-        error: true,
-        message: 'Comment does not exist'
-      });
+      return res.status(400).json(noComment);
     }
     const reply = await CommentReply.create({
       comment_id: commentId,
@@ -199,7 +199,7 @@ exports.replyComment = async (req, res) => {
       reply,
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };
 
@@ -208,12 +208,11 @@ exports.updateReply = async (req, res) => {
     const { userId } = req;
     const { body } = req.body;
     const { replyId } = req.params;
-    const existingReply = await helper.findReply(replyId);
+    const existingReply = await helper.checkExistence(CommentReply, {
+      id: replyId
+    });
     if (!existingReply) {
-      return res.status(400).json({
-        error: true,
-        message: 'Reply does not exist'
-      });
+      return res.status(400).json(noReply);
     }
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
@@ -237,7 +236,7 @@ exports.updateReply = async (req, res) => {
       reply
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };
 
@@ -245,12 +244,11 @@ exports.deleteReply = async (req, res) => {
   try {
     const { replyId } = req.params;
     const { userId } = req;
-    const existingReply = await helper.findReply(replyId);
+    const existingReply = await helper.checkExistence(CommentReply, {
+      id: replyId
+    });
     if (!existingReply) {
-      return res.status(400).json({
-        error: true,
-        message: 'Reply does not exist'
-      });
+      return res.status(400).json(noReply);
     }
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
@@ -269,7 +267,7 @@ exports.deleteReply = async (req, res) => {
       message: 'reply deleted successfully'
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };
 
@@ -300,6 +298,6 @@ exports.getReply = async (req, res) => {
       reply,
     });
   } catch (error) {
-    res.send(error);
+    res.status(500).send({ error: 'Internal server error' });
   }
 };

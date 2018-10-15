@@ -17,7 +17,9 @@ module.exports = {
       const { username, bio } = values;
       const { userId } = req;
       const id = req.params.userId;
-      const existingProfile = await helper.findProfile(id);
+      const existingProfile = await helper.checkExistence(Profiles, {
+        userId: id
+      });
       if (!existingProfile) {
         return res.status(409).json({
           error: true,
@@ -45,13 +47,15 @@ module.exports = {
         profile: userProfile
       });
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).send({ error: 'Internal server error' });
     }
   },
   async getProfile(req, res) {
     try {
       const { userId } = req.params;
-      const existingProfile = await helper.findProfile(userId);
+      const existingProfile = await helper.checkExistence(Profiles, {
+        userId
+      });
       if (!existingProfile) {
         return res.status(409).json({
           error: true,
@@ -64,7 +68,7 @@ module.exports = {
         message: 'Profile retrieved successfully'
       }));
     } catch (error) {
-      res.send(error);
+      res.status(500).send({ error: 'Internal server error' });
     }
   },
 
@@ -82,7 +86,7 @@ module.exports = {
         data: profileList
       });
     } catch (error) {
-      res.send(error);
+      res.status(500).send({ error: 'Internal server error' });
     }
   }
 };
