@@ -39,6 +39,10 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
+
   return false;
 };
 
@@ -220,17 +224,3 @@ exports.profileValidation = (req, res, next) => {
   }
   next();
 };
-
-// exports.reactionValidation = route => (req, res, next) => {
-//   const { reaction } = req.body;
-//   const emptyFields = checkEmptyFields(reaction);
-//   const tooManyFields = checkFieldLength(route, userDetails);
-
-//   if (emptyFields.status) {
-//     return res.status(400).send({ message: emptyFields.message });
-//   }
-
-//   if (reaction != 1 || reaction != -1) {
-
-//   }
-// };
