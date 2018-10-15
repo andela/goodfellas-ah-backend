@@ -58,7 +58,7 @@ describe('Articles controller', () => {
     });
 
     it('returns the right reponse when a request body field is empty', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
         body: ''
@@ -67,7 +67,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('A field does not contain any input');
@@ -75,7 +75,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a body field contains only whitespaces', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
         body: '     '
@@ -84,7 +84,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('A field does not contain any input');
@@ -92,7 +92,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a request body field contains only digits', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: '7665645544344433443',
         body: 'My people the time has come to revolt against this new government'
@@ -101,7 +101,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('Input cannot be numbers only!');
@@ -109,7 +109,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a request body field is undefined', (done) => {
-      const article = {
+      const badArticle = {
         description: 'This is a call for Revolt',
         body: 'My people the time has come to revolt against this new government'
       };
@@ -117,7 +117,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('Invalid Input');
@@ -126,7 +126,7 @@ describe('Articles controller', () => {
     });
     describe('PUT an article', () => {
       it('Returns the right response when a paricular article is updated', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -135,7 +135,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.message).to.equal('Article successfully modified');
@@ -143,7 +143,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a paricular article to be updated is not found', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -152,7 +152,7 @@ describe('Articles controller', () => {
           .request(app)
           .put('/api/articles/3')
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(404);
             expect(res.body.error).to.equal('Article not found!');
@@ -160,7 +160,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returnsh the right response when a request body field is empty', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: ''
@@ -169,7 +169,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('A field does not contain any input');
@@ -177,7 +177,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a request body field contains only whitespaces', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: '       '
@@ -186,7 +186,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('A field does not contain any input');
@@ -194,7 +194,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a request body field contains only didgits', (done) => {
-        const article = {
+        const badArticle = {
           title: '6777747747474',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -203,7 +203,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('Input cannot be numbers only!');
@@ -359,7 +359,7 @@ describe('Articles controller', () => {
             .set({ authorization: userToken })
             .send(article)
             .end((err, res) => {
-              articleSlug = res.body.slug;
+              articleSlug = res.body.article.slug;
               done();
             });
         });
@@ -377,7 +377,44 @@ describe('Articles controller', () => {
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('article bookmarked successfully');
+          expect(res.body.message).to.equal('Article bookmarked successfully');
+          expect(res.body.data.article).to.be.an('object');
+          expect(res.body.data.article).to.include({
+            slug: articleSlug
+          });
+          done();
+        });
+    });
+    it('should return error if specified article does not exist', (done) => {
+      chai
+        .request(app)
+        .post('/api/articles/bookmark/this-article-does-not-exist')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/bookmark/${articleSlug}`)
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/bookmark/${articleSlug}`)
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
           done();
         });
     });

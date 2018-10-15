@@ -165,11 +165,34 @@ const reactToArticle = async (req, res) => {
   }
 };
 
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const bookmarkArticle = async (req, res) => {
+  const { slug } = req.params;
+  const { userId: authorId } = req;
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
+    const bookmarked = await helper.bookmarkArticle(authorId, slug);
+    bookmarked.article = existingArticle.dataValues;
+
+    res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
   getAnArticle,
-  reactToArticle
+  reactToArticle,
+  bookmarkArticle
 };

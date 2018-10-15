@@ -45,13 +45,16 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE'
     }
   }, {});
-  Articles.associate = (model) => {
-    Articles.hasMany(model.Reactions, { as: 'reactions', foreignKey: 'articleId' });
+  Articles.associate = (models) => {
+    Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
+    Articles.hasMany(models.Bookmark, {
+      foreignKey: 'articleSlug'
+    });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],
     slugOptions: { lower: true },
-    overwrite: true,
+    overwrite: false,
     column: 'slug'
   });
   return Articles;
