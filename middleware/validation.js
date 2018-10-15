@@ -258,7 +258,7 @@ exports.getUserRating = (req, res, next) => {
     });      
   } else {
     Rating.findOne({ where: { 
-      userId: req.userID, 
+      userId: req.userId, 
       articleId: req.article.id
      } }).then((rating) => {
 
