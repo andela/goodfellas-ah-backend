@@ -4,6 +4,7 @@ import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import profileController from './profileController';
+import mail from '../lib/verificationMail';
 
 dotenv.config();
 const { User, FollowersTable } = db;
@@ -34,7 +35,7 @@ module.exports = {
       })
         .then((newUser) => {
           profileController.createProfile(newUser);
-          // Catch user object and send email link here
+          utility.sendEmail(newUser.email, mail(encryptedToken));
           return res.status(201).json({
             error: false,
             token: utility.createToken(newUser),
@@ -44,6 +45,7 @@ module.exports = {
         })
         .catch(() => res.status(500).send({ error: 'Internal server error' }));
     } catch (err) {
+      console.log(err);
       res.status(500).send({ error: 'Internal server error' });
     }
   },
@@ -85,12 +87,10 @@ module.exports = {
       const match = await utility.comparePasswords(password, existingUser.dataValues.password);
       // If yes then authenticate user
       if (match) {
-        res
-          .status(200)
-          .send({
-            message: 'Successfully signed in',
-            token: utility.createToken(existingUser.dataValues)
-          });
+        res.status(200).send({
+          message: 'Successfully signed in',
+          token: utility.createToken(existingUser.dataValues)
+        });
       } else {
         // If no, return error message
         res.status(400).send({ message: 'You can\'t login through this platform' });
@@ -244,4 +244,27 @@ module.exports = {
       }
     });
   },
+
+  async verifyUser(req, res) {
+    // Get token sent in params
+    const { verificationToken } = req.params;
+    // Check if there is a user with that token and that hasn't been verified
+    try {
+      const checkToken = await User.findOne({
+        where: { verification_token: verificationToken, verified: false }
+      });
+
+      if (checkToken) {
+        // If yes, then verify that user
+        checkToken.update({ verified: true, verification_token: null })
+          .then(() => res.status(200).send({ message: 'Account successfully verified' }))
+          .catch(() => res.status(500).send({ message: 'Your account cannot be verified at the moment, Please try again later' }));
+      } else {
+        // If no, then return error
+        res.status(403).send({ message: 'Your account has already been verified.' });
+      }
+    } catch (error) {
+      res.status(500).send({ message: 'Internal server error' });
+    }
+  }
 };
