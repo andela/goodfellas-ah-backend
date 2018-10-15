@@ -18,14 +18,14 @@ module.exports = {
           as: 'articleSlug',
         },
       },
-      authorId: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
           key: 'id',
-          as: 'authorId',
+          as: 'userId',
         },
       },
       createdAt: {

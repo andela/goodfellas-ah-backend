@@ -173,11 +173,11 @@ const reactToArticle = async (req, res) => {
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
-  const { userId: authorId } = req;
+  const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
     if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
-    const bookmarked = await helper.bookmarkArticle(authorId, slug);
+    const bookmarked = await helper.bookmarkArticle(userId, slug);
     bookmarked.article = existingArticle.dataValues;
 
     res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
@@ -195,15 +195,50 @@ const bookmarkArticle = async (req, res) => {
 
 const deleteBookmark = async (req, res) => {
   const { slug } = req.params;
-  const { userId: authorId } = req;
+  const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
     if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
-    const unBookmark = await Bookmark.destroy({ where: { authorId, articleSlug: slug } });
+    const unBookmark = await Bookmark.destroy({ where: { userId, articleSlug: slug } });
     if (unBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
 
     res.status(200).send({ message: 'Bookmark deleted successfully', data: { article: existingArticle.dataValues } });
   } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the id of the logged in user.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const getBookmarks = async (req, res) => {
+  const { userId } = req;
+  try {
+    const bookmarks = await Bookmark.findAndCountAll({
+      where: { userId },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Articles,
+        as: 'article',
+        attributes: {
+          include: [['id', 'articleId']],
+          exclude: ['id']
+        }
+      }
+    });
+    res.status(200).send({
+      data: {
+        articles: bookmarks.rows,
+        articlesCount: bookmarks.count
+      },
+      message: 'Retrieved Bookmarks'
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).send({ error: error.message });
   }
 };
@@ -216,5 +251,6 @@ export default {
   getAnArticle,
   reactToArticle,
   bookmarkArticle,
-  deleteBookmark
+  deleteBookmark,
+  getBookmarks,
 };

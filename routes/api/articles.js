@@ -12,5 +12,6 @@ router.get('/articles/:slug', authenticate, articleController.getAnArticle);
 router.post('/articles/:slug/react', authenticate, reactionValidation, articleController.reactToArticle);
 router.post('/articles/:slug/bookmark', authenticate, articleController.bookmarkArticle);
 router.delete('/articles/:slug/bookmark', authenticate, articleController.deleteBookmark);
+router.get('/articles/all/bookmark', authenticate, articleController.getBookmarks);
 
 export default router;

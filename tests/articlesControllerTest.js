@@ -583,9 +583,9 @@ describe('Articles controller', () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.data).to.be.an('object');
-          expect(res.body.data).to.have.property('bookmarks');
+          expect(res.body.data).to.have.property('articles');
           expect(res.body.data).to.include({
-            bookmarksCount: 2
+            articlesCount: 2
           });
           done();
         });

@@ -4,23 +4,24 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    authorId: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {});
   Bookmark.associate = (models) => {
     Bookmark.belongsTo(models.User, {
-      foreignKey: 'authorId',
-      sourceKey: 'authorId',
-      as: 'author',
-      onDelete: 'CASCADE',
+      foreignKey: 'userId',
+      sourceKey: 'userId',
+      as: 'user',
+      onDelete: 'CASCADE'
     });
     Bookmark.belongsTo(models.Articles, {
       foreignKey: 'articleSlug',
-      sourceKey: 'slug',
+      sourceKey: 'articleSlug',
       as: 'article',
-      onDelete: 'CASCADE',
+      targetKey: 'slug',
+      onDelete: 'CASCADE'
     });
   };
   return Bookmark;
