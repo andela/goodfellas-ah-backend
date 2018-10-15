@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       as: 'user',
       onDelete: 'CASCADE',
     });
-    CommentReaction.belongsTo(models.ArticleComment.User, {
-      foreignKey: 'article_id',
-      sourceKey: 'article_id',
-      as: 'article',
+    CommentReaction.belongsTo(models.ArticleComment, {
+      foreignKey: 'comment_id',
+      sourceKey: 'comment_id',
+      as: 'comment',
       onDelete: 'CASCADE',
     });
   };

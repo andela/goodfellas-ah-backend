@@ -3,7 +3,7 @@ import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const {
-  ArticleComment, CommentReply, User, Profiles, Articles
+  ArticleComment, CommentReply, User, Profiles, Articles, CommentReaction
 } = db;
 
 const noArticle = {
@@ -296,6 +296,55 @@ exports.getReply = async (req, res) => {
       error: false,
       message: 'reply retrieved successfully',
       reply,
+    });
+  } catch (error) {
+    res.status(500).send({ error: 'Internal server error' });
+  }
+};
+
+
+exports.commentReaction = async (req, res) => {
+  try {
+    const values = utility.trimValues(req.body);
+    const { reaction } = values;
+    const { userId } = req;
+    const { slug } = req.params;
+    const { commentId } = req.params;
+    const existingComment = await helper.findItem(ArticleComment, { article_slug: slug });
+    const existingReaction = await helper.findItem(CommentReaction, {
+      comment_id: commentId,
+      user_id: userId
+    });
+    if (!existingComment) {
+      return res.status(400).json(noComment);
+    }
+    if (existingReaction) {
+      const updatedReaction = await CommentReaction.update(
+        { reaction },
+        {
+          returning: true,
+          where: {
+            user_id: userId,
+            comment_id: commentId
+          }
+        }
+      );
+      return res.status(200).json({
+        error: false,
+        message: 'reaction updated successfully',
+        reaction: updatedReaction,
+      });
+    }
+    const commentReaction = await CommentReaction.create({
+      comment_id: commentId,
+      reaction,
+      user_id: userId
+
+    });
+    res.status(200).json({
+      error: false,
+      message: 'reaction posted successfully',
+      reaction: commentReaction
     });
   } catch (error) {
     res.status(500).send({ error: 'Internal server error' });
