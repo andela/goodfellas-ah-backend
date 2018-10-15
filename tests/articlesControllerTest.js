@@ -6,6 +6,12 @@ import { userDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
 
+const article = {
+  title: 'Enough is Enough!',
+  description: 'This is a call for Revolt',
+  body: 'My people the time has come to revolt against this new government',
+  image: 'null'
+};
 let testToken;
 let slug;
 
@@ -29,13 +35,12 @@ describe('Articles controller', () => {
   });
 
   describe('POST an article', () => {
+    after((done) => {
+      resetDB();
+
+      done();
+    });
     it('Returns the right response when an article is created', (done) => {
-      const article = {
-        title: 'Enough is Enough!',
-        description: 'This is a call for Revolt',
-        body: 'My people the time has come to revolt against this new government',
-        image: 'null'
-      };
       chai
         .request(app)
         .post('/api/articles')
@@ -336,6 +341,45 @@ describe('Articles controller', () => {
             done();
           });
       });
+    });
+  });
+  describe('POST /articles/bookmark/:slug', () => {
+    let userToken;
+    let articleSlug;
+    beforeEach('add user to db and article to db', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              articleSlug = res.body.slug;
+              done();
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should bookmark an article', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/bookmark/${articleSlug}`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('article bookmarked successfully');
+          done();
+        });
     });
   });
 });
