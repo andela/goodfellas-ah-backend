@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { User, Articles } from '../models';
+import { User, Articles, Rating } from '../models';
 
 const operator = Op;
 
@@ -242,4 +242,29 @@ exports.checkIfArticleExist = (req, res, next) => {
     req.article = article;
     next();
   });
+};
+
+// gets user's rating on an article
+exports.getUserRating = (req, res, next) => {
+  const userRating = parseInt(req.query.userRating, 10);
+
+  if (isNaN(userRating)) {
+    return res.status(400).send({
+      errors: `Your rating must be a number: ${req.query.userRating}`
+    });
+  } else if(userRating > 5){
+    return res.status(400).send({
+      errors: `Your can't rate an article above 5 star`
+    });      
+  } else {
+    Rating.findOne({ where: { 
+      userId: req.userID, 
+      articleId: req.article.id
+     } }).then((rating) => {
+
+      req.rating = rating;
+      req.userRating = userRating
+      next();
+     });   
+  };
 };

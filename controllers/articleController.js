@@ -124,7 +124,7 @@ const getAnArticle = async (req, res) => {
 
 const postRating = (req, res) => {
         return res.status(200).send({
-          message: `You\'ve rated this articlestar`,
+          message: req.userRating
         });
 
 
