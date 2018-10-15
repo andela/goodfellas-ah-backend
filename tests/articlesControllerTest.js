@@ -12,6 +12,12 @@ const article = {
   body: 'My people the time has come to revolt against this new government',
   image: 'null'
 };
+const article2 = {
+  title: 'Second Article',
+  description: 'This is the second article',
+  body: 'Like I have said, this is the second article. Got that?',
+  image: 'null'
+};
 let testToken;
 let slug;
 
@@ -411,6 +417,108 @@ describe('Articles controller', () => {
       chai
         .request(app)
         .post(`/api/articles/bookmark/${articleSlug}`)
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
+  });
+  describe('DELETE /articles/bookmark/:slug', () => {
+    let userToken;
+    let articleSlug;
+    let unbookMarkedArticle;
+    beforeEach('add user to db, add articles to db and bookmark one of them', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              unbookMarkedArticle = res.body.article.slug;
+            });
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              articleSlug = res.body.article.slug;
+              chai
+                .request(app)
+                .post(`/api/articles/bookmark/${articleSlug}`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end(() => {
+                  done();
+                });
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should bookmark an article', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/bookmark/${articleSlug}`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Bookmark deleted successfully');
+          expect(res.body.data.article).to.be.an('object');
+          expect(res.body.data.article).to.include({
+            slug: articleSlug
+          });
+          done();
+        });
+    });
+    it('should return error if specified article does not exist', (done) => {
+      chai
+        .request(app)
+        .delete('/api/articles/bookmark/this-article-does-not-exist')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should return error if specified article is not currently bookmarked', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/bookmark/${unbookMarkedArticle}`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('This article is not currently bookmarked');
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/bookmark/${articleSlug}`)
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/bookmark/${articleSlug}`)
         .set({ Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
