@@ -20,9 +20,7 @@ const generateErrorMessage = (missing) => {
 const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 const checkEmptyFields = (data) => {
   const emptyFields = {};
-  const missingFields = Object.keys(data).filter(
-    field => !data[field] || !/\S/.test(data[field])
-  );
+  const missingFields = Object.keys(data).filter(field => !data[field] || !/\S/.test(data[field]));
   if (missingFields.length > 0) {
     emptyFields.status = true;
     emptyFields.message = generateErrorMessage(missingFields);
