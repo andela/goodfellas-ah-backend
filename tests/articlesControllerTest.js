@@ -239,7 +239,7 @@ describe('Articles controller', () => {
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(reaction)
           .end((err, res) => {
-            expect(res.status).to.equal(200);
+            expect(res.status).to.equal(201);
             expect(res.body.message).to.equal('Successfully added reaction');
             done();
           });

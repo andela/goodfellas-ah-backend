@@ -118,11 +118,20 @@ const getAnArticle = async (req, res) => {
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
-    res.status(200).send({ message: 'Article gotten successfully!', existingArticle });
+
+    const article = await helper.countReactions(existingArticle);
+    res.status(200).send({ message: 'Article gotten successfully!', article });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
+
+/**
+ * likes or dislikes an article
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 
 const reactToArticle = async (req, res) => {
   const { userId } = req;
@@ -147,7 +156,7 @@ const reactToArticle = async (req, res) => {
       reaction
     });
 
-    return res.status(200).send({ message: 'Successfully added reaction' });
+    return res.status(201).send({ message: 'Successfully added reaction' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
