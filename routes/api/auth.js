@@ -1,11 +1,11 @@
-const router = require('express').Router();
-const passport = require('passport');
+import passport from 'passport';
+import userController from '../../controllers/userController';
+import { validate } from '../../middleware/validation';
+import googleStrategy from '../../config/passportAuthentication/googleAuthentication';
+import facebookStrategy from '../../config/passportAuthentication/facebookAuthentication';
+import twitterStrategy from '../../config/passportAuthentication/twitterAuthentication';
 
-const userController = require('../../controllers/userController');
-const { validate } = require('../..//middleware/validation');
-const googleStrategy = require('../../config/passportAuthentication/googleAuthentication');
-const facebookStrategy = require('../../config/passportAuthentication/facebookAuthentication');
-const twitterStrategy = require('../../config/passportAuthentication/twitterAuthentication');
+const router = require('express').Router();
 
 
 router.post('/auth/signup', validate('signup'), userController.signup);
@@ -17,4 +17,4 @@ router.get('/auth/google/callback', passport.authenticate(googleStrategy, { sess
 router.get('/auth/twitter', passport.authenticate(twitterStrategy, { scope: ['include_email=true', 'include_entities=false'] }));
 router.get('/auth/twitter/callback', passport.authenticate(twitterStrategy, { session: false }), userController.socialAuth);
 
-module.exports = router;
+export default router;
