@@ -23,7 +23,6 @@ const checkEmptyFields = (data) => {
   const missingFields = Object.keys(data).filter(
     field => !data[field] || !/\S/.test(data[field])
   );
-
   if (missingFields.length > 0) {
     emptyFields.status = true;
     emptyFields.message = generateErrorMessage(missingFields);

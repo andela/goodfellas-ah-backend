@@ -17,7 +17,7 @@ module.exports = {
       const { username, bio } = values;
       const { userId } = req;
       const id = req.params.userId;
-      const existingProfile = await helper.checkExistence(Profiles, {
+      const existingProfile = await helper.findItem(Profiles, {
         userId: id
       });
       if (!existingProfile) {
@@ -53,7 +53,7 @@ module.exports = {
   async getProfile(req, res) {
     try {
       const { userId } = req.params;
-      const existingProfile = await helper.checkExistence(Profiles, {
+      const existingProfile = await helper.findItem(Profiles, {
         userId
       });
       if (!existingProfile) {

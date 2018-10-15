@@ -7,7 +7,7 @@ import { userDetail } from './signUpDetails';
 chai.use(chaiHttp);
 
 let testToken;
-let id;
+let slug;
 
 describe('Articles controller', () => {
   before((done) => {
@@ -46,8 +46,8 @@ describe('Articles controller', () => {
           const { title } = res.body.article;
           expect(title).to.equal('Enough is Enough!');
           expect(res.body.message).to.equal('You have created an article successfully');
-          const articleId = res.body.article.id;
-          id = articleId;
+          const articleSlug = res.body.article.slug;
+          slug = articleSlug;
           done();
         });
     });
@@ -128,7 +128,7 @@ describe('Articles controller', () => {
         };
         chai
           .request(app)
-          .put(`/api/articles/${id}`)
+          .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(article)
           .end((err, res) => {
@@ -162,7 +162,7 @@ describe('Articles controller', () => {
         };
         chai
           .request(app)
-          .put(`/api/articles/${id}`)
+          .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(article)
           .end((err, res) => {
@@ -179,7 +179,7 @@ describe('Articles controller', () => {
         };
         chai
           .request(app)
-          .put(`/api/articles/${id}`)
+          .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(article)
           .end((err, res) => {
@@ -196,7 +196,7 @@ describe('Articles controller', () => {
         };
         chai
           .request(app)
-          .put(`/api/articles/${id}`)
+          .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(article)
           .end((err, res) => {
@@ -210,7 +210,7 @@ describe('Articles controller', () => {
       it('Returns the right response when a paricular article gotten/fetched', (done) => {
         chai
           .request(app)
-          .get(`/api/articles/${id}`)
+          .get(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
@@ -245,7 +245,7 @@ describe('Articles controller', () => {
           it('Returns the right response when a particular article is deleted', (done) => {
             chai
               .request(app)
-              .delete(`/api/articles/${id}`)
+              .delete(`/api/articles/${slug}`)
               .set({ authorization: testToken, Accept: 'application/json' })
               .end((err, res) => {
                 expect(res.status).to.equal(200);

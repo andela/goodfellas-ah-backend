@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],
     slugOptions: { lower: true },
-    overwrite: false,
+    overwrite: true,
     column: 'slug'
   });
   return Articles;
