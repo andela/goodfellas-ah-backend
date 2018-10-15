@@ -1,4 +1,6 @@
 import db from '../models';
+import utility from '../lib/utility';
+import helper from '../lib/helper';
 
 const {
   ArticleComment, CommentReply, User, Profiles
@@ -9,9 +11,17 @@ const profileAtrributes = ['username', 'bio', 'image'];
 
 exports.postComment = async (req, res) => {
   try {
+    const values = utility.trimValues(req.body);
+    const { body } = values;
     const { slug } = req.params;
-    const { body } = req.body;
     const { userId } = req;
+    const existingArticle = await helper.findArticleSlug(slug);
+    if (!existingArticle) {
+      return res.status(400).json({
+        error: true,
+        message: 'Article does not exist'
+      });
+    }
     const comment = await ArticleComment.create({
       article_slug: slug,
       body,
@@ -32,6 +42,13 @@ exports.postComment = async (req, res) => {
 exports.getComment = async (req, res) => {
   try {
     const { slug } = req.params;
+    const existingArticle = await helper.findArticleSlug(slug);
+    if (!existingArticle) {
+      return res.status(400).json({
+        error: true,
+        message: 'Article does not exist'
+      });
+    }
     const comments = await ArticleComment.findAll({
       where: { article_slug: slug },
       include: [{
@@ -75,6 +92,26 @@ exports.deleteComment = async (req, res) => {
     const { commentId } = req.params;
     const { userId } = req;
     const { slug } = req.params;
+    const existingArticle = await helper.findArticleSlug(slug);
+    const existingComment = await helper.findComment(commentId, slug);
+    if (!existingArticle) {
+      return res.status(400).json({
+        error: true,
+        message: 'Article does not exist'
+      });
+    }
+    if (!existingComment) {
+      return res.status(400).json({
+        error: true,
+        message: 'Comment does not exist'
+      });
+    }
+    if (existingComment.user_id !== userId) {
+      return res.status(400).json({
+        error: true,
+        message: 'You don\'t have the authorization to delete this comment'
+      });
+    }
     await ArticleComment.destroy({
       where: {
         article_slug: slug,
@@ -96,6 +133,26 @@ exports.updateComment = async (req, res) => {
     const { userId } = req;
     const { slug } = req.params;
     const { body } = req.body;
+    const existingArticle = await helper.findArticleSlug(slug);
+    const existingComment = await helper.findComment(commentId);
+    if (!existingArticle) {
+      return res.status(400).json({
+        error: true,
+        message: 'Article does not exist'
+      });
+    }
+    if (!existingComment) {
+      return res.status(400).json({
+        error: true,
+        message: 'Comment does not exist'
+      });
+    }
+    if (existingComment.user_id !== userId) {
+      return res.status(400).json({
+        error: true,
+        message: 'You don\'t have the authorization to update this comment'
+      });
+    }
     const comment = await ArticleComment.update(
       { body },
       {
@@ -123,6 +180,13 @@ exports.replyComment = async (req, res) => {
     const { commentId } = req.params;
     const { body } = req.body;
     const { userId } = req;
+    const existingComment = await helper.findComment(commentId);
+    if (!existingComment) {
+      return res.status(400).json({
+        error: true,
+        message: 'Comment does not exist'
+      });
+    }
     const reply = await CommentReply.create({
       comment_id: commentId,
       body,
@@ -144,6 +208,19 @@ exports.updateReply = async (req, res) => {
     const { userId } = req;
     const { body } = req.body;
     const { replyId } = req.params;
+    const existingReply = await helper.findReply(replyId);
+    if (!existingReply) {
+      return res.status(400).json({
+        error: true,
+        message: 'Reply does not exist'
+      });
+    }
+    if (existingReply.user_id !== userId) {
+      return res.status(400).json({
+        error: true,
+        message: 'You don\'t have the authorization to update this reply'
+      });
+    }
     const reply = await CommentReply.update(
       { body },
       {
@@ -168,6 +245,19 @@ exports.deleteReply = async (req, res) => {
   try {
     const { replyId } = req.params;
     const { userId } = req;
+    const existingReply = await helper.findReply(replyId);
+    if (!existingReply) {
+      return res.status(400).json({
+        error: true,
+        message: 'Reply does not exist'
+      });
+    }
+    if (existingReply.user_id !== userId) {
+      return res.status(400).json({
+        error: true,
+        message: 'You don\'t have the authorization to delete this reply'
+      });
+    }
     await CommentReply.destroy({
       where: {
         user_id: userId,
@@ -201,7 +291,9 @@ exports.getReply = async (req, res) => {
       },
       ],
     });
-
+    if (reply.length < 1) {
+      return res.status(404).send({ message: 'This comment has no reply' });
+    }
     res.status(200).json({
       error: false,
       message: 'reply retrieved successfully',

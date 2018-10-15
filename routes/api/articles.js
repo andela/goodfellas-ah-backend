@@ -1,7 +1,7 @@
 import articleController from '../../controllers/articleController';
 import commentController from '../../controllers/commentController';
 import authenticate from '../../middleware/authentication';
-import { checkNullInput } from '../../middleware/validation';
+import { checkNullInput, commentValidation } from '../../middleware/validation';
 
 const router = require('express').Router();
 
@@ -11,10 +11,11 @@ router.delete('/articles/:articleId', authenticate, articleController.deleteArti
 router.get('/articles', authenticate, articleController.getAllArticles);
 router.get('/articles/:articleId', authenticate, articleController.getAnArticle);
 
-router.post('/articles/:slug/comments', authenticate, commentController.postComment);
+router.post('/articles/:slug/comments', authenticate, commentValidation, commentController.postComment);
 router.get('/articles/:slug/comments', commentController.getComment);
 router.delete('/articles/:slug/comments/:commentId', authenticate, commentController.deleteComment);
 router.put('/articles/:slug/comments/:commentId', authenticate, commentController.updateComment);
+
 
 router.post('/articles/comments/reply/:commentId', authenticate, commentController.replyComment);
 

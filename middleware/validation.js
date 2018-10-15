@@ -180,11 +180,23 @@ const undefinedFields = (data) => {
     return true;
   }
 };
+const undefinedcommentFields = (data) => {
+  const { body } = data;
+  if (body === undefined) {
+    return true;
+  }
+};
 
 // checking for any unwanted field
 const extraFields = (data) => {
   const fieldLength = Object.keys(data).length;
   if (fieldLength !== 2) {
+    return true;
+  }
+};
+const extracommentFields = (data) => {
+  const fieldLength = Object.keys(data).length;
+  if (fieldLength !== 1) {
     return true;
   }
 };
@@ -218,6 +230,22 @@ exports.profileValidation = (req, res, next) => {
   }
   const filesFieldLengthError = filesFieldLength(req);
   if (filesFieldLengthError) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
+};
+
+exports.commentValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedcommentFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const extraFieldsError = extracommentFields(req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (extraFieldsError) {
     return res.status(400).send({ message: 'Extra field(s) not required' });
   }
   next();
