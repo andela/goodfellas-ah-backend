@@ -1,6 +1,9 @@
+import userController from '../../controllers/userController';
+
 const router = require('express').Router();
-const userController = require('../../controllers/userController');
-const { validateForgotPassword, findUserByToken, validateResetPassword } = require('../..//middleware/validation');
+
+const { validateForgotPassword, findUserByToken, validateResetPassword } = require('../../middleware/validation');
+
 
 // forgot password
 router.post(

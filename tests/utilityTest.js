@@ -1,6 +1,5 @@
 import chai from 'chai';
-
-const utility = require('../lib/utility');
+import utility from '../lib/utility';
 
 describe('Utility', () => {
   let encryptedPassword;

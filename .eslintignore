@@ -40,3 +40,5 @@ node_modules
 .nyc_output
 #migrations
 migrations/*.js
+
+

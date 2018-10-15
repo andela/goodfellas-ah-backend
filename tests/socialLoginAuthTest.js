@@ -1,9 +1,10 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import passport from 'passport';
-import { app } from '../server';
-import { resetDB } from './resetTestDB';
 import Strategy from '../lib/mockStrategy';
+
+const { app } = require('../server');
+const { resetDB } = require('./resetTestDB');
 
 chai.use(chaiHttp);
 

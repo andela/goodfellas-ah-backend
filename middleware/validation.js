@@ -226,12 +226,12 @@ exports.profileValidation = (req, res, next) => {
 exports.checkIfArticleExist = (req, res, next) => {
   const articleId = parseInt(req.params.articleId, 10);
 
-  if (isNaN(articleId)) {
+  if (Number.isNaN(articleId)) {
     return res.status(400).send({
       errors: `You've entered an invalid article id: ${req.params.articleId}`
     });
   }
-  
+
   return Articles.findById(articleId).then((article) => {
     if (!article) {
       return res.status(404).send({
@@ -248,23 +248,23 @@ exports.checkIfArticleExist = (req, res, next) => {
 exports.getUserRating = (req, res, next) => {
   const userRating = parseInt(req.query.userRating, 10);
 
-  if (isNaN(userRating)) {
+  if (Number.isNaN(userRating)) {
     return res.status(400).send({
       errors: `Your rating must be a number: ${req.query.userRating}`
     });
-  } else if(userRating > 5){
+  } else if (userRating > 5) {
     return res.status(400).send({
-      errors: `Your can't rate an article above 5 star`
-    });      
-  } else {
-    Rating.findOne({ where: { 
-      userId: req.userId, 
+      errors: 'Your can\'t rate an article above 5 star'
+    });
+  }
+  Rating.findOne({
+    where: {
+      userId: req.userId,
       articleId: req.article.id
-     } }).then((rating) => {
-
-      req.rating = rating;
-      req.userRating = userRating
-      next();
-     });   
-  };
+    }
+  }).then((rating) => {
+    req.rating = rating;
+    req.userRating = userRating;
+    next();
+  });
 };

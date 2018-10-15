@@ -1,8 +1,10 @@
 import articleController from '../../controllers/articleController';
 import authenticate from '../../middleware/authentication';
-import { checkNullInput, checkIfArticleExist, getUserRating } from '../../middleware/validation';
 
 const router = require('express').Router();
+
+const { checkNullInput, checkIfArticleExist, getUserRating } = require('../../middleware/validation');
+
 
 router.post('/articles', authenticate, checkNullInput, articleController.createArticle);
 router.put('/articles/:slug', authenticate, checkNullInput, articleController.updateArticle);

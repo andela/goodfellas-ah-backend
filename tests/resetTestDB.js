@@ -1,6 +1,4 @@
-const db = require('../models');
-
-const { User, FollowersTable } = db;
+import { User, FollowersTable } from '../models';
 
 module.exports = {
   resetDB() {

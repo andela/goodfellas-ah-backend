@@ -1,11 +1,12 @@
 import passport from 'passport';
 import userController from '../../controllers/userController';
-import { validate } from '../../middleware/validation';
 import googleStrategy from '../../config/passportAuthentication/googleAuthentication';
 import facebookStrategy from '../../config/passportAuthentication/facebookAuthentication';
 import twitterStrategy from '../../config/passportAuthentication/twitterAuthentication';
 
 const router = require('express').Router();
+
+const { validate } = require('../../middleware/validation');
 
 
 router.post('/auth/signup', validate('signup'), userController.signup);

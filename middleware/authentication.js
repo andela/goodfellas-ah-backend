@@ -1,8 +1,7 @@
 import { verify } from 'jsonwebtoken';
+import {} from 'dotenv/config';
 
-require('dotenv').config();
-
-export default (req, res, next) => {
+module.exports = (req, res, next) => {
   const token = req.headers.authorization;
   if (token) {
     verify(token, process.env.SECRET, (error, decoded) => {

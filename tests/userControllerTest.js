@@ -1,8 +1,9 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import { app } from '../server';
-import { resetDB } from './resetTestDB';
 import { User } from '../models';
+
+const { app } = require('../server');
+const { resetDB } = require('./resetTestDB');
 
 chai.use(chaiHttp);
 

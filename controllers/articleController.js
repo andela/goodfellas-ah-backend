@@ -1,6 +1,5 @@
 import { Articles, Rating } from '../models';
 import helper from '../lib/helper';
-import utility from '../lib/utility';
 
 /**
  * Creates an article
@@ -122,41 +121,37 @@ const getAnArticle = async (req, res) => {
   }
 };
 
-// method for averaging all ratings of an article and 
-//adding to the article object
-const addRatingsToArticle  = (res, req, rated) => {
-  if(rated){
-  return Rating.findAll({ where: { articleId: req.article.id } })
-  .then((ratings) => { 
-    let ratingSum = 0;
-    ratings.forEach((rate) => ratingSum += rate.starRating);
-    const averageRating = ratingSum / ratings.length;
-    
-    return req.article.update({ averageRating: averageRating })
-    .then((ratedArticle) => {
-      
-      return res.status(201).send({
-        message: `You\'ve rated this article ${req.userRating} star`,
-        ratedArticle, ratings
+// method for averaging all ratings of an article and
+// adding to the article object
+const addRatingsToArticle = (res, req, rated) => {
+  if (rated) {
+    const ratingSum = 0;
+    return Rating.findAll({ where: { articleId: req.article.id } })
+      .then((ratings) => {
+        ratings.forEach(rate => ratingSum + rate.starRating);
+        const averageRating = ratingSum / ratings.length;
+
+        return req.article.update({ averageRating })
+          .then(ratedArticle => res.status(201).send({
+            message: `You've rated this article ${req.userRating} star`,
+            ratedArticle,
+            ratings
+          }));
       });
-    });
-  });
-} else {
+  }
   return res.status(500).send({
     error: 'Internal server error'
-  });      
-}
-}
+  });
+};
 
 // method for posting the ratings of an article
 const postRating = async (req, res) => {
-  if(req.rating){
+  if (req.rating) {
     const updatedRating = await helper.updateRating(req.rating, req.userRating);
     return addRatingsToArticle(res, req, updatedRating);
-  } else {
-    const postedRating = await helper.addRating(req.userRating, req.userId, req.article.id)
-    return addRatingsToArticle(res, req, postedRating);
   }
+  const postedRating = await helper.addRating(req.userRating, req.userId, req.article.id);
+  return addRatingsToArticle(res, req, postedRating);
 };
 
 export default {

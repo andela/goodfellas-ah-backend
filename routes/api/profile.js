@@ -1,5 +1,4 @@
 import multiparty from 'connect-multiparty';
-
 import profileController from '../../controllers/profileController';
 import authenticate from '../../middleware/authentication';
 import validate from '../../middleware/validation';
