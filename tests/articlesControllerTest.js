@@ -379,7 +379,7 @@ describe('Articles controller', () => {
     it('should bookmark an article', (done) => {
       chai
         .request(app)
-        .post(`/api/articles/bookmark/${articleSlug}`)
+        .post(`/api/articles/${articleSlug}/bookmark`)
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
@@ -394,7 +394,7 @@ describe('Articles controller', () => {
     it('should return error if specified article does not exist', (done) => {
       chai
         .request(app)
-        .post('/api/articles/bookmark/this-article-does-not-exist')
+        .post('/api/articles/this-article-does-not-exist/bookmark')
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -405,7 +405,7 @@ describe('Articles controller', () => {
     it('should return error if token is compromised', (done) => {
       chai
         .request(app)
-        .post(`/api/articles/bookmark/${articleSlug}`)
+        .post(`/api/articles/${articleSlug}/bookmark`)
         .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
@@ -416,7 +416,7 @@ describe('Articles controller', () => {
     it('should return error if token is not specified', (done) => {
       chai
         .request(app)
-        .post(`/api/articles/bookmark/${articleSlug}`)
+        .post(`/api/articles/${articleSlug}/bookmark`)
         .set({ Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
@@ -453,7 +453,7 @@ describe('Articles controller', () => {
               articleSlug = res.body.article.slug;
               chai
                 .request(app)
-                .post(`/api/articles/bookmark/${articleSlug}`)
+                .post(`/api/articles/${articleSlug}/bookmark`)
                 .set({ authorization: userToken, Accept: 'application/json' })
                 .end(() => {
                   done();
@@ -470,7 +470,7 @@ describe('Articles controller', () => {
     it('should bookmark an article', (done) => {
       chai
         .request(app)
-        .delete(`/api/articles/bookmark/${articleSlug}`)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
@@ -485,7 +485,7 @@ describe('Articles controller', () => {
     it('should return error if specified article does not exist', (done) => {
       chai
         .request(app)
-        .delete('/api/articles/bookmark/this-article-does-not-exist')
+        .delete('/api/articles/this-article-does-not-exist/bookmark')
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -496,7 +496,7 @@ describe('Articles controller', () => {
     it('should return error if specified article is not currently bookmarked', (done) => {
       chai
         .request(app)
-        .delete(`/api/articles/bookmark/${unbookMarkedArticle}`)
+        .delete(`/api/articles/${unbookMarkedArticle}/bookmark`)
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(400);
@@ -507,7 +507,7 @@ describe('Articles controller', () => {
     it('should return error if token is compromised', (done) => {
       chai
         .request(app)
-        .delete(`/api/articles/bookmark/${articleSlug}`)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
         .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
@@ -518,7 +518,93 @@ describe('Articles controller', () => {
     it('should return error if token is not specified', (done) => {
       chai
         .request(app)
-        .delete(`/api/articles/bookmark/${articleSlug}`)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
+  });
+  describe('GET /articles/all/bookmark', () => {
+    let userToken;
+    beforeEach('add user to db, add articles to db and bookmark them', (done) => {
+      // add user to db
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          // add first article and bookmark
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end();
+            });
+          // add second article
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end(() => {
+                  done();
+                });
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should return bookmarked articles', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.data).to.be.an('object');
+          expect(res.body.data).to.have.property('bookmarks');
+          expect(res.body.data).to.include({
+            bookmarksCount: 2
+          });
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
         .set({ Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
