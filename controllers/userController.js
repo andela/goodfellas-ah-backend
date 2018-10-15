@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import db from '../models';
+import { User, FollowersTable } from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import profileController from './profileController';
 
 dotenv.config();
-const { User, FollowersTable } = db;
 
 module.exports = {
   async signup(req, res) {

@@ -1,7 +1,5 @@
-import models from '../models';
+import { Articles } from '../models';
 import helper from '../lib/helper';
-
-const { Articles } = models;
 
 
 /**
@@ -124,10 +122,19 @@ const getAnArticle = async (req, res) => {
   }
 };
 
+const postRating = (req, res) => {
+        return res.status(200).send({
+          message: `You\'ve rated this articlestar`,
+        });
+
+
+}
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
-  getAnArticle
+  getAnArticle,
+  postRating
 };

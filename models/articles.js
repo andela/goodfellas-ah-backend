@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    averageRating: {
+      type: DataTypes.INTEGER,
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -45,8 +48,11 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE'
     }
   }, {});
-  Articles.associate = () => {
-    // associations can be defined here
+  Articles.associate = (models) => {
+    Articles.hasMany(models.Rating, {
+      foreignKey: 'articleId',
+      as: 'star_ratings',
+    });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],

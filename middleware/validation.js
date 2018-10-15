@@ -1,7 +1,7 @@
-const operator = require('sequelize').Op;
-const db = require('../models');
+import { Op } from 'sequelize';
+import { User, Articles } from '../models';
 
-const { User } = db;
+const operator = Op;
 
 const generateErrorMessage = (missing) => {
   let errorString = 'Please fill the ';
@@ -219,4 +219,27 @@ exports.profileValidation = (req, res, next) => {
     return res.status(400).send({ message: 'Extra field(s) not required' });
   }
   next();
+};
+
+
+// checks if an article exist
+exports.checkIfArticleExist = (req, res, next) => {
+  const articleId = parseInt(req.params.articleId, 10);
+
+  if (isNaN(articleId)) {
+    return res.status(400).send({
+      errors: `You've entered an invalid article id: ${req.params.articleId}`
+    });
+  }
+  
+  return Articles.findById(articleId).then((article) => {
+    if (!article) {
+      return res.status(404).send({
+        message: 'Article can not be found'
+      });
+    }
+
+    req.article = article;
+    next();
+  });
 };
