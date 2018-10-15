@@ -16,7 +16,7 @@ module.exports = {
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
       const { userId } = req;
-      const { id } = req.params.userId;
+      const id = req.params.userId;
       const existingProfile = await helper.findProfile(id);
       if (!existingProfile) {
         return res.status(409).json({
