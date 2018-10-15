@@ -50,7 +50,9 @@ module.exports = {
     const values = utility.trimValues(req.body);
     const { email, password } = values;
 
-    const existingUser = await helper.findUser(email);
+    const existingUser = await helper.checkExistence(User, {
+      email
+    });
 
     if (!existingUser) {
       return res
@@ -209,7 +211,9 @@ module.exports = {
     }
   },
   async forgotPassword(req, res) {
-    const user = await helper.findUser(req.email);
+    const user = await helper.checkExistence(User, {
+      email: req.email
+    });
     if (!user) {
       return res.status(404).send({
         message: 'The account with this email does not exist'
