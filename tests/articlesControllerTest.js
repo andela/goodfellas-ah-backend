@@ -265,6 +265,21 @@ describe('Articles controller', () => {
               });
           });
         });
+        describe('React to an article', () => {
+          it('Returns a success message when an article is liked for the first time', (done) => {
+            const reaction = { reaction: 1 };
+            chai
+              .request(app)
+              .post(`/api/articles/${slug}/react`)
+              .set({ authorization: testToken, Accept: 'application/json' })
+              .send(reaction)
+              .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.message).to.equal('Successfully added reaction');
+                done();
+              });
+          });
+        });
       });
     });
   });
