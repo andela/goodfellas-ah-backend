@@ -1,7 +1,7 @@
 import models from '../models';
 import helper from '../lib/helper';
 
-const { Articles } = models;
+const { Articles, Reactions } = models;
 
 
 /**
@@ -124,10 +124,40 @@ const getAnArticle = async (req, res) => {
   }
 };
 
+const reactToArticle = async (req, res) => {
+  const { userId } = req;
+  const { slug } = req.params;
+  const { reaction } = req.body;
+
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
+
+    const articleId = existingArticle.id;
+    const existingReaction = await Reactions.findOne({ where: { userId, articleId } });
+
+    if (existingReaction) {
+      existingReaction.updateAttributes({ reaction });
+      return res.status(200).send({ message: 'Successfully updated reaction' });
+    }
+
+    Reactions.create({
+      userId,
+      articleId,
+      reaction
+    });
+
+    return res.status(200).send({ message: 'Successfully added reaction' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
-  getAnArticle
+  getAnArticle,
+  reactToArticle
 };

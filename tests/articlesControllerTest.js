@@ -229,57 +229,59 @@ describe('Articles controller', () => {
             done();
           });
       });
-      describe('GET all articles', () => {
-        it('Returns the right response when all the articles are gotten/fetched', (done) => {
-          chai
-            .request(app)
-            .get('/api/articles')
-            .set({ authorization: testToken, Accept: 'application/json' })
-            .end((err, res) => {
-              expect(res.status).to.equal(200);
-              expect(res.body.message).to.equal('Articles gotten successfully!');
-              done();
-            });
-        });
-        describe('DELETE an article', () => {
-          it('Returns the right response when a particular article is deleted', (done) => {
-            chai
-              .request(app)
-              .delete(`/api/articles/${slug}`)
-              .set({ authorization: testToken, Accept: 'application/json' })
-              .end((err, res) => {
-                expect(res.status).to.equal(200);
-                expect(res.body.message).to.equal('article successfully deleted');
-                done();
-              });
+    });
+    describe('React to an article', () => {
+      it('Returns a success message when an article is liked for the first time', (done) => {
+        const reaction = { reaction: 1 };
+        console.log('This is the slug', slug);
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            console.log('THIS IS THE ERROR', err);
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Successfully added reaction');
+            done();
           });
-          it('Returns the right response when a particular article to be deleted is not found', (done) => {
-            chai
-              .request(app)
-              .delete('/api/articles/3')
-              .set({ authorization: testToken, Accept: 'application/json' })
-              .end((err, res) => {
-                expect(res.status).to.equal(404);
-                expect(res.body.error).to.equal('Article not found!');
-                done();
-              });
+      });
+    });
+    describe('GET all articles', () => {
+      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Articles gotten successfully!');
+            done();
           });
-        });
-        describe('React to an article', () => {
-          it('Returns a success message when an article is liked for the first time', (done) => {
-            const reaction = { reaction: 1 };
-            chai
-              .request(app)
-              .post(`/api/articles/${slug}/react`)
-              .set({ authorization: testToken, Accept: 'application/json' })
-              .send(reaction)
-              .end((err, res) => {
-                expect(res.status).to.equal(200);
-                expect(res.body.message).to.equal('Successfully added reaction');
-                done();
-              });
+      });
+    });
+    describe('DELETE an article', () => {
+      it('Returns the right response when a particular article is deleted', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('article successfully deleted');
+            done();
           });
-        });
+      });
+      it('Returns the right response when a particular article to be deleted is not found', (done) => {
+        chai
+          .request(app)
+          .delete('/api/articles/3')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal('Article not found!');
+            done();
+          });
       });
     });
   });
