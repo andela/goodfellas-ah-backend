@@ -19,7 +19,7 @@
   "schemes": ["https"],
   "paths": {
     "/auth/google": {
-      "post": {
+      "get": {
         "tags": [
           "User"
         ],
@@ -109,7 +109,7 @@
       }
     },
     "/auth/facebook": {
-      "post": {
+      "get": {
         "tags": [
           "User"
         ],
@@ -199,7 +199,7 @@
       }
     },
     "/auth/twitter": {
-      "post": {
+      "get": {
         "tags": [
           "User"
         ],
@@ -279,6 +279,61 @@
             "schema": {
               "type": "string",
               "properties":{
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verification": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Verify user upon signup",
+        "description": "When user signs up they should get an email to verify their account.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "verificationToken",
+            "description": "This is a unique token created for each user on sign up",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account successfully verified'",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your account has already been verified.",
+            "schema": {
+              "type": "string",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "type": "string",
+              "properties": {
                 "error": {
                   "type": "string"
                 }
