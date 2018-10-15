@@ -224,3 +224,22 @@ exports.profileValidation = (req, res, next) => {
   }
   next();
 };
+
+exports.reactionValidation = (req, res, next) => {
+  const { reaction } = req.body;
+  const emptyFields = checkEmptyFields({ reaction });
+  const tooManyFields = checkFieldLength('reaction', { reaction });
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
+    return res.status(400).send({ message: 'Incorrect reaction value provided' });
+  }
+  next();
+};
