@@ -1,8 +1,7 @@
 import models from '../models';
 import helper from '../lib/helper';
 
-const { Articles, Reactions } = models;
-
+const { Articles, Reactions, Bookmark } = models;
 
 /**
  * Creates an article
@@ -187,6 +186,28 @@ const bookmarkArticle = async (req, res) => {
   }
 };
 
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const deleteBookmark = async (req, res) => {
+  const { slug } = req.params;
+  const { userId: authorId } = req;
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
+    const unBookmark = await Bookmark.destroy({ where: { authorId, articleSlug: slug } });
+    if (unBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
+
+    res.status(200).send({ message: 'Bookmark deleted successfully', data: { article: existingArticle.dataValues } });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
@@ -194,5 +215,6 @@ export default {
   getAllArticles,
   getAnArticle,
   reactToArticle,
-  bookmarkArticle
+  bookmarkArticle,
+  deleteBookmark
 };
