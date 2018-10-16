@@ -37,7 +37,9 @@ module.exports = {
   },
   async getProfile(req, res) {
     const { userId } = req.params;
-    const existingProfile = await helper.findProfile(userId);
+    const existingProfile = await helper.findItem(Profiles, {
+      userId
+    });
     if (!existingProfile) {
       return res.status(409).json({
         error: true,

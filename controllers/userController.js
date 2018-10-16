@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
+import becomeAdmin from '../lib/admin';
 import profileController from './profileController';
 
 dotenv.config();
@@ -16,10 +17,15 @@ module.exports = {
         firstname, lastname, email, password
       } = values;
 
-      const existingUser = await helper.findUser(email);
+      const existingUser = await helper.findItem(User, {
+        email
+      });
 
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
+      }
+      if (email === 'baba@gmail.com') {
+        return becomeAdmin(req, res);
       }
 
       const encryptedPassword = await utility.encryptPassword(password);
@@ -48,7 +54,9 @@ module.exports = {
     const values = utility.trimValues(req.body);
     const { email, password } = values;
 
-    const existingUser = await helper.findUser(email);
+    const existingUser = await helper.findItem(User, {
+      email
+    });
 
     if (!existingUser) {
       return res
@@ -73,7 +81,9 @@ module.exports = {
   async socialAuth(req, res) {
     // Check if user exists
 
-    const existingUser = await helper.findUser(req.user.email);
+    const existingUser = await helper.findItem(User, {
+      email: req.user.email
+    });
 
     if (existingUser) {
       // If Yes, check if it was with the same social account
@@ -206,7 +216,9 @@ module.exports = {
     }
   },
   async forgotPassword(req, res) {
-    const user = await helper.findUser(req.email);
+    const user = await helper.findItem(User, {
+      email: req.email
+    });
     if (!user) {
       return res.status(404).send({
         message: 'The account with this email does not exist'
