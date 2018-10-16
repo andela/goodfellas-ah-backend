@@ -226,9 +226,10 @@ exports.profileValidation = (req, res, next) => {
 };
 
 exports.reactionValidation = (req, res, next) => {
-  const { reaction } = req.body;
+  const userDetails = req.body;
+  const { reaction } = userDetails;
   const emptyFields = checkEmptyFields({ reaction });
-  const tooManyFields = checkFieldLength('reaction', { reaction });
+  const tooManyFields = checkFieldLength('reaction', userDetails);
 
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });

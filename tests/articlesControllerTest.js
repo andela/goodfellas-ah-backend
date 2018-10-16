@@ -286,7 +286,7 @@ describe('Articles controller', () => {
 
       it('Should return an error message when the user tries to react to an article with more than the required fields', (done) => {
         const reaction = {
-          reaction: 'incorrect',
+          reaction: 1,
           extrafeild: 'extra value'
         };
         chai
