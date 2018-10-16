@@ -55,11 +55,14 @@ const updateArticle = async (req, res) => {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
 
+  const readTime = utility.readTime(req.body.body);
+
   existingArticle.updateAttributes({
     title: req.body.title || existingArticle.title,
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
     image: req.body.image || existingArticle.image,
+    read_time: readTime
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
     .catch(error => res.status(500).send({ error: error.message }));
