@@ -6,7 +6,7 @@ import helper from '../lib/helper';
 import profileController from './profileController';
 
 dotenv.config();
-const { User, FollowersTable } = db;
+const { User, FollowersTable, sequelize } = db;
 
 export default {
   async signup(req, res) {
@@ -242,14 +242,12 @@ export default {
     });
   },
   async setNotification(req, res) {
-    const followerId = req.userId;
-    const followedUserId = req.params.userId;
+    const { userId } = req;
+    const { setting } = req.params;
     try {
-      const user = await helper.throwErrorOnNonExistingUser(followedUserId);
-      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
-      if (userUnfollow === 0) throw new Error('You\'re not following this user');
+      const notificationSetting = await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
       res.status(201).send({
-        message: `You unfollowed ${user.dataValues.firstname} ${user.dataValues.lastname}`
+        message: `You unfollowed ${notificationSetting}`
       });
     } catch (err) {
       res.status(400).send({
