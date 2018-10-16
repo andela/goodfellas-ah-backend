@@ -38,6 +38,10 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
+
   return false;
 };
 
@@ -244,6 +248,25 @@ exports.commentValidation = (req, res, next) => {
   }
   if (extraFieldsError) {
     return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
+};
+exports.reactionValidation = (req, res, next) => {
+  const userDetails = req.body;
+  const { reaction } = userDetails;
+  const emptyFields = checkEmptyFields(req.body);
+  const tooManyFields = checkFieldLength('reaction', userDetails);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
+    return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }
   next();
 };
