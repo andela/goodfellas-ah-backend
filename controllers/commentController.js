@@ -68,7 +68,8 @@ exports.getComment = async (req, res) => {
             attributes: profileAtrributes
           }]
         }]
-      }
+      },
+      { model: CommentReaction }
       ],
     });
 
