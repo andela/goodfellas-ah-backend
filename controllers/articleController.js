@@ -1,5 +1,6 @@
 import models from '../models';
 import helper from '../lib/helper';
+import utility from '../lib/utility';
 
 const { Articles } = models;
 
@@ -18,12 +19,17 @@ const createArticle = (req, res) => {
     body,
     image
   } = req.body;
+
+  // Calculate the article's read time
+  const readTime = utility.readTime(body);
+
   return Articles
     .create({
       title,
       description,
       body,
       image,
+      read_time: readTime,
       authorId: req.userId
     })
     .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))

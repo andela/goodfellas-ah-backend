@@ -41,7 +41,7 @@ module.exports = {
         defaultValue: 0
       },
       read_time: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true
       },
       authorId: {
