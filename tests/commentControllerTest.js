@@ -393,5 +393,44 @@ describe('Comment controller', () => {
           done();
         });
     });
+    it('POST api/articles/title/comments/react/1 should throw an error if the reaction field is empty', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments/react/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({ reaction: '' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.message).to.equal('Please fill the reaction field');
+          done();
+        });
+    });
+    it('POST api/articles/title/comments/react/1 should throw an error an invalid reaction is provided', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments/react/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({ reaction: 12 })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.message).to.equal('Incorrect reaction value provided');
+          done();
+        });
+    });
+    it('POST api/articles/title/comments/react/1 should throw an error if an extrafield is provided', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments/react/${commentId}`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({
+          reaction: 1,
+          extra: 2
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.message).to.equal('Too many fields');
+          done();
+        });
+    });
   });
 });

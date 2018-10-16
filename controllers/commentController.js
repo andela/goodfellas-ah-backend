@@ -301,8 +301,14 @@ exports.commentReaction = async (req, res) => {
       user_id: userId
     });
     if (!existingComment) {
-      return res.status(400).json(noComment);
+      return res.status(400).json(errorMessage.noComment);
     }
+    // removing  a reaction
+    if (existingReaction && (existingReaction.reaction === reaction)) {
+      existingReaction.destroy();
+      return res.status(200).send({ message: 'Successfully removed reaction' });
+    }
+    // updating a reaction
     if (existingReaction) {
       const updatedReaction = await CommentReaction.update(
         { reaction },
@@ -320,6 +326,7 @@ exports.commentReaction = async (req, res) => {
         reaction: updatedReaction,
       });
     }
+    // creating a reaction
     const commentReaction = await CommentReaction.create({
       comment_id: commentId,
       reaction,

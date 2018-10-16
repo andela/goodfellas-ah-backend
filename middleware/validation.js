@@ -37,6 +37,9 @@ const checkFieldLength = (route, fields) => {
   if (route === 'signup' && fieldLength > 4) {
     return true;
   }
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
 
   return false;
 };
@@ -250,7 +253,7 @@ exports.commentValidation = (req, res, next) => {
 exports.reactionValidation = (req, res, next) => {
   const { reaction } = req.body;
   const emptyFields = checkEmptyFields({ reaction });
-  const tooManyFields = checkFieldLength('reaction', { reaction });
+  const tooManyFields = checkFieldLength('reaction', req.body);
 
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
