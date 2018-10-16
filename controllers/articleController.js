@@ -142,10 +142,11 @@ const addArticleTags = async (req, res) => {
       return res.status(404).send({ error: 'Article Not found!' });
     }
 
-    existingArticle.updateAttributes({
-      tagList: tags
-    });
+    if (existingArticle !== null && existingArticle.authorId !== req.userId) {
+      return res.status(403).send({ message: 'You cannot modify an article added by another User' });
+    }
 
+    existingArticle.updateAttributes({ tagList: tags });
     res.status(200).send({ message: 'Updated article tags successfully', data: { tags: existingArticle.tagList } });
   } catch (error) {
     res.status(500).send({ error: error.message });
