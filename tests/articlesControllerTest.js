@@ -229,42 +229,58 @@ describe('Articles controller', () => {
             done();
           });
       });
-      describe('GET all articles', () => {
-        it('Returns the right response when all the articles are gotten/fetched', (done) => {
-          chai
-            .request(app)
-            .get('/api/articles')
-            .set({ authorization: testToken, Accept: 'application/json' })
-            .end((err, res) => {
-              expect(res.status).to.equal(200);
-              expect(res.body.message).to.equal('Articles gotten successfully!');
-              done();
-            });
-        });
-        describe('DELETE an article', () => {
-          it('Returns the right response when a particular article is deleted', (done) => {
-            chai
-              .request(app)
-              .delete(`/api/articles/${slug}`)
-              .set({ authorization: testToken, Accept: 'application/json' })
-              .end((err, res) => {
-                expect(res.status).to.equal(200);
-                expect(res.body.message).to.equal('article successfully deleted');
-                done();
-              });
+    });
+    describe('GET all articles', () => {
+      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Articles gotten successfully!');
+            done();
           });
-          it('Returns the right response when a particular article to be deleted is not found', (done) => {
-            chai
-              .request(app)
-              .delete('/api/articles/3')
-              .set({ authorization: testToken, Accept: 'application/json' })
-              .end((err, res) => {
-                expect(res.status).to.equal(404);
-                expect(res.body.error).to.equal('Article not found!');
-                done();
-              });
+      });
+    });
+    describe('Add a tag for an article', () => {
+      it('Returns a success message when a user adds a tag to an article', (done) => {
+        const tags = {
+          tags: ['reactjs', 'angularjs']
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            done();
           });
-        });
+      });
+    });
+    describe('DELETE an article', () => {
+      it('Returns the right response when a particular article is deleted', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('article successfully deleted');
+            done();
+          });
+      });
+      it('Returns the right response when a particular article to be deleted is not found', (done) => {
+        chai
+          .request(app)
+          .delete('/api/articles/3')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal('Article not found!');
+            done();
+          });
       });
     });
   });
