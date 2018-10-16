@@ -16,7 +16,7 @@ module.exports = {
         firstname, lastname, email, password
       } = values;
 
-      const existingUser = await helper.findItem(User, {
+      const existingUser = await helper.findRecord(User, {
         email
       });
 
@@ -50,7 +50,7 @@ module.exports = {
     const values = utility.trimValues(req.body);
     const { email, password } = values;
 
-    const existingUser = await helper.findItem(User, {
+    const existingUser = await helper.findRecord(User, {
       email
     });
 
@@ -76,7 +76,7 @@ module.exports = {
   },
   async socialAuth(req, res) {
     // Check if user exists
-    const existingUser = await helper.findItem(User, {
+    const existingUser = await helper.findRecord(User, {
       email: req.user.email
     });
 
@@ -211,7 +211,7 @@ module.exports = {
     }
   },
   async forgotPassword(req, res) {
-    const user = await helper.findItem(User, {
+    const user = await helper.findRecord(User, {
       email: req.email
     });
     if (!user) {

@@ -16,7 +16,7 @@ exports.postComment = async (req, res) => {
     const { body } = values;
     const { slug } = req.params;
     const { userId } = req;
-    const existingArticle = await helper.findItem(Articles, { slug });
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) {
       return res.status(400).json(errorMessage.noArticle);
     }
@@ -40,7 +40,7 @@ exports.postComment = async (req, res) => {
 exports.getComment = async (req, res) => {
   try {
     const { slug } = req.params;
-    const existingArticle = await helper.findItem(Articles, { slug });
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) {
       return res.status(400).json(errorMessage.noArticle);
     }
@@ -88,8 +88,8 @@ exports.deleteComment = async (req, res) => {
     const { commentId } = req.params;
     const { userId } = req;
     const { slug } = req.params;
-    const existingArticle = await helper.findItem(Articles, { slug });
-    const existingComment = await helper.findItem(ArticleComment, {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingComment = await helper.findRecord(ArticleComment, {
       id: commentId
     });
     if (!existingArticle) {
@@ -125,8 +125,8 @@ exports.updateComment = async (req, res) => {
     const { userId } = req;
     const { slug } = req.params;
     const { body } = req.body;
-    const existingArticle = await helper.findItem(Articles, { slug });
-    const existingComment = await helper.findItem(ArticleComment, {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingComment = await helper.findRecord(ArticleComment, {
       id: commentId
     });
     if (!existingArticle) {
@@ -168,7 +168,7 @@ exports.replyComment = async (req, res) => {
     const { commentId } = req.params;
     const { body } = req.body;
     const { userId } = req;
-    const existingComment = await helper.findItem(ArticleComment, {
+    const existingComment = await helper.findRecord(ArticleComment, {
       id: commentId
     });
     if (!existingComment) {
@@ -195,7 +195,7 @@ exports.updateReply = async (req, res) => {
     const { userId } = req;
     const { body } = req.body;
     const { replyId } = req.params;
-    const existingReply = await helper.findItem(CommentReply, {
+    const existingReply = await helper.findRecord(CommentReply, {
       id: replyId
     });
     if (!existingReply) {
@@ -231,7 +231,7 @@ exports.deleteReply = async (req, res) => {
   try {
     const { replyId } = req.params;
     const { userId } = req;
-    const existingReply = await helper.findItem(CommentReply, {
+    const existingReply = await helper.findRecord(CommentReply, {
       id: replyId
     });
     if (!existingReply) {
@@ -296,8 +296,8 @@ exports.commentReaction = async (req, res) => {
     const { userId } = req;
     const { slug } = req.params;
     const { commentId } = req.params;
-    const existingComment = await helper.findItem(ArticleComment, { article_slug: slug });
-    const existingReaction = await helper.findItem(CommentReaction, {
+    const existingComment = await helper.findRecord(ArticleComment, { article_slug: slug });
+    const existingReaction = await helper.findRecord(CommentReaction, {
       comment_id: commentId,
       user_id: userId
     });

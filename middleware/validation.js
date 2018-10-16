@@ -46,6 +46,11 @@ const checkFieldLength = (route, fields) => {
   if (route === 'profile' && fieldLength > 2) {
     return true;
   }
+
+  // if (route === 'reaction' && fieldLength > 1) {
+  //   return true;
+  // }
+
   return false;
 };
 
@@ -242,9 +247,10 @@ exports.commentValidation = (req, res, next) => {
   next();
 };
 exports.reactionValidation = (req, res, next) => {
-  const { reaction } = req.body;
-  const emptyFields = checkEmptyFields({ reaction });
-  const tooManyFields = checkFieldLength('reaction', req.body);
+  const userDetails = req.body;
+  const { reaction } = userDetails;
+  const emptyFields = checkEmptyFields(req.body);
+  const tooManyFields = checkFieldLength('reaction', userDetails);
 
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
