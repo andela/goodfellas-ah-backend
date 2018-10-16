@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    read_time: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
