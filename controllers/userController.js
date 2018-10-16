@@ -4,7 +4,7 @@ import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import profileController from './profileController';
-import mail from '../lib/verificationMail';
+import mail from '../lib/verifyEmail';
 
 dotenv.config();
 const { User, FollowersTable } = db;
@@ -43,9 +43,9 @@ module.exports = {
             message: 'User created Successfully'
           });
         })
-        .catch(() => res.status(500).send({ error: 'Internal server error' }));
+        .catch(() => res.status(500).send({ error: 'Internaaal server error' }));
     } catch (err) {
-      res.status(500).send({ error: 'Internal server error' });
+      res.status(500).send({ error: 'Internannl server error' });
     }
   },
   async signin(req, res) {
@@ -254,13 +254,11 @@ module.exports = {
       });
 
       if (checkToken) {
-        console.log('AAAAA');
         // If yes, then verify that user
         checkToken.update({ verified: true, verification_token: null })
           .then(() => res.status(200).send({ message: 'Account successfully verified' }))
           .catch(() => res.status(500).send({ message: 'Your account cannot be verified at the moment, Please try again later' }));
       } else {
-        console.log('BBBBB');
         // If no, then return error
         res.status(403).send({ message: 'Your account has already been verified.' });
       }
