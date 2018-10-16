@@ -21,7 +21,7 @@ const createArticle = (req, res) => {
   } = req.body;
 
   // Calculate the article's read time
-  const readTime = utility.readTime(body);
+  const readTime = utility.readTime(body, image);
 
   return Articles
     .create({
@@ -55,7 +55,7 @@ const updateArticle = async (req, res) => {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
 
-  const readTime = utility.readTime(req.body.body);
+  const readTime = utility.readTime(req.body.body, req.body.image);
 
   existingArticle.updateAttributes({
     title: req.body.title || existingArticle.title,
