@@ -45,7 +45,6 @@ module.exports = {
         })
         .catch(() => res.status(500).send({ error: 'Internal server error' }));
     } catch (err) {
-      console.log(err);
       res.status(500).send({ error: 'Internal server error' });
     }
   },
@@ -255,11 +254,13 @@ module.exports = {
       });
 
       if (checkToken) {
+        console.log('AAAAA');
         // If yes, then verify that user
         checkToken.update({ verified: true, verification_token: null })
           .then(() => res.status(200).send({ message: 'Account successfully verified' }))
           .catch(() => res.status(500).send({ message: 'Your account cannot be verified at the moment, Please try again later' }));
       } else {
+        console.log('BBBBB');
         // If no, then return error
         res.status(403).send({ message: 'Your account has already been verified.' });
       }

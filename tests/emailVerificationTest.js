@@ -17,7 +17,7 @@ describe('Email Verification', () => {
       lastname: 'Adeniyi',
       email: 'phunmbi@gmail.com',
       password: 'passworded',
-      verification_token: 'thisisavalidverificationTokenyougetme'
+      verification_token: verificationToken
     })
       .then((newUser) => {
         console.log('User Created', newUser.dataValues);
@@ -41,7 +41,9 @@ describe('Email Verification', () => {
           done();
         });
     });
+  });
 
+  describe('User\'s email verification', () => {
     it('Should not verify the same account twice.', (done) => {
       chai
         .request(app)
