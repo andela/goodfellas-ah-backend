@@ -124,10 +124,39 @@ const getAnArticle = async (req, res) => {
   }
 };
 
+/**
+ * updates an article's tags
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const addArticleTags = async (req, res) => {
+  const { slug } = req.params;
+  const { tags } = req.body;
+
+  try {
+    const existingArticle = await helper.findArticle(slug);
+
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
+
+    existingArticle.updateAttributes({
+      tagList: tags
+    });
+
+    res.status(200).send({ message: 'Updated article tags successfully', data: { tags: existingArticle.tagList } });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
-  getAnArticle
+  getAnArticle,
+  addArticleTags
 };

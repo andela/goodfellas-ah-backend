@@ -255,6 +255,23 @@ describe('Articles controller', () => {
           .send(tags)
           .end((err, res) => {
             expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Updated article tags successfully');
+            expect(res.body.data).to.deep.equal(tags);
+            done();
+          });
+      });
+
+      it('Returns a error message when an unauthenticated user attempts to add a tag to an article', (done) => {
+        const tags = {
+          tags: ['reactjs', 'angularjs']
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(401);
+            expect(res.body.message).to.equal('Unauthorized request, please login');
             done();
           });
       });

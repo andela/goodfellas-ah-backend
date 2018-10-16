@@ -9,6 +9,7 @@ router.put('/articles/:slug', authenticate, checkNullInput, articleController.up
 router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 router.get('/articles', authenticate, articleController.getAllArticles);
 router.get('/articles/:slug', authenticate, articleController.getAnArticle);
+router.post('/articles/:slug/tags', authenticate, articleController.addArticleTags);
 
 
 export default router;
