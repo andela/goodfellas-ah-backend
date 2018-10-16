@@ -1,7 +1,7 @@
 import articleController from '../../controllers/articleController';
 import commentController from '../../controllers/commentController';
 import authenticate from '../../middleware/authentication';
-import { checkNullInput, commentValidation } from '../../middleware/validation';
+import { checkNullInput, commentValidation, reactionValidation } from '../../middleware/validation';
 
 const router = require('express').Router();
 
@@ -24,6 +24,6 @@ router.delete('/articles/comments/reply/:replyId', authenticate, commentControll
 
 router.get('/articles/comments/reply/:commentId', commentController.getReply);
 
-router.post('/articles/:slug/comments/react/:commentId', authenticate, commentController.commentReaction);
+router.post('/articles/:slug/comments/react/:commentId', authenticate, reactionValidation, commentController.commentReaction);
 
 export default router;

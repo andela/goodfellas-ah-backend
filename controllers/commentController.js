@@ -305,8 +305,7 @@ exports.getReply = async (req, res) => {
 
 exports.commentReaction = async (req, res) => {
   try {
-    const values = utility.trimValues(req.body);
-    const { reaction } = values;
+    const { reaction } = req.body;
     const { userId } = req;
     const { slug } = req.params;
     const { commentId } = req.params;
