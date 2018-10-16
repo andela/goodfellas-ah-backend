@@ -261,7 +261,7 @@ describe('Articles controller', () => {
           });
       });
 
-      it('Returns a error message when an unauthenticated user attempts to add a tag to an article', (done) => {
+      it('Returns an error message when an unauthenticated user attempts to add a tag to an article', (done) => {
         const tags = {
           tags: ['reactjs', 'angularjs']
         };
@@ -272,6 +272,19 @@ describe('Articles controller', () => {
           .end((err, res) => {
             expect(res.status).to.equal(401);
             expect(res.body.message).to.equal('Unauthorized request, please login');
+            done();
+          });
+      });
+
+      it('Returns an error message when a user provides a non-list value to the tags key', (done) => {
+        const tags = { tags: 'reactjs' };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
             done();
           });
       });
