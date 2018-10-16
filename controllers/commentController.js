@@ -6,20 +6,20 @@ const {
   ArticleComment, CommentReply, User, Profiles, Articles
 } = db;
 
-const noArticle = {
-  error: true,
-  message: 'Article does not exist'
-};
+// const helper.errorMessages.noArticle = {
+//   error: true,
+//   message: 'Article does not exist'
+// };
 
-const noComment = {
-  error: true,
-  message: 'Comment does not exist'
-};
+// const helper.errorMessages.noComment = {
+//   error: true,
+//   message: 'Comment does not exist'
+// };
 
-const noReply = {
-  error: true,
-  message: 'Reply does not exist'
-};
+// const helper.errorMessages.noReply = {
+//   error: true,
+//   message: 'Reply does not exist'
+// };
 
 const userAttributes = ['firstname', 'lastname', 'email'];
 const profileAtrributes = ['username', 'bio', 'image'];
@@ -32,7 +32,7 @@ exports.postComment = async (req, res) => {
     const { userId } = req;
     const existingArticle = await helper.findItem(Articles, { slug });
     if (!existingArticle) {
-      return res.status(400).json(noArticle);
+      return res.status(400).json(helper.errorMessages.noArticle);
     }
     const comment = await ArticleComment.create({
       article_slug: slug,
@@ -56,7 +56,7 @@ exports.getComment = async (req, res) => {
     const { slug } = req.params;
     const existingArticle = await helper.findItem(Articles, { slug });
     if (!existingArticle) {
-      return res.status(400).json(noArticle);
+      return res.status(400).json(helper.errorMessages.noArticle);
     }
     const comments = await ArticleComment.findAll({
       where: { article_slug: slug },
@@ -106,10 +106,10 @@ exports.deleteComment = async (req, res) => {
       id: commentId
     });
     if (!existingArticle) {
-      return res.status(400).json(noArticle);
+      return res.status(400).json(helper.errorMessages.noArticle);
     }
     if (!existingComment) {
-      return res.status(400).json(noComment);
+      return res.status(400).json(helper.errorMessages.noComment);
     }
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
@@ -143,10 +143,10 @@ exports.updateComment = async (req, res) => {
       id: commentId
     });
     if (!existingArticle) {
-      return res.status(400).json(noArticle);
+      return res.status(400).json(helper.errorMessages.noArticle);
     }
     if (!existingComment) {
-      return res.status(400).json(noComment);
+      return res.status(400).json(helper.errorMessages.noComment);
     }
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
@@ -185,7 +185,7 @@ exports.replyComment = async (req, res) => {
       id: commentId
     });
     if (!existingComment) {
-      return res.status(400).json(noComment);
+      return res.status(400).json(helper.errorMessages.noComment);
     }
     const reply = await CommentReply.create({
       comment_id: commentId,
@@ -212,7 +212,7 @@ exports.updateReply = async (req, res) => {
       id: replyId
     });
     if (!existingReply) {
-      return res.status(400).json(noReply);
+      return res.status(400).json(helper.errorMessages.noReply);
     }
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
@@ -248,7 +248,7 @@ exports.deleteReply = async (req, res) => {
       id: replyId
     });
     if (!existingReply) {
-      return res.status(400).json(noReply);
+      return res.status(400).json(helper.errorMessages.noReply);
     }
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
