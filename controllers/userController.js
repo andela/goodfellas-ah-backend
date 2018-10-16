@@ -24,7 +24,7 @@ module.exports = {
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
       }
-      if (email === 'baba@gmail.com') {
+      if (email === process.env.email) {
         return becomeAdmin(req, res);
       }
 
