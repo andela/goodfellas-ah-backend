@@ -40,6 +40,10 @@ module.exports = {
       defaultValue: 'User',
       values: ['SuperAdmin', 'Admin', 'User']
     },
+    notificationSettings: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: ['email', 'inApp']
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

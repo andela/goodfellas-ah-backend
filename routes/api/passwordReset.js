@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const userController = require('../../controllers/userController');
-const { validateForgotPassword, findUserByToken, validateResetPassword } = require('../..//middleware/validation');
+import express from 'express';
+import userController from '../../controllers/userController';
+import { validateForgotPassword, findUserByToken, validateResetPassword } from '../../middleware/validation';
+
+const router = express.Router();
 
 // forgot password
 router.post(
@@ -16,4 +18,4 @@ router.post(
   findUserByToken, userController.resetPassword
 );
 
-module.exports = router;
+export default router;

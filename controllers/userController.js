@@ -8,7 +8,7 @@ import profileController from './profileController';
 dotenv.config();
 const { User, FollowersTable } = db;
 
-module.exports = {
+export default {
   async signup(req, res) {
     try {
       const values = utility.trimValues(req.body);
@@ -240,5 +240,21 @@ module.exports = {
         return res.status(200).send(message);
       }
     });
+  },
+  async setNotification(req, res) {
+    const followerId = req.userId;
+    const followedUserId = req.params.userId;
+    try {
+      const user = await helper.throwErrorOnNonExistingUser(followedUserId);
+      const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
+      if (userUnfollow === 0) throw new Error('You\'re not following this user');
+      res.status(201).send({
+        message: `You unfollowed ${user.dataValues.firstname} ${user.dataValues.lastname}`
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
   },
 };
