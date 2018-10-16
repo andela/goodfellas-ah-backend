@@ -39,6 +39,10 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
+  if (route === 'tags' && fieldLength > 1) {
+    return true;
+  }
+
   return false;
 };
 
@@ -218,5 +222,26 @@ exports.profileValidation = (req, res, next) => {
   if (filesFieldLengthError) {
     return res.status(400).send({ message: 'Extra field(s) not required' });
   }
+  next();
+};
+
+exports.tagValidation = (req, res, next) => {
+  const userDetails = req.body;
+  const { tags } = userDetails;
+  const tooManyFields = checkFieldLength('tags', userDetails);
+  const emptyFields = checkEmptyFields({ tags });
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (!Array.isArray(tags)) {
+    return res.status(400).send({ message: 'Tags must be in a list' });
+  }
+
   next();
 };

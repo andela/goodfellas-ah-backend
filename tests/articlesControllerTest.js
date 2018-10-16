@@ -244,10 +244,10 @@ describe('Articles controller', () => {
       });
     });
     describe('Add a tag for an article', () => {
+      let tags = {
+        tags: ['reactjs', 'angularjs']
+      };
       it('Returns a success message when a user adds a tag to an article', (done) => {
-        const tags = {
-          tags: ['reactjs', 'angularjs']
-        };
         chai
           .request(app)
           .post(`/api/articles/${slug}/tags`)
@@ -262,9 +262,6 @@ describe('Articles controller', () => {
       });
 
       it('Returns an error message when an unauthenticated user attempts to add a tag to an article', (done) => {
-        const tags = {
-          tags: ['reactjs', 'angularjs']
-        };
         chai
           .request(app)
           .post(`/api/articles/${slug}/tags`)
@@ -277,7 +274,7 @@ describe('Articles controller', () => {
       });
 
       it('Returns an error message when a user provides a non-list value to the tags key', (done) => {
-        const tags = { tags: 'reactjs' };
+        tags = { tags: 'reactjs' };
         chai
           .request(app)
           .post(`/api/articles/${slug}/tags`)
