@@ -2,7 +2,7 @@ import models from '../models';
 import helper from '../lib/helper';
 import utility from '../lib/utility';
 
-const { Articles } = models;
+const { Articles, Reactions } = models;
 
 
 /**
@@ -127,7 +127,48 @@ const getAnArticle = async (req, res) => {
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
-    res.status(200).send({ message: 'Article gotten successfully!', existingArticle });
+
+    const article = await helper.countReactions(existingArticle);
+    res.status(200).send({ message: 'Article gotten successfully!', article });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * likes or dislikes an article
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const reactToArticle = async (req, res) => {
+  const { userId } = req;
+  const { slug } = req.params;
+  const { reaction } = req.body;
+
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
+
+    const articleId = existingArticle.id;
+    const existingReaction = await Reactions.findOne({ where: { userId, articleId } });
+
+    if (existingReaction && (existingReaction.reaction === reaction)) {
+      existingReaction.destroy();
+      return res.status(200).send({ message: 'Successfully removed reaction' });
+    } else if (existingReaction) {
+      existingReaction.updateAttributes({ reaction });
+      return res.status(200).send({ message: 'Successfully updated reaction' });
+    }
+
+    Reactions.create({
+      userId,
+      articleId,
+      reaction
+    });
+
+    return res.status(201).send({ message: 'Successfully added reaction' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -138,5 +179,6 @@ export default {
   updateArticle,
   deleteArticle,
   getAllArticles,
-  getAnArticle
+  getAnArticle,
+  reactToArticle
 };
