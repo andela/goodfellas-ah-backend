@@ -38,7 +38,7 @@ describe('Utility', () => {
     chai.expect(trimmedValues.firstname).to.equal('myFirstName');
   });
   it('should calculate read time for text passage', async () => {
-    const body = 'this is a dummy text, you know, similar to that lorem ipsum type of text that text autogenerators provide only this one is done by an human being';
+    const body = 'this is a dummy text, you know, similar to that lorem ipsum type of text that text auto-generators provide only this one is done by an human being';
     const image = 'notnull.jpg';
     const readTime = utility.readTime(body, image);
     chai.expect(readTime).to.equal('1 minute');
