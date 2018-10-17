@@ -272,6 +272,17 @@ describe('Articles controller', () => {
             done();
           });
       });
+      it('Returns an error message when a user attempts to add a tag to a non-existent article', (done) => {
+        chai
+          .request(app)
+          .post('/api/articles/non-exstent-article/tags')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(404);
+            done();
+          });
+      });
       it('Returns an error message when a user provides a non-list value to the tags key', (done) => {
         tags = { tags: 'reactjs' };
         chai
@@ -296,6 +307,32 @@ describe('Articles controller', () => {
           .end((err, res) => {
             expect(res.status).to.equal(201);
             expect(res.body.message).to.equal('Successfully added reaction');
+            done();
+          });
+      });
+      it('Returns a success message when an article is disliked', (done) => {
+        const reaction = { reaction: -1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Successfully updated reaction');
+            done();
+          });
+      });
+      it('Returns a success message when a user reverses their reaction', (done) => {
+        const reaction = { reaction: -1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Successfully removed reaction');
             done();
           });
       });
