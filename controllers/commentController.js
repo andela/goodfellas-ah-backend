@@ -4,7 +4,7 @@ import helper from '../lib/helper';
 import errorMessage from '../lib/errorMessages';
 
 const {
-  ArticleComment, CommentReply, User, Profiles, Articles
+  ArticleComment, CommentReply, User, Profiles, Articles, CommentReaction
 } = db;
 
 const userAttributes = ['firstname', 'lastname', 'email'];
@@ -68,7 +68,8 @@ exports.getComment = async (req, res) => {
             attributes: profileAtrributes
           }]
         }]
-      }
+      },
+      { model: CommentReaction }
       ],
     });
 
@@ -282,6 +283,61 @@ exports.getReply = async (req, res) => {
       error: false,
       message: 'reply retrieved successfully',
       reply,
+    });
+  } catch (error) {
+    res.status(500).send({ error: 'Internal server error' });
+  }
+};
+
+
+exports.commentReaction = async (req, res) => {
+  try {
+    const { reaction } = req.body;
+    const { userId } = req;
+    const { slug } = req.params;
+    const { commentId } = req.params;
+    const existingComment = await helper.findRecord(ArticleComment, { article_slug: slug });
+    const existingReaction = await helper.findRecord(CommentReaction, {
+      comment_id: commentId,
+      user_id: userId
+    });
+    if (!existingComment) {
+      return res.status(400).json(errorMessage.noComment);
+    }
+    // removing  a reaction
+    if (existingReaction && (existingReaction.reaction === reaction)) {
+      existingReaction.destroy();
+      return res.status(200).send({ message: 'Successfully removed reaction' });
+    }
+    // updating a reaction
+    if (existingReaction) {
+      const updatedReaction = await CommentReaction.update(
+        { reaction },
+        {
+          returning: true,
+          where: {
+            user_id: userId,
+            comment_id: commentId
+          }
+        }
+      );
+      return res.status(200).json({
+        error: false,
+        message: 'reaction updated successfully',
+        reaction: updatedReaction,
+      });
+    }
+    // creating a reaction
+    const commentReaction = await CommentReaction.create({
+      comment_id: commentId,
+      reaction,
+      user_id: userId
+
+    });
+    res.status(200).json({
+      error: false,
+      message: 'reaction posted successfully',
+      reaction: commentReaction
     });
   } catch (error) {
     res.status(500).send({ error: 'Internal server error' });
