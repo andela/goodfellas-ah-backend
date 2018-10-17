@@ -45,7 +45,7 @@ module.exports = {
             message: 'User created Successfully'
           });
         })
-        .catch(() => res.status(500).send({ error: 'Internaaal server error' }));
+        .catch(() => res.status(500).send({ error: 'Internal server error' }));
     } catch (err) {
       res.status(500).send({ error: 'Internal server error' });
     }
