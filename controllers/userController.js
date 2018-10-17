@@ -157,10 +157,7 @@ export default {
         include: {
           model: User,
           as: 'followedUser',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
+          attributes: ['firstname', 'lastname', 'email', 'role'],
         }
       });
       res.status(200).send({
@@ -180,21 +177,10 @@ export default {
     const { userId } = req.params;
     try {
       await helper.throwErrorOnNonExistingUser(userId);
-      const followers = await FollowersTable.findAndCountAll({
-        where: { followedUserId: userId },
-        attributes: { exclude: ['followedUserId'] },
-        include: {
-          model: User,
-          as: 'follower',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
-        }
-      });
+      const followers = await helper.getFollowers(userId);
       res.status(200).send({
         data: {
-          followers: followers.rows,
+          followers: followers.followers,
           followersCount: followers.count
         },
         message: 'Retrieved followers'

@@ -1,4 +1,5 @@
-const SequelizeSlugify = require('sequelize-slugify');
+import SequelizeSlugify from 'sequelize-slugify';
+import eventEmitter from '../lib/eventEmitter';
 
 module.exports = (sequelize, DataTypes) => {
   const Articles = sequelize.define('Articles', {
@@ -43,6 +44,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
+    }
+  },
+  {
+    hooks: {
+      afterCreate(article) {
+        const { authorId, slug, title } = article;
+        eventEmitter.emit('article created', authorId, slug, title);
+      }
     }
   });
   Articles.associate = (models) => {

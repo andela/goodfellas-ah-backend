@@ -4,6 +4,7 @@ import session from 'express-session';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
 import router from './routes';
+import eventDispatch from './lib/eventDispatch';
 
 
 import swaggerDocument from './swagger.json';
@@ -20,6 +21,7 @@ app.use(urlencoded({ extended: false }));
 app.use(json());
 
 app.use(router);
+eventDispatch();
 
 const port = process.env.PORT || 3000;
 
