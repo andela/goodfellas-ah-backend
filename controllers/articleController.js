@@ -1,4 +1,5 @@
 import models from '../models';
+import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const { Articles, Reactions } = models;
@@ -11,13 +12,16 @@ const { Articles, Reactions } = models;
  * @returns {object} res.
  */
 
-const createArticle = (req, res) => {
+const createArticle = async (req, res) => {
   const {
     title,
     description,
     body,
-    image
   } = req.body;
+  let image = null;
+  if (req.files && req.files.image) {
+    image = await utility.imageUpload(req.files);
+  }
   return Articles
     .create({
       title,
@@ -50,12 +54,15 @@ const updateArticle = async (req, res) => {
   if (existingArticle !== null && existingArticle.authorId !== req.userId) {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
-
+  let image = null;
+  if (req.files && req.files.image) {
+    image = await utility.imageUpload(req.files);
+  }
   existingArticle.updateAttributes({
     title: req.body.title || existingArticle.title,
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
-    image: req.body.image || existingArticle.image,
+    image,
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
     .catch(error => res.status(500).send({ error: error.message }));
@@ -145,7 +152,6 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-
     const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
 
