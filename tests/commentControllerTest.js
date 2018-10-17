@@ -432,5 +432,18 @@ describe('Comment controller', () => {
           done();
         });
     });
+    it('POST api/articles/title/comments/react/1 should throw an error if user is not authenticated', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments/react/${commentId}`)
+        .send({
+          reaction: 1
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
   });
 });
