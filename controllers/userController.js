@@ -47,7 +47,7 @@ module.exports = {
         })
         .catch(() => res.status(500).send({ error: 'Internaaal server error' }));
     } catch (err) {
-      res.status(500).send({ error: 'Internannl server error' });
+      res.status(500).send({ error: 'Internal server error' });
     }
   },
   async signin(req, res) {
