@@ -247,7 +247,23 @@ export default {
     try {
       const notificationSetting = await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
       res.status(201).send({
-        message: `You unfollowed ${notificationSetting}`
+        message: 'Notification setting successfully updated',
+        data: notificationSetting,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async unsetNotification(req, res) {
+    const { userId } = req;
+    const { setting } = req.params;
+    try {
+      const notificationSetting = await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      res.status(201).send({
+        message: 'Notification setting successfully updated',
+        data: notificationSetting,
       });
     } catch (err) {
       res.status(400).send({
