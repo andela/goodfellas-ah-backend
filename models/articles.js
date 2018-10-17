@@ -44,11 +44,14 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
     }
-  }, {});
+  });
   Articles.associate = (models) => {
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(models.Bookmark, {
-      foreignKey: 'articleSlug'
+      foreignKey: 'articleSlug',
+      as: 'bookmarked',
+      targetKey: 'articleSlug',
+      sourceKey: 'slug',
     });
   };
   SequelizeSlugify.slugifyModel(Articles, {

@@ -90,7 +90,15 @@ const deleteArticle = async (req, res) => {
  */
 
 const getAllArticles = (req, res) => Articles
-  .findAll()
+  .findAll({
+    include: {
+      model: Bookmark,
+      as: 'bookmarked',
+      where: { userId: req.userId },
+      attributes: ['createdAt', 'updatedAt'],
+      required: false,
+    }
+  })
   .then((article) => {
     if (article.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
@@ -112,7 +120,7 @@ const getAllArticles = (req, res) => Articles
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findArticle(slug);
+    const existingArticle = await helper.findArticle(slug, req.userId);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
