@@ -33,7 +33,12 @@ module.exports = (sequelize, DataTypes) => {
   );
   Profiles.associate = (models) => {
     Profiles.hasMany(models.Articles, { as: 'article', foreignKey: 'authorId' });
-    Profiles.belongsTo(models.User, { as: 'user' });
+    Profiles.belongsTo(models.User, {
+      foreignKey: 'userId',
+      sourceKey: 'userId',
+      as: 'user',
+      onDelete: 'CASCADE',
+    });
   };
   return Profiles;
 };
