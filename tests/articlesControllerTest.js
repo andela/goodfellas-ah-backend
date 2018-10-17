@@ -229,6 +229,25 @@ describe('Articles controller', () => {
             done();
           });
       });
+      it('return bookmarked field when article is bookmarked', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}/bookmark`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end(() => {
+            chai
+              .request(app)
+              .get(`/api/articles/${slug}`)
+              .set({ authorization: testToken, Accept: 'application/json' })
+              .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.message).to.equal('Article gotten successfully!');
+                expect(res.body.article).to.have.property('bookmarked');
+                expect(res.body.article.bookmarked).to.be.an('array');
+                done();
+              });
+          });
+      });
       it('Returns the right response when a paricular article to get is not found', (done) => {
         chai
           .request(app)
@@ -321,6 +340,25 @@ describe('Articles controller', () => {
             expect(res.status).to.equal(200);
             expect(res.body.message).to.equal('Articles gotten successfully!');
             done();
+          });
+      });
+      it('return bookmarked field when article is bookmarked', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}/bookmark`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end(() => {
+            chai
+              .request(app)
+              .get('/api/articles')
+              .set({ authorization: testToken, Accept: 'application/json' })
+              .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.message).to.equal('Articles gotten successfully!');
+                expect(res.body.article[0]).to.have.property('bookmarked');
+                expect(res.body.article[0].bookmarked).to.be.an('array');
+                done();
+              });
           });
       });
     });
