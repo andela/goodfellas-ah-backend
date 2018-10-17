@@ -41,6 +41,17 @@ describe('Email Verification', () => {
           done();
         });
     });
+    it('Should return an error trying to access an invalid route', (done) => {
+      chai
+        .request(app)
+        .get(`/api/auth/verify/verification/${verificationToken}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.be.a('string');
+          expect(res.body.message).to.equal('Invalid request, Route does not exist');
+          done();
+        });
+    });
   });
 
   describe('User\'s email verification', () => {
