@@ -405,7 +405,7 @@ describe('Comment controller', () => {
           done();
         });
     });
-    it('POST api/articles/title/comments/react/1 should throw an error an invalid reaction is provided', (done) => {
+    it('POST api/articles/title/comments/react/1 should throw an error if an invalid reaction is provided', (done) => {
       chai
         .request(app)
         .post(`/api/articles/${slug}/comments/react/${commentId}`)
