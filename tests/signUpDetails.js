@@ -5,8 +5,9 @@ const userDetail = {
   email: 'goodfellas@gmail.com',
   password: 'password'
 };
+
 const test = 3;
 export {
   userDetail,
-  test,
+  test
 };

@@ -1,8 +1,12 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
+import db from '../models';
 import { resetDB } from './resetTestDB';
 import { userDetail } from './signUpDetails';
+import { generateArticleList } from './testHelper';
+
+const { Articles } = db;
 
 chai.use(chaiHttp);
 
@@ -16,8 +20,11 @@ describe('Articles controller', () => {
       .post('/api/auth/signup')
       .send(userDetail)
       .end((err, res) => {
-        const { token } = res.body;
+        const { token, userId } = res.body;
         testToken = token;
+
+        const articleList = generateArticleList(userId);
+        Articles.bulkCreate(articleList);
         done();
       });
   });
@@ -154,7 +161,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Returnsh the right response when a request body field is empty', (done) => {
+      it('Returns the right response when a request body field is empty', (done) => {
         const article = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -309,6 +316,17 @@ describe('Articles controller', () => {
           .end((err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.message).to.equal('Articles gotten successfully!');
+            done();
+          });
+      });
+      it('Returns the required number of articles per request', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect((res.body.articles).length).to.equal(10);
             done();
           });
       });

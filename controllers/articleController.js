@@ -92,13 +92,13 @@ const deleteArticle = async (req, res) => {
 
 const getAllArticles = (req, res) => Articles
   .findAll()
-  .then((article) => {
-    if (article.length < 1) {
+  .then((articles) => {
+    if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
     return res.status(200).send({
       message: 'Articles gotten successfully!',
-      article,
+      articles,
     });
   })
   .catch(error => res.status(500).send({ error: error.message }));
