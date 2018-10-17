@@ -415,6 +415,18 @@ describe('Comment controller', () => {
           done();
         });
     });
+    it('POST api/articles/title/comments/react/1 should react to a comment', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments/react/${commentId}`)
+        .set({ authorization: testToken2, Accept: 'application/json' })
+        .send({ reaction: 1 })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Successfully removed reaction');
+          done();
+        });
+    });
     it('POST api/articles/title/comments/react/1 should throw an error if the reaction field is empty', (done) => {
       chai
         .request(app)
