@@ -16,7 +16,22 @@ module.exports = {
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
       const { userId } = req;
-
+      const id = req.params.userId;
+      const existingProfile = await helper.findRecord(Profiles, {
+        userId: id
+      });
+      if (!existingProfile) {
+        return res.status(409).json({
+          error: true,
+          message: 'Profile does not exist'
+        });
+      }
+      if (existingProfile.userId !== userId) {
+        return res.status(400).send({
+          error: true,
+          message: 'You are do not have the authorization to update this profile'
+        });
+      }
       const userProfile = await Profiles.update(
         {
           username,
@@ -32,34 +47,46 @@ module.exports = {
         profile: userProfile
       });
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).send({ error: 'Internal server error' });
     }
   },
   async getProfile(req, res) {
-    const { userId } = req.params;
-    const existingProfile = await helper.findProfile(userId);
-    if (!existingProfile) {
-      return res.status(409).json({
-        error: true,
-        message: 'User does not exist'
+    try {
+      const { userId } = req.params;
+      const existingProfile = await helper.findRecord(Profiles, {
+        userId
       });
+      if (!existingProfile) {
+        return res.status(409).json({
+          error: true,
+          message: 'User does not exist'
+        });
+      }
+      Profiles.findOne({ where: { userId } }).then(profile => res.status(200).json({
+        error: false,
+        data: profile,
+        message: 'Profile retrieved successfully'
+      }));
+    } catch (error) {
+      res.status(500).send({ error: 'Internal server error' });
     }
-    Profiles.findOne({ where: { userId } }).then(profile => res.status(200).json({
-      error: false,
-      data: profile
-    }));
   },
+
   async getProfiles(req, res) {
-    const profileList = await Profiles.findAll({
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['firstname', 'lastname', 'email', 'role']
-      }]
-    });
-    res.send({
-      message: 'Successfully retrieved a list of author profiles',
-      data: profileList
-    });
+    try {
+      const profileList = await Profiles.findAll({
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['firstname', 'lastname', 'email', 'role']
+        }]
+      });
+      res.send({
+        message: 'Successfully retrieved a list of author profiles',
+        data: profileList
+      });
+    } catch (error) {
+      res.status(500).send({ error: 'Internal server error' });
+    }
   }
 };
