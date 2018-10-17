@@ -29,7 +29,7 @@ describe('Admin user', () => {
 
     done();
   });
-  describe('Creating an Amin user', () => {
+  describe('Creating an Admin user', () => {
     it('POST to /auth/signup should create an Amin user successfully', (done) => {
       chai
         .request(app)
@@ -56,7 +56,7 @@ describe('Admin user', () => {
         });
     });
   });
-  describe('Updating user role to Admin user', () => {
+ /* describe('Updating user role to Admin user', () => {
     it('PUT to /admin/:userId should update user role to Admin successfully', (done) => {
       chai
         .request(app)
@@ -68,5 +68,5 @@ describe('Admin user', () => {
           done();
         });
     });
-  });
+  }); */
 });

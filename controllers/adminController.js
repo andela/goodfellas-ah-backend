@@ -11,13 +11,13 @@ const { User } = db;
  */
 
 const createAdmin = async (req, res) => {
-  let existingUser = await helper.findItem(User, {
+  let existingUser = await helper.findRecord(User, {
     id: req.userId
   });
   if (existingUser.role !== 'Admin') {
     return res.status(403).send({ error: 'You are not authorised to perform this action' });
   }
-  existingUser = await helper.findItem(User, {
+  existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
   existingUser.updateAttributes({
@@ -35,13 +35,13 @@ const createAdmin = async (req, res) => {
  */
 
 const revokeAdmin = async (req, res) => {
-  let existingUser = await helper.findItem(User, {
+  let existingUser = await helper.findRecord(User, {
     id: req.userId
   });
   if (existingUser.role !== 'Admin') {
     return res.status(403).send({ error: 'You are not authorised to perform this action!' });
   }
-  existingUser = await helper.findItem(User, {
+  existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
   existingUser.updateAttributes({

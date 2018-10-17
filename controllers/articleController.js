@@ -1,8 +1,8 @@
-import db from '../models';
+import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles } = db;
+const { Articles, Reactions } = models;
 
 
 /**
@@ -44,7 +44,9 @@ const createArticle = async (req, res) => {
 const updateArticle = async (req, res) => {
   const { slug } = req.params;
 
-  const existingArticle = await helper.findItem(Articles, { slug });
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -76,7 +78,9 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { slug } = req.params;
-  const existingArticle = await helper.findItem(Articles, { slug });
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -120,12 +124,55 @@ const getAllArticles = (req, res) => Articles
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findItem(Articles, { slug });
+    const existingArticle = await helper.findRecord(Articles, {
+      slug
+    });
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
-    res.status(200).send({ message: 'Article gotten successfully!', existingArticle });
+
+    const article = await helper.countReactions(existingArticle);
+    res.status(200).send({ message: 'Article gotten successfully!', article });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * likes or dislikes an article
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const reactToArticle = async (req, res) => {
+  const { userId } = req;
+  const { slug } = req.params;
+  const { reaction } = req.body;
+
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
+
+    const articleId = existingArticle.id;
+    const existingReaction = await Reactions.findOne({ where: { userId, articleId } });
+
+    if (existingReaction && (existingReaction.reaction === reaction)) {
+      existingReaction.destroy();
+      return res.status(200).send({ message: 'Successfully removed reaction' });
+    } else if (existingReaction) {
+      existingReaction.updateAttributes({ reaction });
+      return res.status(200).send({ message: 'Successfully updated reaction' });
+    }
+
+    Reactions.create({
+      userId,
+      articleId,
+      reaction
+    });
+
+    return res.status(201).send({ message: 'Successfully added reaction' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -138,4 +185,5 @@ export default {
   deleteArticle,
   getAllArticles,
   getAnArticle,
+  reactToArticle
 };

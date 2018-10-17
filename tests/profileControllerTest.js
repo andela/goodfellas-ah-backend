@@ -2,7 +2,6 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-
 import { userDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
@@ -10,7 +9,7 @@ let id;
 let testToken;
 
 describe('Profile controller', () => {
-  before((done) => {
+  beforeEach((done) => {
     chai
       .request(app)
       .post('/api/auth/signup')
@@ -23,7 +22,7 @@ describe('Profile controller', () => {
       });
   });
 
-  after((done) => {
+  afterEach((done) => {
     resetDB();
 
     done();
@@ -57,7 +56,7 @@ describe('Profile controller', () => {
     it('PUT /api/user/profile should return an error if any field is undefined', (done) => {
       chai
         .request(app)
-        .put('/api/user/profile')
+        .put(`/api/user/profile/${id}`)
         .set({ authorization: testToken, Accept: 'application/json' })
         .send({
           username: 'test'
@@ -71,7 +70,7 @@ describe('Profile controller', () => {
     it('PUT /api/user/profile should return an error if the profile image field is undefined', (done) => {
       chai
         .request(app)
-        .put('/api/user/profile')
+        .put(`/api/user/profile/${id}`)
         .set({ authorization: testToken, Accept: 'application/json' })
         .send({
           username: 'test',
@@ -86,7 +85,7 @@ describe('Profile controller', () => {
     it('PUT /api/user/profile should return an error if the there are extra fields', (done) => {
       chai
         .request(app)
-        .put('/api/user/profile')
+        .put(`/api/user/profile/${id}`)
         .set({ authorization: testToken, Accept: 'application/json' })
         .send({
           username: 'testname',
@@ -104,7 +103,7 @@ describe('Profile controller', () => {
       it('PUT /api/user/profile should return an error if image field is undefined', (done) => {
         chai
           .request(app)
-          .put('/api/user/profile')
+          .put(`/api/user/profile/${id}`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .field('username', 'trr')
           .field('bio', 'trr')
