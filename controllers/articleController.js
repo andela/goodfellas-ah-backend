@@ -1,7 +1,10 @@
-import models from '../models';
+/* eslint no-plusplus:0 */
+import models, { Sequelize } from '../models';
 import helper from '../lib/helper';
 
-const { Articles, Reactions } = models;
+const { Op } = Sequelize;
+
+const { Articles, Reactions, User } = models;
 
 
 /**
@@ -165,11 +168,202 @@ const reactToArticle = async (req, res) => {
   }
 };
 
+/**
+ * custom search for articles
+ * @param {object} req The request body from the front end
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const searchArticles = async (req, res) => {
+  try {
+    // Retrieve the params of the search
+    const { author, article, tag } = req.query;
+
+    // Figure out what kind of parameters they are and use them to search
+    if (author === 'undefined' && article === 'undefined' && tag === 'undefined') {
+      res.status(404).send({ message: 'Please search for something' });
+    }
+
+    // Now conduct searches
+    if (author !== 'undefined' && article !== 'undefined' && tag !== 'undefined') {
+      // Search by all, if available
+      User.findAll({
+        where: {
+          [Op.or]: {
+            firstname: {
+              [Op.iLike]: `%${author}%`,
+            },
+            lastname: {
+              [Op.iLike]: `%${author}%`
+            }
+          }
+        }
+      }).then((result) => {
+        console.log(result[0].dataValues);
+        Articles.findAll({
+          where: {
+            [Op.and]: {
+              authorId: result[0].dataValues.id,
+              title: {
+                [Op.iLike]: `%${article}%`
+              },
+              tag: {
+                $contains: tag
+              }
+            }
+          }
+        })
+          .then((finalResult) => {
+            res.status(200).send({ message: 'Eureka, I Found them!', finalResult });
+          })
+          .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+      })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (author !== 'undefined' && article !== 'undefined') {
+      // Search by author and article
+      User.findAll({
+        where: {
+          [Op.or]: {
+            firstname: {
+              [Op.iLike]: `%${author}%`,
+            },
+            lastname: {
+              [Op.iLike]: `%${author}%`
+            }
+          }
+        }
+      }).then((result) => {
+        console.log(result[0].dataValues);
+        Articles.findAll({
+          where: {
+            [Op.and]: {
+              authorId: result[0].dataValues.id,
+              title: {
+                [Op.iLike]: `%${article}%`
+              }
+            }
+          }
+        })
+          .then((finalResult) => {
+            res.status(200).send({ message: 'Eureka, I Found them!', finalResult });
+          })
+          .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+      })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (author !== 'undefined' && tag !== 'undefined') {
+      // Search by author and tag
+      User.findAll({
+        where: {
+          [Op.or]: {
+            firstname: {
+              [Op.iLike]: `%${author}%`,
+            },
+            lastname: {
+              [Op.iLike]: `%${author}%`
+            }
+          }
+        }
+      }).then((result) => {
+        console.log(result[0].dataValues);
+        Articles.findAll({
+          where: {
+            [Op.and]: {
+              authorId: result[0].dataValues.id,
+              tag: {
+                $contains: tag
+              }
+            }
+          }
+        })
+          .then((finalResult) => {
+            res.status(200).send({ message: 'Eureka, I Found them!', finalResult });
+          })
+          .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+      })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (tag !== 'undefined' && article !== 'undefined') {
+      // Search by tag and article
+      Articles.findAll({
+        where: {
+          [Op.and]: {
+            tag: {
+              $contains: tag
+            },
+            title: {
+              [Op.iLike]: `%${article}%`
+            }
+          }
+        }
+      })
+        .then((finalResult) => {
+          res.status(200).send({ message: 'Eureka, I Found them!', finalResult });
+        })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (author !== 'undefined') {
+      // Search by author
+      User.findAll({
+        where: {
+          [Op.or]: {
+            firstname: {
+              [Op.iLike]: `%${author}%`,
+            },
+            lastname: {
+              [Op.iLike]: `%${author}%`
+            }
+          }
+        }
+      }).then((result) => {
+        console.log(result[0].dataValues);
+        Articles.findAll({
+          where: {
+            authorId: result[0].dataValues.id
+          }
+        })
+          .then((finalResult) => {
+            res.status(200).send({ message: 'Eureka, I Found them!', finalResult });
+          })
+          .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+      })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (article !== 'undefined') {
+      // Search by article
+      Articles.findAll({
+        where: {
+          title: {
+            [Op.iLike]: `%${article}%`
+          }
+        }
+      })
+        .then((result) => {
+          res.status(200).send({ message: 'Here are the articles found', result });
+        })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    } else if (tag !== 'undefined') {
+      // Search by tag
+      Articles.findAll({
+        where: {
+          tag: {
+            $contains: tag
+          }
+        }
+      })
+        .then((result) => {
+          res.status(200).send({ message: 'Here are the articles found', result });
+        })
+        .catch(() => res.status(404).send({ message: 'We couldn\'t find any articles.' }));
+    }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
   getAnArticle,
-  reactToArticle
+  reactToArticle,
+  searchArticles
 };
