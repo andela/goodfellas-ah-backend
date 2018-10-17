@@ -39,7 +39,9 @@ const createArticle = (req, res) => {
 const updateArticle = async (req, res) => {
   const { slug } = req.params;
 
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -68,7 +70,9 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { slug } = req.params;
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -120,7 +124,7 @@ const getAllArticles = (req, res) => Articles
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findArticle(slug, req.userId);
+    const existingArticle = await helper.findArticle(slug);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
@@ -146,7 +150,7 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-    const existingArticle = await helper.findArticle(slug);
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
 
     const articleId = existingArticle.id;
@@ -190,6 +194,7 @@ const bookmarkArticle = async (req, res) => {
 
     res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
   } catch (error) {
+    console.log(error);
     res.status(500).send({ error: error.message });
   }
 };
