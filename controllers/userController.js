@@ -102,15 +102,19 @@ module.exports = {
     } else {
       // If No, create user then authenticate user
       const encryptedPassword = await utility.encryptPassword(req.user.password);
+      const encryptedToken = utility.encryptToken();
+
       User.create({
         firstname: req.user.firstName,
         lastname: req.user.lastName,
         email: req.user.email,
         password: encryptedPassword,
+        verification_token: encryptedToken,
         account_type: req.user.account_type
       })
         .then((newUser) => {
           profileController.createProfile(newUser);
+          utility.sendEmail(newUser.email, mail(encryptedToken));
           return res.status(201).json({
             error: false,
             token: utility.createToken(newUser),
