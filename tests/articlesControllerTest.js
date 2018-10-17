@@ -230,6 +230,7 @@ describe('Articles controller', () => {
           });
       });
     });
+
     describe('GET all articles', () => {
       it('Returns the right response when all the articles are gotten/fetched', (done) => {
         chai
@@ -260,7 +261,6 @@ describe('Articles controller', () => {
             done();
           });
       });
-
       it('Returns an error message when an unauthenticated user attempts to add a tag to an article', (done) => {
         chai
           .request(app)
@@ -272,7 +272,6 @@ describe('Articles controller', () => {
             done();
           });
       });
-
       it('Returns an error message when a user provides a non-list value to the tags key', (done) => {
         tags = { tags: 'reactjs' };
         chai
@@ -280,6 +279,73 @@ describe('Articles controller', () => {
           .post(`/api/articles/${slug}/tags`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+    });
+    describe('React to an article', () => {
+      it('Returns a success message when an article is liked for the first time', (done) => {
+        const reaction = { reaction: 1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(201);
+            expect(res.body.message).to.equal('Successfully added reaction');
+            done();
+          });
+      });
+      it('Returns an error message when an unauthorized user attempts to like an article', (done) => {
+        const reaction = { reaction: 1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(401);
+            expect(res.body.message).to.equal('Unauthorized request, please login');
+            done();
+          });
+      });
+      it('Returns an error message when the reaction field is not filled', (done) => {
+        const reaction = { reaction: '' };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+      it('Returns an error message when the reaction field is filled with an incorrect value', (done) => {
+        const reaction = { reaction: 'incorrect' };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+
+      it('Should return an error message when the user tries to react to an article with more than the required fields', (done) => {
+        const reaction = {
+          reaction: 1,
+          extrafeild: 'extra value'
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             done();

@@ -39,7 +39,7 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
-  if (route === 'tags' && fieldLength > 1) {
+  if ((route === 'tags' || route === 'reaction') && fieldLength > 1) {
     return true;
   }
 
@@ -241,6 +241,27 @@ exports.tagValidation = (req, res, next) => {
 
   if (!Array.isArray(tags)) {
     return res.status(400).send({ message: 'Tags must be in a list' });
+  }
+
+  next();
+};
+
+exports.reactionValidation = (req, res, next) => {
+  const userDetails = req.body;
+  const { reaction } = userDetails;
+  const emptyFields = checkEmptyFields({ reaction });
+  const tooManyFields = checkFieldLength('reaction', userDetails);
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
+    return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }
 
   next();

@@ -1,6 +1,6 @@
 import articleController from '../../controllers/articleController';
 import authenticate from '../../middleware/authentication';
-import { checkNullInput, tagValidation } from '../../middleware/validation';
+import { checkNullInput, reactionValidation, tagValidation } from '../../middleware/validation';
 
 const router = require('express').Router();
 
@@ -10,6 +10,6 @@ router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 router.get('/articles', authenticate, articleController.getAllArticles);
 router.get('/articles/:slug', authenticate, articleController.getAnArticle);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
-
+router.post('/articles/:slug/react', authenticate, reactionValidation, articleController.reactToArticle);
 
 export default router;
