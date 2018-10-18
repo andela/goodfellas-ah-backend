@@ -422,11 +422,26 @@ describe('Articles controller', () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('Article bookmarked successfully');
-          expect(res.body.data.article).to.be.an('object');
-          expect(res.body.data.article).to.include({
-            slug: articleSlug
-          });
+          expect(res.body.data.articleSlug).to.equal(articleSlug);
+          expect(res.body.data).to.have.property('title');
           done();
+        });
+    });
+    it('should return error if specified article is already bookmarked', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end(() => {
+          chai
+            .request(app)
+            .post(`/api/articles/${articleSlug}/bookmark`)
+            .set({ authorization: userToken, Accept: 'application/json' })
+            .end((err, res) => {
+              expect(res.status).to.equal(400);
+              expect(res.body.error).to.equal('Article has been previously bookmarked');
+              done();
+            });
         });
     });
     it('should return error if specified article does not exist', (done) => {
@@ -512,11 +527,7 @@ describe('Articles controller', () => {
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Bookmark deleted successfully');
-          expect(res.body.data.article).to.be.an('object');
-          expect(res.body.data.article).to.include({
-            slug: articleSlug
-          });
+          expect(res.body.message).to.equal('Bookmark removed successfully');
           done();
         });
     });
