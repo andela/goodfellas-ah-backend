@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    read_time: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -44,16 +48,22 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
     }
-  }, {});
-  Articles.associate = (model) => {
-    Articles.belongsTo(model.User, { as: 'user', foreignKey: 'authorId' });
-    Articles.hasMany(model.Reactions, { as: 'reactions', foreignKey: 'articleId' });
-    Articles.hasMany(model.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
+  });
+  Articles.associate = (models) => {
+    Articles.belongsTo(models.User, { as: 'user', foreignKey: 'authorId' });
+    Articles.hasMany(models.Bookmark, {
+      foreignKey: 'articleSlug',
+      as: 'bookmarked',
+      targetKey: 'articleSlug',
+      sourceKey: 'slug',
+    });
+    Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
+    Articles.hasMany(models.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],
     slugOptions: { lower: true },
-    overwrite: true,
+    overwrite: false,
     column: 'slug'
   });
   return Articles;
