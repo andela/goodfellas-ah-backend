@@ -17,16 +17,23 @@ const createArticle = async (req, res) => {
     description,
     body,
   } = req.body;
+
+  // Calculate the article's read time
+
   let image = null;
   if (req.files && req.files.image) {
     image = await utility.imageUpload(req.files);
   }
+
+  const readTime = utility.readTime(body, image);
+
   return Articles
     .create({
       title,
       description,
       body,
       image,
+      read_time: readTime,
       authorId: req.userId
     })
     .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))
@@ -53,6 +60,9 @@ const updateArticle = async (req, res) => {
   if (existingArticle !== null && existingArticle.authorId !== req.userId) {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
+
+  const readTime = utility.readTime(req.body.body, req.body.image);
+
   let image = null;
   if (req.files && req.files.image) {
     image = await utility.imageUpload(req.files);
@@ -62,6 +72,7 @@ const updateArticle = async (req, res) => {
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
     image,
+    read_time: readTime
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
     .catch(error => res.status(500).send({ error: error.message }));
