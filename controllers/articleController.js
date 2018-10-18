@@ -19,12 +19,14 @@ const createArticle = async (req, res) => {
   } = req.body;
 
   // Calculate the article's read time
-  const readTime = utility.readTime(body, image);
 
   let image = null;
   if (req.files && req.files.image) {
     image = await utility.imageUpload(req.files);
   }
+
+  const readTime = utility.readTime(body, image);
+
   return Articles
     .create({
       title,
@@ -69,7 +71,7 @@ const updateArticle = async (req, res) => {
     title: req.body.title || existingArticle.title,
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
-    image: req.body.image || existingArticle.image,
+    image,
     read_time: readTime
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
