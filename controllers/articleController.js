@@ -195,13 +195,8 @@ const reactToArticle = async (req, res) => {
 };
 
 /**
-<<<<<<< HEAD
- * updates an article's tags
- * @param {object} req The request body of the request.
-=======
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
->>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
