@@ -4,6 +4,7 @@ import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import profileController from './profileController';
+import mail from '../lib/verifyEmail';
 
 dotenv.config();
 const { User, FollowersTable } = db;
@@ -16,22 +17,27 @@ module.exports = {
         firstname, lastname, email, password
       } = values;
 
-      const existingUser = await helper.findUser(email);
+      const existingUser = await helper.findRecord(User, {
+        email
+      });
 
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
       }
 
       const encryptedPassword = await utility.encryptPassword(password);
+      const encryptedToken = utility.encryptToken();
 
       User.create({
         firstname,
         lastname,
         email,
-        password: encryptedPassword
+        password: encryptedPassword,
+        verification_token: encryptedToken
       })
         .then((newUser) => {
           profileController.createProfile(newUser);
+          utility.sendEmail(newUser.email, mail(encryptedToken));
           return res.status(201).json({
             error: false,
             token: utility.createToken(newUser),
@@ -48,7 +54,9 @@ module.exports = {
     const values = utility.trimValues(req.body);
     const { email, password } = values;
 
-    const existingUser = await helper.findUser(email);
+    const existingUser = await helper.findRecord(User, {
+      email
+    });
 
     if (!existingUser) {
       return res
@@ -72,8 +80,9 @@ module.exports = {
   },
   async socialAuth(req, res) {
     // Check if user exists
-
-    const existingUser = await helper.findUser(req.user.email);
+    const existingUser = await helper.findRecord(User, {
+      email: req.user.email
+    });
 
     if (existingUser) {
       // If Yes, check if it was with the same social account
@@ -82,12 +91,10 @@ module.exports = {
       const match = await utility.comparePasswords(password, existingUser.dataValues.password);
       // If yes then authenticate user
       if (match) {
-        res
-          .status(200)
-          .send({
-            message: 'Successfully signed in',
-            token: utility.createToken(existingUser.dataValues)
-          });
+        res.status(200).send({
+          message: 'Successfully signed in',
+          token: utility.createToken(existingUser.dataValues)
+        });
       } else {
         // If no, return error message
         res.status(400).send({ message: 'You can\'t login through this platform' });
@@ -95,15 +102,19 @@ module.exports = {
     } else {
       // If No, create user then authenticate user
       const encryptedPassword = await utility.encryptPassword(req.user.password);
+      const encryptedToken = utility.encryptToken();
+
       User.create({
         firstname: req.user.firstName,
         lastname: req.user.lastName,
         email: req.user.email,
         password: encryptedPassword,
+        verification_token: encryptedToken,
         account_type: req.user.account_type
       })
         .then((newUser) => {
           profileController.createProfile(newUser);
+          utility.sendEmail(newUser.email, mail(encryptedToken));
           return res.status(201).json({
             error: false,
             token: utility.createToken(newUser),
@@ -206,7 +217,9 @@ module.exports = {
     }
   },
   async forgotPassword(req, res) {
-    const user = await helper.findUser(req.email);
+    const user = await helper.findRecord(User, {
+      email: req.email
+    });
     if (!user) {
       return res.status(404).send({
         message: 'The account with this email does not exist'
@@ -241,4 +254,28 @@ module.exports = {
       }
     });
   },
+
+  async verifyUser(req, res) {
+    // Get token sent in params
+    const { verificationToken } = req.params;
+    // Check if there is a user with that token and that hasn't been verified
+    try {
+      const checkToken = await User.findOne({
+        where: { verification_token: verificationToken, verified: false }
+      });
+
+      if (checkToken) {
+        // If yes, then verify that user
+        checkToken.update({ verified: true, verification_token: null })
+          .then(() => res.status(200).send({ message: 'Account successfully verified' }))
+          // Catch errors
+          .catch(() => res.status(500).send({ message: 'Your account cannot be verified at the moment, Please try again later' }));
+      } else {
+        // If no, then return error
+        res.status(403).send({ message: 'Your account has already been verified.' });
+      }
+    } catch (error) {
+      res.status(500).send({ message: 'Internal server error' });
+    }
+  }
 };
