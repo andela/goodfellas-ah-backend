@@ -2,13 +2,18 @@ import articleController from '../../controllers/articleController';
 import commentController from '../../controllers/commentController';
 import searchController from '../../controllers/searchController';
 import authenticate from '../../middleware/authentication';
-import { checkNullInput, commentValidation, reactionValidation } from '../../middleware/validation';
+import {
+  checkNullInput,
+  commentValidation,
+  reactionValidation,
+  searchValidation
+} from '../../middleware/validation';
 
 const router = require('express').Router();
 
 router.post('/articles', authenticate, checkNullInput, articleController.createArticle);
 router.put('/articles/:slug', authenticate, checkNullInput, articleController.updateArticle);
-router.get('/articles/search', searchController);
+router.get('/articles/search', searchValidation, searchController);
 router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 router.get('/articles', authenticate, articleController.getAllArticles);
 router.get('/articles/:slug', authenticate, articleController.getAnArticle);

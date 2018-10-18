@@ -264,3 +264,13 @@ exports.reactionValidation = (req, res, next) => {
   }
   next();
 };
+
+exports.searchValidation = (req, res, next) => {
+  const checkField = checkEmptyFields(req.query);
+
+  if (checkField.status) {
+    return res.status(400).send({ message: checkField.message });
+  }
+
+  next();
+};
