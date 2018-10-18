@@ -90,18 +90,34 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = (req, res) => Articles
-  .findAll()
-  .then((articles) => {
-    if (articles.length < 1) {
-      return res.status(404).send({ message: 'Article Not found!' });
-    }
-    return res.status(200).send({
-      message: 'Articles gotten successfully!',
-      articles,
-    });
-  })
-  .catch(error => res.status(500).send({ error: error.message }));
+const getAllArticles = async (req, res) => {
+  const { page } = req.params;
+  const limit = 2;
+  let offset = 0;
+
+  const articleList = await Articles.findAndCountAll();
+
+  const pages = Math.ceil(articleList.count / limit);
+  offset = limit * (page - 1);
+
+  Articles
+    .findAll({
+      limit,
+      offset,
+      order: [['id', 'DESC']]
+    })
+    .then((articles) => {
+      if (articles.length < 1) {
+        return res.status(404).send({ message: 'Article Not found!' });
+      }
+      return res.status(200).send({
+        message: 'Articles gotten successfully!',
+        articles,
+        pages
+      });
+    })
+    .catch(error => res.status(500).send({ error: error.message }));
+};
 
 /**
  * fetches an article
