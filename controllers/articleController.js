@@ -1,8 +1,7 @@
 import models from '../models';
 import helper from '../lib/helper';
 
-const { Articles, Reactions } = models;
-
+const { Articles, Reactions, Bookmark } = models;
 
 /**
  * Creates an article
@@ -95,7 +94,15 @@ const deleteArticle = async (req, res) => {
  */
 
 const getAllArticles = (req, res) => Articles
-  .findAll()
+  .findAll({
+    include: {
+      model: Bookmark,
+      as: 'bookmarked',
+      where: { userId: req.userId },
+      attributes: ['createdAt', 'updatedAt'],
+      required: false,
+    }
+  })
   .then((article) => {
     if (article.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
@@ -117,9 +124,7 @@ const getAllArticles = (req, res) => Articles
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findRecord(Articles, {
-      slug
-    });
+    const existingArticle = await helper.findArticle(slug, req.userId);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
@@ -171,11 +176,94 @@ const reactToArticle = async (req, res) => {
   }
 };
 
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const bookmarkArticle = async (req, res) => {
+  const { slug } = req.params;
+  const { userId } = req;
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
+    const existingBookmark = await Bookmark.count({ where: { userId, articleSlug: slug } });
+    if (existingBookmark) return res.status(400).send({ error: 'Article has been previously bookmarked' });
+    const bookmarked = await helper.bookmarkArticle(userId, slug);
+    bookmarked.title = existingArticle.title;
+
+    res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const deleteBookmark = async (req, res) => {
+  const { slug } = req.params;
+  const { userId } = req;
+  try {
+    const existingArticle = await helper.findArticle(slug);
+    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
+    const deletedBookmark = await Bookmark.destroy({ where: { userId, articleSlug: slug } });
+    if (deletedBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
+
+    res.status(200).send({ message: 'Bookmark removed successfully' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the id of the logged in user.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
+const getBookmarks = async (req, res) => {
+  const { userId } = req;
+  try {
+    const bookmarks = await Bookmark.findAndCountAll({
+      where: { userId },
+      attributes: { exclude: ['userId'] },
+      include: {
+        model: Articles,
+        as: 'article',
+        attributes: {
+          include: [['id', 'articleId']],
+          exclude: ['id']
+        }
+      }
+    });
+    res.status(200).send({
+      data: {
+        articles: bookmarks.rows,
+        articlesCount: bookmarks.count
+      },
+      message: 'Retrieved Bookmarks'
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
   getAllArticles,
   getAnArticle,
-  reactToArticle
+  reactToArticle,
+  bookmarkArticle,
+  deleteBookmark,
+  getBookmarks,
 };
