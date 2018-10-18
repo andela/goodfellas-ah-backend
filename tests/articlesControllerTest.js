@@ -274,7 +274,7 @@ describe('Articles controller', () => {
           });
       });
     });
-    describe('Add a tag for an article', () => {
+    describe('Add a tag for an article created by the author', () => {
       let tags = {
         tags: ['reactjs', 'angularjs']
       };
