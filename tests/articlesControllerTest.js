@@ -6,6 +6,18 @@ import { userDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
 
+const article = {
+  title: 'Enough is Enough!',
+  description: 'This is a call for Revolt',
+  body: 'My people the time has come to revolt against this new government',
+  image: 'null'
+};
+const article2 = {
+  title: 'Second Article',
+  description: 'This is the second article',
+  body: 'Like I have said, this is the second article. Got that?',
+  image: 'null'
+};
 let testToken;
 let slug;
 
@@ -29,13 +41,12 @@ describe('Articles controller', () => {
   });
 
   describe('POST an article', () => {
+    after((done) => {
+      resetDB();
+
+      done();
+    });
     it('Returns the right response when an article is created', (done) => {
-      const article = {
-        title: 'Enough is Enough!',
-        description: 'This is a call for Revolt',
-        body: 'My people the time has come to revolt against this new government',
-        image: 'null'
-      };
       chai
         .request(app)
         .post('/api/articles')
@@ -53,7 +64,7 @@ describe('Articles controller', () => {
     });
 
     it('returns the right reponse when a request body field is empty', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
         body: ''
@@ -62,7 +73,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('A field does not contain any input');
@@ -70,7 +81,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a body field contains only whitespaces', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: 'This is a call for Revolt',
         body: '     '
@@ -79,7 +90,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('A field does not contain any input');
@@ -87,7 +98,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a request body field contains only digits', (done) => {
-      const article = {
+      const badArticle = {
         title: 'Enough is Enough!',
         description: '7665645544344433443',
         body: 'My people the time has come to revolt against this new government'
@@ -96,7 +107,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('Input cannot be numbers only!');
@@ -104,7 +115,7 @@ describe('Articles controller', () => {
         });
     });
     it('returns the right reponse when a request body field is undefined', (done) => {
-      const article = {
+      const badArticle = {
         description: 'This is a call for Revolt',
         body: 'My people the time has come to revolt against this new government'
       };
@@ -112,7 +123,7 @@ describe('Articles controller', () => {
         .request(app)
         .post('/api/articles')
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .send(badArticle)
         .end((err, res) => {
           expect(res.status).to.equal(400);
           expect(res.body.error).to.equal('Invalid Input');
@@ -121,7 +132,7 @@ describe('Articles controller', () => {
     });
     describe('PUT an article', () => {
       it('Returns the right response when a paricular article is updated', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -130,7 +141,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(200);
             expect(res.body.message).to.equal('Article successfully modified');
@@ -138,7 +149,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a paricular article to be updated is not found', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -147,7 +158,7 @@ describe('Articles controller', () => {
           .request(app)
           .put('/api/articles/3')
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(404);
             expect(res.body.error).to.equal('Article not found!');
@@ -155,7 +166,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returnsh the right response when a request body field is empty', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: ''
@@ -164,7 +175,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('A field does not contain any input');
@@ -172,7 +183,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a request body field contains only whitespaces', (done) => {
-        const article = {
+        const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
           body: '       '
@@ -181,7 +192,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('A field does not contain any input');
@@ -189,7 +200,7 @@ describe('Articles controller', () => {
           });
       });
       it('Returns the right response when a request body field contains only didgits', (done) => {
-        const article = {
+        const badArticle = {
           title: '6777747747474',
           description: 'This is a call for Revolt',
           body: 'My people the time has come to revolt against this new government'
@@ -198,7 +209,7 @@ describe('Articles controller', () => {
           .request(app)
           .put(`/api/articles/${slug}`)
           .set({ authorization: testToken, Accept: 'application/json' })
-          .send(article)
+          .send(badArticle)
           .end((err, res) => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('Input cannot be numbers only!');
@@ -216,6 +227,25 @@ describe('Articles controller', () => {
             expect(res.status).to.equal(200);
             expect(res.body.message).to.equal('Article gotten successfully!');
             done();
+          });
+      });
+      it('return bookmarked field when article is bookmarked', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}/bookmark`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end(() => {
+            chai
+              .request(app)
+              .get(`/api/articles/${slug}`)
+              .set({ authorization: testToken, Accept: 'application/json' })
+              .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.message).to.equal('Article gotten successfully!');
+                expect(res.body.article).to.have.property('bookmarked');
+                expect(res.body.article.bookmarked).to.be.an('array');
+                done();
+              });
           });
       });
       it('Returns the right response when a paricular article to get is not found', (done) => {
@@ -389,6 +419,38 @@ describe('Articles controller', () => {
           });
       });
     });
+    describe('GET all articles', () => {
+      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Articles gotten successfully!');
+            done();
+          });
+      });
+      it('return bookmarked field when article is bookmarked', (done) => {
+        chai
+          .request(app)
+          .delete(`/api/articles/${slug}/bookmark`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end(() => {
+            chai
+              .request(app)
+              .get('/api/articles')
+              .set({ authorization: testToken, Accept: 'application/json' })
+              .end((err, res) => {
+                expect(res.status).to.equal(200);
+                expect(res.body.message).to.equal('Articles gotten successfully!');
+                expect(res.body.article[0]).to.have.property('bookmarked');
+                expect(res.body.article[0].bookmarked).to.be.an('array');
+                done();
+              });
+          });
+      });
+    });
     describe('DELETE an article', () => {
       it('Returns the right response when a particular article is deleted', (done) => {
         chai
@@ -412,6 +474,281 @@ describe('Articles controller', () => {
             done();
           });
       });
+    });
+  });
+  describe('POST /articles/bookmark/:slug', () => {
+    let userToken;
+    let articleSlug;
+    beforeEach('add user to db and article to db', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              articleSlug = res.body.article.slug;
+              done();
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should bookmark an article', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Article bookmarked successfully');
+          expect(res.body.data.articleSlug).to.equal(articleSlug);
+          expect(res.body.data).to.have.property('title');
+          done();
+        });
+    });
+    it('should return error if specified article is already bookmarked', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end(() => {
+          chai
+            .request(app)
+            .post(`/api/articles/${articleSlug}/bookmark`)
+            .set({ authorization: userToken, Accept: 'application/json' })
+            .end((err, res) => {
+              expect(res.status).to.equal(400);
+              expect(res.body.error).to.equal('Article has been previously bookmarked');
+              done();
+            });
+        });
+    });
+    it('should return error if specified article does not exist', (done) => {
+      chai
+        .request(app)
+        .post('/api/articles/this-article-does-not-exist/bookmark')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${articleSlug}/bookmark`)
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
+  });
+  describe('DELETE /articles/bookmark/:slug', () => {
+    let userToken;
+    let articleSlug;
+    let unbookMarkedArticle;
+    beforeEach('add user to db, add articles to db and bookmark one of them', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              unbookMarkedArticle = res.body.article.slug;
+            });
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              articleSlug = res.body.article.slug;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end(() => {
+                  done();
+                });
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should bookmark an article', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Bookmark removed successfully');
+          done();
+        });
+    });
+    it('should return error if specified article does not exist', (done) => {
+      chai
+        .request(app)
+        .delete('/api/articles/this-article-does-not-exist/bookmark')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should return error if specified article is not currently bookmarked', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${unbookMarkedArticle}/bookmark`)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('This article is not currently bookmarked');
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${articleSlug}/bookmark`)
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
+  });
+  describe('GET /articles/all/bookmark', () => {
+    let userToken;
+    beforeEach('add user to db, add articles to db and bookmark them', (done) => {
+      // add user to db
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          // add first article and bookmark
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end();
+            });
+          // add second article
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end(() => {
+                  done();
+                });
+            });
+        });
+    });
+    afterEach('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should return bookmarked articles', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.data).to.be.an('object');
+          expect(res.body.data).to.have.property('articles');
+          expect(res.body.data).to.include({
+            articlesCount: 2
+          });
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/all/bookmark')
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
     });
   });
 });
