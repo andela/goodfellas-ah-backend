@@ -1,7 +1,19 @@
 import { verify } from 'jsonwebtoken';
 
-require('dotenv').config();
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+const allowVisitors = (req, res, next) => {
+  const token = req.headers.authorization;
+  try {
+    if (!token) throw new Error('token not supplied');
+    req.userId = verify(token, process.env.SECRET).id;
+    next();
+  } catch (e) {
+    next();
+  }
+};
 export default (req, res, next) => {
   const token = req.headers.authorization;
   if (token) {
@@ -19,3 +31,4 @@ export default (req, res, next) => {
       .send({ message: 'Unauthorized request, please login' });
   }
 };
+export { allowVisitors };
