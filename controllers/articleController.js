@@ -145,7 +145,6 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-
     const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
 
