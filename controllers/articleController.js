@@ -40,7 +40,9 @@ const createArticle = (req, res) => {
 const updateArticle = async (req, res) => {
   const { slug } = req.params;
 
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -69,7 +71,9 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { slug } = req.params;
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -90,33 +94,26 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = async (req, res) => {
+const getArticles = async (req, res) => {
   const { page } = req.params;
-  const limit = 2;
-  let offset = 0;
+  const limit = 10;
 
-  const articleList = await Articles.findAndCountAll();
+  try {
+    const { offset, pages } = await helper.findArticleListParams(Articles, { page, limit });
+    const articles = await Articles.findAll({ limit, offset, order: [['id', 'DESC']] });
 
-  const pages = Math.ceil(articleList.count / limit);
-  offset = limit * (page - 1);
+    if (articles.length < 1) {
+      return res.status(404).send({ message: 'Article Not found!' });
+    }
 
-  Articles
-    .findAll({
-      limit,
-      offset,
-      order: [['id', 'DESC']]
-    })
-    .then((articles) => {
-      if (articles.length < 1) {
-        return res.status(404).send({ message: 'Article Not found!' });
-      }
-      return res.status(200).send({
-        message: 'Articles gotten successfully!',
-        articles,
-        pages
-      });
-    })
-    .catch(error => res.status(500).send({ error: error.message }));
+    return res.status(200).send({
+      message: 'Articles gotten successfully!',
+      articles,
+      pages
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 };
 
 /**
@@ -129,7 +126,9 @@ const getAllArticles = async (req, res) => {
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findArticle(slug);
+    const existingArticle = await helper.findRecord(Articles, {
+      slug
+    });
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
@@ -155,7 +154,7 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-    const existingArticle = await helper.findArticle(slug);
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
 
     const articleId = existingArticle.id;
@@ -185,7 +184,7 @@ export default {
   createArticle,
   updateArticle,
   deleteArticle,
-  getAllArticles,
+  getArticles,
   getAnArticle,
   reactToArticle
 };

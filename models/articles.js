@@ -47,6 +47,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Articles.associate = (model) => {
     Articles.hasMany(model.Reactions, { as: 'reactions', foreignKey: 'articleId' });
+    Articles.hasMany(model.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],

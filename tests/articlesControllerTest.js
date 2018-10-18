@@ -311,7 +311,7 @@ describe('Articles controller', () => {
       it('Returns the right response when all the articles are gotten/fetched', (done) => {
         chai
           .request(app)
-          .get('/api/articles')
+          .get('/api/articles/feed/1')
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
@@ -322,7 +322,7 @@ describe('Articles controller', () => {
       it('Returns the required number of articles per request', (done) => {
         chai
           .request(app)
-          .get('/api/articles')
+          .get('/api/articles/feed/1')
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
