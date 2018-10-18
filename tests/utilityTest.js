@@ -37,4 +37,18 @@ describe('Utility', () => {
     const trimmedValues = utility.trimValues(values);
     chai.expect(trimmedValues.firstname).to.equal('myFirstName');
   });
+
+  it('should send email successfully', async () => {
+    const email = 'johndoe@gmail.com';
+    const mailMessage = 'Welcome to Andela';
+    const sendingEmail = utility.sendEmail(email, mailMessage);
+    chai.expect(sendingEmail).to.equal('Email has been sent successfully');
+  });
+
+  it('should fail when email is not passed', async () => {
+    const email = '';
+    const mailMessage = 'Welcome to Andela';
+    const sendingEmail = utility.sendEmail(email, mailMessage);
+    chai.expect(sendingEmail).to.equal(false);
+  });
 });
