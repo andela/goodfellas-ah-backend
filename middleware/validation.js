@@ -21,7 +21,6 @@ const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 const checkEmptyFields = (data) => {
   const emptyFields = {};
   const missingFields = Object.keys(data).filter(field => !data[field] || !/\S/.test(data[field]));
-
   if (missingFields.length > 0) {
     emptyFields.status = true;
     emptyFields.message = generateErrorMessage(missingFields);
@@ -38,10 +37,19 @@ const checkFieldLength = (route, fields) => {
   if (route === 'signup' && fieldLength > 4) {
     return true;
   }
-
   if (route === 'reaction' && fieldLength > 1) {
     return true;
   }
+  if (route === 'comment' && fieldLength > 1) {
+    return true;
+  }
+  if (route === 'profile' && fieldLength > 2) {
+    return true;
+  }
+
+  // if (route === 'reaction' && fieldLength > 1) {
+  //   return true;
+  // }
 
   return false;
 };
@@ -192,21 +200,6 @@ exports.findUserByToken = (req, res, next) => {
     next();
   });
 };
-
-const undefinedFields = (data) => {
-  const { username, bio } = data;
-  if (username === undefined || bio === undefined) {
-    return true;
-  }
-};
-
-// checking for any unwanted field
-const extraFields = (data) => {
-  const fieldLength = Object.keys(data).length;
-  if (fieldLength !== 2) {
-    return true;
-  }
-};
 const imageField = (data) => {
   if (typeof data.files.profileImage === 'undefined') {
     return true;
@@ -217,6 +210,19 @@ const filesFieldLength = (data) => {
     return true;
   }
 };
+const undefinedFields = (data) => {
+  const { username, bio } = data;
+  if (username === undefined || bio === undefined) {
+    return true;
+  }
+};
+
+const undefinedcommentFields = (data) => {
+  const { body } = data;
+  if (body === undefined) {
+    return true;
+  }
+};
 
 exports.profileValidation = (req, res, next) => {
   const undefinedFieldError = undefinedFields(req.body);
@@ -224,11 +230,11 @@ exports.profileValidation = (req, res, next) => {
     return res.status(400).send({ message: 'All fields are required' });
   }
   const emptyFields = checkEmptyFields(req.body);
-  const extraFieldsError = extraFields(req.body);
+  const tooManyFields = checkFieldLength('profile', req.body);
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
   }
-  if (extraFieldsError) {
+  if (tooManyFields) {
     return res.status(400).send({ message: 'Extra field(s) not required' });
   }
   const imageFieldError = imageField(req);
@@ -242,10 +248,25 @@ exports.profileValidation = (req, res, next) => {
   next();
 };
 
+exports.commentValidation = (req, res, next) => {
+  const undefinedFieldError = undefinedcommentFields(req.body);
+  if (undefinedFieldError) {
+    return res.status(400).send({ message: 'All fields are required' });
+  }
+  const emptyFields = checkEmptyFields(req.body);
+  const tooManyFields = checkFieldLength('comment', req.body);
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Extra field(s) not required' });
+  }
+  next();
+};
 exports.reactionValidation = (req, res, next) => {
   const userDetails = req.body;
   const { reaction } = userDetails;
-  const emptyFields = checkEmptyFields({ reaction });
+  const emptyFields = checkEmptyFields(req.body);
   const tooManyFields = checkFieldLength('reaction', userDetails);
 
   if (emptyFields.status) {
@@ -255,7 +276,6 @@ exports.reactionValidation = (req, res, next) => {
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });
   }
-
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
     return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }

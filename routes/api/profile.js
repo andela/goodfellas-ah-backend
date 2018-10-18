@@ -9,7 +9,7 @@ const router = require('express').Router();
 const multipart = multiparty();
 
 router.put(
-  '/user/profile',
+  '/user/profile/:userId',
   authenticate,
   multipart,
   validate.profileValidation,

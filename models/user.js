@@ -1,43 +1,47 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: false,
+  const User = sequelize.define(
+    'User',
+    {
+      firstname: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      lastname: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      account_type: {
+        type: DataTypes.ENUM,
+        defaultValue: 'Local',
+        values: ['Local', 'google', 'facebook', 'twitter']
+      },
+      password_reset_token: {
+        type: DataTypes.STRING
+      },
+      password_reset_time: {
+        type: DataTypes.DATE
+      },
+      role: {
+        type: DataTypes.ENUM,
+        defaultValue: 'User',
+        values: ['SuperAdmin', 'Admin', 'User']
+      },
+      notificationSettings: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: ['email', 'inApp']
+      },
     },
-    lastname: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    account_type: {
-      type: DataTypes.ENUM,
-      defaultValue: 'Local',
-      values: ['Local', 'google', 'facebook', 'twitter']
-    },
-    password_reset_token: {
-      type: DataTypes.STRING,
-    },
-    password_reset_time: {
-      type: DataTypes.DATE,
-    },
-    role: {
-      type: DataTypes.ENUM,
-      defaultValue: 'User',
-      values: ['SuperAdmin', 'Admin', 'User']
-    },
-    notificationSettings: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      defaultValue: ['email', 'inApp']
-    },
-  }, {});
+    {}
+  );
   User.associate = (models) => {
     User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });
     User.hasMany(models.FollowersTable, {
@@ -48,6 +52,15 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.hasMany(models.Bookmark, {
       foreignKey: 'userId'
+    });
+    User.hasMany(models.ArticleComment, {
+      foreignKey: 'user_id'
+    });
+    User.hasMany(models.CommentReply, {
+      foreignKey: 'user_id'
+    });
+    User.hasMany(models.CommentReaction, {
+      foreignKey: 'user_id'
     });
   };
   return User;

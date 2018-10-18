@@ -39,7 +39,9 @@ const createArticle = (req, res) => {
 const updateArticle = async (req, res) => {
   const { slug } = req.params;
 
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
   }
@@ -68,7 +70,9 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { slug } = req.params;
-  const existingArticle = await helper.findArticle(slug);
+  const existingArticle = await helper.findRecord(Articles, {
+    slug
+  });
 
   if (!existingArticle) {
     return res.status(404).send({ error: 'Article not found!' });
@@ -146,7 +150,7 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-    const existingArticle = await helper.findArticle(slug);
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
 
     const articleId = existingArticle.id;
@@ -185,8 +189,10 @@ const bookmarkArticle = async (req, res) => {
   try {
     const existingArticle = await helper.findArticle(slug);
     if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
+    const existingBookmark = await Bookmark.count({ where: { userId, articleSlug: slug } });
+    if (existingBookmark) return res.status(400).send({ error: 'Article has been previously bookmarked' });
     const bookmarked = await helper.bookmarkArticle(userId, slug);
-    bookmarked.article = existingArticle.dataValues;
+    bookmarked.title = existingArticle.title;
 
     res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
   } catch (error) {
@@ -207,10 +213,10 @@ const deleteBookmark = async (req, res) => {
   try {
     const existingArticle = await helper.findArticle(slug);
     if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
-    const unBookmark = await Bookmark.destroy({ where: { userId, articleSlug: slug } });
-    if (unBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
+    const deletedBookmark = await Bookmark.destroy({ where: { userId, articleSlug: slug } });
+    if (deletedBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
 
-    res.status(200).send({ message: 'Bookmark deleted successfully', data: { article: existingArticle.dataValues } });
+    res.status(200).send({ message: 'Bookmark removed successfully' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
