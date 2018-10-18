@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   Articles.associate = (model) => {
+    Articles.belongsTo(model.User, { as: 'user', foreignKey: 'authorId' });
     Articles.hasMany(model.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(model.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
   };

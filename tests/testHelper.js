@@ -16,6 +16,4 @@ const generateArticleList = (userId) => {
   return articleList;
 };
 
-export {
-  generateArticleList
-};
+export default generateArticleList;

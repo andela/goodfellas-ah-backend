@@ -4,7 +4,7 @@ import { app } from '../server';
 import db from '../models';
 import { resetDB } from './resetTestDB';
 import { userDetail } from './signUpDetails';
-import { generateArticleList } from './testHelper';
+import generateArticleList from './testHelper';
 
 const { Articles } = db;
 

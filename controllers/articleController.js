@@ -99,8 +99,7 @@ const getArticles = async (req, res) => {
   const limit = 10;
 
   try {
-    const { offset, pages } = await helper.findArticleListParams(Articles, { page, limit });
-    const articles = await Articles.findAll({ limit, offset, order: [['id', 'DESC']] });
+    const { articles, pages } = await helper.findArticleList(Articles, { page, limit });
 
     if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
