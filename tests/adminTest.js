@@ -76,7 +76,7 @@ describe('Admin user', () => {
           done();
         });
     });
-    it('PUT to /admin/:userId should return an error when role of user is not Admin', (done) => {
+    it('PUT to /admin/:userId should return an error when role of a user is not Admin', (done) => {
       chai
         .request(app)
         .put(`/api/admin/${userId}`)
@@ -98,7 +98,7 @@ describe('Admin user', () => {
           done();
         });
     });
-    it('PUT to /admin/revoke/:userId should return an error when role of user is not Admin', (done) => {
+    it('PUT to /admin/revoke/:userId should return an error when role of a user is not Admin', (done) => {
       chai
         .request(app)
         .put(`/api/admin/revoke/${userId}`)
