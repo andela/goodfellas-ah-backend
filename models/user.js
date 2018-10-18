@@ -24,6 +24,14 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'Local',
         values: ['Local', 'google', 'facebook', 'twitter']
       },
+      verification_token: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
       password_reset_token: {
         type: DataTypes.STRING,
       },
@@ -44,6 +52,9 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.hasMany(models.FollowersTable, {
       foreignKey: 'followerId'
+    });
+    User.hasMany(models.Bookmark, {
+      foreignKey: 'userId'
     });
     User.hasMany(models.ArticleComment, {
       foreignKey: 'user_id'

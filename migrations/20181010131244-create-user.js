@@ -29,6 +29,14 @@ module.exports = {
       defaultValue: 'Local',
       values: ['Local', 'google', 'facebook', 'twitter']
     },
+    verification_token: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    verified: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false
+    },
     password_reset_token: {
       type: Sequelize.STRING,
     },
