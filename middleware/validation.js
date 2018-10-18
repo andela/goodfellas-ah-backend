@@ -37,7 +37,8 @@ const checkFieldLength = (route, fields) => {
   if (route === 'signup' && fieldLength > 4) {
     return true;
   }
-  if (route === 'reaction' && fieldLength > 1) {
+
+  if ((route === 'tags' || route === 'reaction') && fieldLength > 1) {
     return true;
   }
   if (route === 'comment' && fieldLength > 1) {
@@ -231,6 +232,27 @@ exports.profileValidation = (req, res, next) => {
   next();
 };
 
+exports.tagValidation = (req, res, next) => {
+  const userDetails = req.body;
+  const { tags } = userDetails;
+  const tooManyFields = checkFieldLength('tags', userDetails);
+  const emptyFields = checkEmptyFields({ tags });
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (!Array.isArray(tags)) {
+    return res.status(400).send({ message: 'Tags must be in a list' });
+  }
+
+  next();
+};
+
 exports.commentValidation = (req, res, next) => {
   const undefinedFieldError = undefinedcommentFields(req.body);
   if (undefinedFieldError) {
@@ -246,6 +268,7 @@ exports.commentValidation = (req, res, next) => {
   }
   next();
 };
+
 exports.reactionValidation = (req, res, next) => {
   const userDetails = req.body;
   const { reaction } = userDetails;
@@ -262,5 +285,6 @@ exports.reactionValidation = (req, res, next) => {
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
     return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }
+
   next();
 };

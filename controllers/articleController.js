@@ -184,11 +184,38 @@ const reactToArticle = async (req, res) => {
 };
 
 /**
+<<<<<<< HEAD
+ * updates an article's tags
+ * @param {object} req The request body of the request.
+=======
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
+>>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
+
+const addArticleTags = async (req, res) => {
+  const { slug } = req.params;
+  const { tags } = req.body;
+
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
+
+    if (existingArticle !== null && existingArticle.authorId !== req.userId) {
+      return res.status(403).send({ message: 'You cannot modify an article added by another User' });
+    }
+
+    existingArticle.updateAttributes({ tagList: tags });
+    res.status(200).send({ message: 'Updated article tags successfully', data: { tags: existingArticle.tagList } });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
@@ -269,6 +296,7 @@ export default {
   deleteArticle,
   getAllArticles,
   getAnArticle,
+  addArticleTags,
   reactToArticle,
   bookmarkArticle,
   deleteBookmark,

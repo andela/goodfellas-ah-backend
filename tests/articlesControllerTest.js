@@ -260,6 +260,72 @@ describe('Articles controller', () => {
           });
       });
     });
+
+    describe('GET all articles', () => {
+      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Articles gotten successfully!');
+            done();
+          });
+      });
+    });
+    describe('Add a tag for an article created by the author', () => {
+      let tags = {
+        tags: ['reactjs', 'angularjs']
+      };
+      it('Returns a success message when a user adds a tag to an article', (done) => {
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Updated article tags successfully');
+            expect(res.body.data).to.deep.equal(tags);
+            done();
+          });
+      });
+      it('Returns an error message when an unauthenticated user attempts to add a tag to an article', (done) => {
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(401);
+            expect(res.body.message).to.equal('Unauthorized request, please login');
+            done();
+          });
+      });
+      it('Returns an error message when a user attempts to add a tag to a non-existent article', (done) => {
+        chai
+          .request(app)
+          .post('/api/articles/non-exstent-article/tags')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(404);
+            done();
+          });
+      });
+      it('Returns an error message when a user provides a non-list value to the tags key', (done) => {
+        tags = { tags: 'reactjs' };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+    });
     describe('React to an article', () => {
       it('Returns a success message when an article is liked for the first time', (done) => {
         const reaction = { reaction: 1 };
@@ -274,7 +340,32 @@ describe('Articles controller', () => {
             done();
           });
       });
-
+      it('Returns a success message when an article is disliked', (done) => {
+        const reaction = { reaction: -1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Successfully updated reaction');
+            done();
+          });
+      });
+      it('Returns a success message when a user reverses their reaction', (done) => {
+        const reaction = { reaction: -1 };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/react`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(reaction)
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Successfully removed reaction');
+            done();
+          });
+      });
       it('Returns an error message when an unauthorized user attempts to like an article', (done) => {
         const reaction = { reaction: 1 };
         chai
@@ -287,7 +378,6 @@ describe('Articles controller', () => {
             done();
           });
       });
-
       it('Returns an error message when the reaction field is not filled', (done) => {
         const reaction = { reaction: '' };
         chai
@@ -300,7 +390,6 @@ describe('Articles controller', () => {
             done();
           });
       });
-
       it('Returns an error message when the reaction field is filled with an incorrect value', (done) => {
         const reaction = { reaction: 'incorrect' };
         chai
