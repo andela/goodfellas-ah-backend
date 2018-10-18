@@ -15,7 +15,7 @@ const createAdmin = async (req, res) => {
     id: req.userId
   });
   if (existingUser.role !== 'Admin') {
-    return res.status(403).send({ error: 'You are not authorised to perform this action' });
+    return res.status(403).send({ error: 'You are not authorised to perform this action!' });
   }
   existingUser = await helper.findRecord(User, {
     id: req.params.userId
