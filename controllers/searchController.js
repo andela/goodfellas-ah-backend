@@ -14,7 +14,11 @@ const searchArticles = async (req, res) => {
     // PRIMARY FLOW
     // Get the entire query string
     const { article, author, tag } = req.query;
-    console.log(article, author, tag);
+    // First check if all are false and return an error
+    if (author === 'false' && article === 'false' && tag === 'false') {
+      res.status(404).send({ error: 'Please input something' });
+    }
+
 
     // Now conduct searches
     if (author !== 'false' && article !== 'false' && tag !== 'false') {
@@ -83,7 +87,6 @@ const searchArticles = async (req, res) => {
               }
             }
           }).then((finalResult) => {
-            console.log(finalResult);
             if (finalResult.length > 0) {
               res
                 .status(200)
@@ -169,7 +172,6 @@ const searchArticles = async (req, res) => {
           }
         }
       }).then((result) => {
-        console.log(result[0].dataValues);
         Articles.findAll({
           where: {
             authorId: result[0].dataValues.id
