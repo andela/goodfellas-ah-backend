@@ -48,22 +48,18 @@ const searchArticles = async (req, res) => {
                 }
               }
             }
-          }).then((finalResult) => {
-            if (finalResult.length > 0) {
-              res
-                .status(200)
-                .send({ message: 'Eureka, I Found them!', finalResult });
-            } else {
-              res
-                .status(404)
-                .send({ message: "We couldn't find any articles." });
-            }
-          });
+          })
+            .then((articles) => {
+              if (articles.length > 0) {
+                res.status(200).send({ message: 'Success', articles });
+              } else {
+                res.status(404).send({ message: "We couldn't find any articles." });
+              }
+            });
         })
         .catch(() => res.status(404).send({ message: "We couldn't find any articles." }));
     } else if (author !== 'false' && article !== 'false') {
       // Search by author and article
-      console.log(article);
       User.findAll({
         where: {
           [Op.or]: {
@@ -86,19 +82,15 @@ const searchArticles = async (req, res) => {
                 }
               }
             }
-          }).then((finalResult) => {
-            if (finalResult.length > 0) {
-              res
-                .status(200)
-                .send({ message: 'Eureka, I Found them!', finalResult });
-            } else {
-              res
-                .status(404)
-                .send({ message: "We couldn't find any articles." });
-            }
-          });
-        })
-        .catch(() => res.status(404).send({ message: "We couldn't find any articles." }));
+          })
+            .then((articles) => {
+              if (articles.length > 0) {
+                res.status(200).send({ message: 'Success', articles });
+              } else {
+                res.status(404).send({ message: "We couldn't find any articles." });
+              }
+            });
+        });
     } else if (author !== 'false' && tag !== 'false') {
       // Search by author and tag
       User.findAll({
@@ -123,17 +115,14 @@ const searchArticles = async (req, res) => {
                 }
               }
             }
-          }).then((finalResult) => {
-            if (finalResult.length > 0) {
-              res
-                .status(200)
-                .send({ message: 'Eureka, I Found them!', finalResult });
-            } else {
-              res
-                .status(404)
-                .send({ message: "We couldn't find any articles." });
-            }
-          });
+          })
+            .then((articles) => {
+              if (articles.length > 0) {
+                res.status(200).send({ message: 'Success', articles });
+              } else {
+                res.status(404).send({ message: "We couldn't find any articles." });
+              }
+            });
         })
         .catch(() => res.status(404).send({ message: "We couldn't find any articles." }));
     } else if (tag !== 'false' && article !== 'false') {
@@ -149,15 +138,14 @@ const searchArticles = async (req, res) => {
             }
           }
         }
-      }).then((finalResult) => {
-        if (finalResult.length > 0) {
-          res
-            .status(200)
-            .send({ message: 'Eureka, I Found them!', finalResult });
-        } else {
-          res.status(404).send({ message: "We couldn't find any articles." });
-        }
-      });
+      })
+        .then((articles) => {
+          if (articles.length > 0) {
+            res.status(200).send({ message: 'Success', articles });
+          } else {
+            res.status(404).send({ message: "We couldn't find any articles." });
+          }
+        });
     } else if (author !== 'false') {
       // Search by author
       User.findAll({
@@ -176,16 +164,13 @@ const searchArticles = async (req, res) => {
           where: {
             authorId: result[0].dataValues.id
           }
-        }).then((finalResult) => {
-          if (finalResult.length > 0) {
-            res
-              .status(200)
-              .send({ message: 'Eureka, I Found them!', finalResult });
-          } else {
-            res.status(404).send({ message: "We couldn't find any articles." });
+        }).then((articles) => {
+          if (articles.length > 0) {
+            res.status(200).send({ message: 'Success', articles });
           }
         });
-      });
+      })
+        .catch(() => { res.status(404).send({ message: "We couldn't find any articles." }); });
     } else if (article !== 'false') {
       // Search by article
       Articles.findAll({
@@ -194,11 +179,9 @@ const searchArticles = async (req, res) => {
             [Op.iLike]: `%${article}%`
           }
         }
-      }).then((finalResult) => {
-        if (finalResult.length > 0) {
-          res
-            .status(200)
-            .send({ message: 'Eureka, I Found them!', finalResult });
+      }).then((articles) => {
+        if (articles.length > 0) {
+          res.status(200).send({ message: 'Success', articles });
         } else {
           res.status(404).send({ message: "We couldn't find any articles." });
         }
@@ -211,11 +194,9 @@ const searchArticles = async (req, res) => {
             $contains: tag
           }
         }
-      }).then((finalResult) => {
-        if (finalResult.length > 0) {
-          res
-            .status(200)
-            .send({ message: 'Eureka, I Found them!', finalResult });
+      }).then((articles) => {
+        if (articles.length > 0) {
+          res.status(200).send({ message: 'Success', articles });
         } else {
           res.status(404).send({ message: "We couldn't find any articles." });
         }
