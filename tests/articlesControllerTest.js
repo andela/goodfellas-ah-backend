@@ -225,7 +225,7 @@ describe('Articles controller', () => {
       });
     });
     describe('GET an article', () => {
-      it('Returns the right response when a paricular article gotten/fetched', (done) => {
+      it('Returns the right response when a paricular article gotten', (done) => {
         chai
           .request(app)
           .get(`/api/articles/${slug}`)
