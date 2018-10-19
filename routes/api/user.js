@@ -12,5 +12,6 @@ router.get('/user/followed/:userId', authenticate, userController.listOfFollowed
 router.get('/user/followers/:userId', authenticate, userController.listOfFollowers);
 router.post('/user/notification/on/:setting', authenticate, acceptableValues(notificationRule), userController.setNotification);
 router.post('/user/notification/off/:setting', authenticate, acceptableValues(notificationRule), userController.unsetNotification);
+router.get('/user/notification/', authenticate, userController.getNotifications);
 
 module.exports = router;

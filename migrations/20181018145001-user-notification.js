@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ArticleNotifications', {
+    return queryInterface.createTable('UserNotifications', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,17 +20,15 @@ module.exports = {
       },
       authorId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         onDelete: 'CASCADE',
         references: {
           model: 'Users',
           key: 'id',
-          as: 'userId',
+          as: 'authorId',
         },
       },
       articleSlug: {
         type: Sequelize.STRING,
-        allowNull: false,
         onDelete: 'CASCADE',
         references: {
           model: 'Articles',
@@ -38,9 +36,13 @@ module.exports = {
           as: 'articleSlug',
         },
       },
-      articleTitle: {
-        type: Sequelize.STRING,
-        allowNull: false
+      commentId: {
+        type: Sequelize.INTEGER
+      },
+      type: {
+        type: Sequelize.ENUM,
+        allowNull: false,
+        values: ['followerArticle', 'favoriteArticleComment']
       },
       seen: {
         type: Sequelize.BOOLEAN,
@@ -57,6 +59,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('ArticleNotifications');
+    return queryInterface.dropTable('UserNotifications');
   }
 };

@@ -6,7 +6,11 @@ import helper from '../lib/helper';
 import profileController from './profileController';
 
 dotenv.config();
-const { User, FollowersTable, sequelize } = db;
+const {
+  User,
+  FollowersTable,
+  sequelize,
+} = db;
 
 export default {
   async signup(req, res) {
@@ -257,6 +261,20 @@ export default {
       res.status(201).send({
         message: 'Notification setting successfully updated',
         data: notificationSetting,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async getNotifications(req, res) {
+    const { userId } = req;
+    try {
+      const notifications = await helper.getNotifications({ userId });
+      res.status(201).send({
+        message: 'Notifications retrieved successfully',
+        data: notifications,
       });
     } catch (err) {
       res.status(400).send({
