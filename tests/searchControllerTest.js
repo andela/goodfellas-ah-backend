@@ -172,7 +172,6 @@ describe('Search Functionality', () => {
         .request(app)
         .get('/api/articles/search?article=false&author=false&tag=angular')
         .end((err, res) => {
-          console.log(res.body);
           expect(res.status).to.equal(200);
           expect(res.body.success).to.equal(true);
           expect(res.body.articles).to.be.a('array');
