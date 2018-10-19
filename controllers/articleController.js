@@ -194,7 +194,6 @@ const reactToArticle = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
-
 /**
 <<<<<<< HEAD
  * updates an article's tags
