@@ -89,6 +89,18 @@ describe('Star rating', () => {
         });
     });
 
+    it('Should fail when rating is an invalid input', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/rating?ratingNumber=tfdtyedv`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.errors).to.equal('Your rating must be a number: tfdtyedv');
+          done();
+        });
+    });
+
     it('Should fail when rating is above 5', (done) => {
       chai
         .request(app)
@@ -96,7 +108,19 @@ describe('Star rating', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.errors).to.equal('You can\'t rate an article above 5 star');
+          expect(res.body.errors).to.equal(`You can't rate an article above 5 star`);
+          done();
+        });
+    });
+
+    it('Should fail when rating number is not entered', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/rating`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.errors).to.equal(`Please enter a rating number from 1 to 5`);
           done();
         });
     });
@@ -108,7 +132,7 @@ describe('Star rating', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('You\'ve rated this article 5 star');
+          expect(res.body.message).to.equal(`You've rated this article 5 star`);
           done();
         });
     });
