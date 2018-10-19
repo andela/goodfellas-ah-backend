@@ -11,7 +11,6 @@ const { Articles, User } = models;
  */
 const searchArticles = async (req, res) => {
   try {
-    // PRIMARY FLOW
     // Get the entire query string
     const { article, author, tag } = req.query;
     // First check if all are false and return an error
@@ -130,7 +129,6 @@ const searchArticles = async (req, res) => {
         .catch(() => res.status(404).send({ success: false, message: "We couldn't find any articles." }));
     } else if (tag !== 'false' && article !== 'false') {
       // Search by tag and article
-      console.log(article, tag);
       Articles.findAll({
         where: {
           [Op.and]: {
@@ -200,7 +198,6 @@ const searchArticles = async (req, res) => {
           }
         }
       }).then((articles) => {
-        console.log(articles);
         if (articles.length > 0) {
           res.status(200).send({ success: true, articles });
         } else {

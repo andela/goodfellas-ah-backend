@@ -196,18 +196,8 @@ const reactToArticle = async (req, res) => {
 };
 
 /**
-<<<<<<< HEAD
- * custom search for articles
- * @param {object} req The request body from the front end
-=======
-<<<<<<< HEAD
  * updates an article's tags
  * @param {object} req The request body of the request.
-=======
- * bookmarks an article
- * @param {object} req The request body which contain the article's slug as param.
->>>>>>> staging
->>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -233,6 +223,13 @@ const addArticleTags = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
