@@ -10,6 +10,7 @@ const {
   User,
   FollowersTable,
   sequelize,
+  UserNotification,
 } = db;
 
 export default {
@@ -290,6 +291,23 @@ export default {
       res.status(201).send({
         message: 'Notifications retrieved successfully',
         data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async seenNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      await UserNotification.update({ seen: true },
+        {
+          where: { userId, id: notificationId }
+        });
+      res.status(201).send({
+        message: 'Notification has been seen',
       });
     } catch (err) {
       res.status(400).send({
