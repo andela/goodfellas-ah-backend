@@ -292,7 +292,7 @@ exports.reactionValidation = (req, res, next) => {
 exports.validateRating = (req, res, next) => {
   const ratingNumber = parseInt(req.query.ratingNumber, 10);
 
-  if(!req.query.ratingNumber){
+  if (!req.query.ratingNumber) {
     return res.status(400).send({
       errors: 'Please enter a rating number from 1 to 5'
     });
@@ -305,7 +305,7 @@ exports.validateRating = (req, res, next) => {
   } else if (ratingNumber > 5) {
     return res.status(400).send({
       errors:
-      `You can't rate an article above 5 star`
+      'You can\'t rate an article above 5 star'
     });
   }
 

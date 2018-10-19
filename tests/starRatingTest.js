@@ -108,7 +108,7 @@ describe('Star rating', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.errors).to.equal(`You can't rate an article above 5 star`);
+          expect(res.body.errors).to.equal('You can\'t rate an article above 5 star');
           done();
         });
     });
@@ -120,7 +120,7 @@ describe('Star rating', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(400);
-          expect(res.body.errors).to.equal(`Please enter a rating number from 1 to 5`);
+          expect(res.body.errors).to.equal('Please enter a rating number from 1 to 5');
           done();
         });
     });
@@ -132,7 +132,19 @@ describe('Star rating', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal(`You've rated this article 5 star`);
+          expect(res.body.message).to.equal('You\'ve rated this article 5 star');
+          done();
+        });
+    });
+
+    it('Should update an article rating successfully', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/rating?ratingNumber=3`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(201);
+          expect(res.body.message).to.equal('You\'ve rated this article 3 star');
           done();
         });
     });

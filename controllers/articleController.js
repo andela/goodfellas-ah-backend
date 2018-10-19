@@ -306,17 +306,13 @@ const getBookmarks = async (req, res) => {
 };
 
 const addRatingsToArticle = async (article) => {
-  try {
-    const ratings = await Rating.findAll({ where: { articleId: article.id } });
-    if (ratings) {
-      let ratingSum = 0;
-      ratings.forEach((rate) => { ratingSum += rate.starRating; });
-      const averageRating = ratingSum / ratings.length;
-      const articleUpdated = await article.update({ averageRating });
-      return articleUpdated;
-    }
-  } catch (error) {
-    return error;
+  const ratings = await Rating.findAll({ where: { articleId: article.id } });
+  if (ratings) {
+    let ratingSum = 0;
+    ratings.forEach((rate) => { ratingSum += rate.starRating; });
+    const averageRating = ratingSum / ratings.length;
+    const articleUpdated = await article.update({ averageRating });
+    return articleUpdated;
   }
 };
 
