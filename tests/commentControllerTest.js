@@ -547,7 +547,7 @@ describe('Comment controller', () => {
     it('should throw an error if article is not found', (done) => {
       chai
         .request(app)
-        .delete('/api/articles/notitle/favorite')
+        .delete('/api/articles/notityle/favorite')
         .set({ authorization: testToken2, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
