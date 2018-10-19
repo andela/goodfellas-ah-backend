@@ -51,7 +51,7 @@ const searchArticles = async (req, res) => {
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ success: true, message: 'Success', articles });
+                res.status(200).send({ success: true, articles });
               } else {
                 res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
@@ -88,7 +88,7 @@ const searchArticles = async (req, res) => {
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ success: true, message: 'Success', articles });
+                res.status(200).send({ success: true, articles });
               } else {
                 res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
@@ -121,7 +121,7 @@ const searchArticles = async (req, res) => {
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ success: true, message: 'Success', articles });
+                res.status(200).send({ success: true, articles });
               } else {
                 res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
@@ -145,7 +145,7 @@ const searchArticles = async (req, res) => {
       })
         .then((articles) => {
           if (articles.length > 0) {
-            res.status(200).send({ success: true, message: 'Success', articles });
+            res.status(200).send({ success: true, articles });
           } else {
             res.status(404).send({ success: false, message: "We couldn't find any articles." });
           }
@@ -171,7 +171,7 @@ const searchArticles = async (req, res) => {
           }
         }).then((articles) => {
           if (articles.length > 0) {
-            res.status(200).send({ success: true, message: 'Success', articles });
+            res.status(200).send({ success: true, articles });
           }
         });
       })
@@ -188,7 +188,7 @@ const searchArticles = async (req, res) => {
         if (articles.length > 0) {
           res.status(200).send({ success: true, articles });
         } else {
-          res.status(404).send({ message: "We couldn't find any articles." });
+          res.status(404).send({ success: false, message: "We couldn't find any articles." });
         }
       });
     } else if (tag !== 'false') {

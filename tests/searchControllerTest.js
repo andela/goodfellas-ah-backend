@@ -5,7 +5,7 @@ import { resetDB } from './resetTestDB';
 import { userDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
-
+let slugged;
 let testToken;
 
 describe('Search Functionality', () => {
@@ -105,7 +105,8 @@ describe('Search Functionality', () => {
         title: 'blah',
         description: 'This is a call for Revolt',
         body: 'My people the time has come to revolt against this new government',
-        image: 'null'
+        image: 'null',
+        tagList: ['home', 'react']
       };
       chai
         .request(app)
@@ -131,7 +132,25 @@ describe('Search Functionality', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .send(articleDetail6)
         .end((err, res) => {
+          const { slug } = res.body.article;
+          slugged = slug;
           expect(res.status).to.equal(201);
+          done();
+        });
+    });
+
+    it('should update the article\'s tag', (done) => {
+      const articleTags = {
+        tags: ['angular']
+      };
+      chai
+        .request(app)
+        .post(`/api/articles/${slugged}/tags`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send(articleTags)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Updated article tags successfully');
           done();
         });
     });
@@ -142,7 +161,20 @@ describe('Search Functionality', () => {
         .get('/api/articles/search?article=enough&author=false&tag=false')
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Success');
+          expect(res.body.success).to.equal(true);
+          expect(res.body.articles).to.be.a('array');
+          done();
+        });
+    });
+
+    it('should search by tag', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=false&author=false&tag=angular')
+        .end((err, res) => {
+          console.log(res.body);
+          expect(res.status).to.equal(200);
+          expect(res.body.success).to.equal(true);
           expect(res.body.articles).to.be.a('array');
           done();
         });
@@ -154,7 +186,7 @@ describe('Search Functionality', () => {
         .get('/api/articles/search?article=false&author=anthony&tag=false')
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Success');
+          expect(res.body.success).to.equal(true);
           expect(res.body.articles).to.be.a('array');
           done();
         });
@@ -166,13 +198,49 @@ describe('Search Functionality', () => {
         .get('/api/articles/search?article=enough&author=anthony&tag=false')
         .end((err, res) => {
           expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Success');
+          expect(res.body.success).to.equal(true);
           expect(res.body.articles).to.be.a('array');
           done();
         });
     });
 
-    it('should fail to find with no match for article and author', (done) => {
+    it('should search by article and tag', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=home&author=false&tag=angular')
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.success).to.equal(true);
+          expect(res.body.articles).to.be.a('array');
+          done();
+        });
+    });
+
+    it('should search by tag and author', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=false&author=anthony&tag=angular')
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.success).to.equal(true);
+          expect(res.body.articles).to.be.a('array');
+          done();
+        });
+    });
+
+    it('should search by tag, article and author', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=home&author=anthony&tag=angular')
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.success).to.equal(true);
+          expect(res.body.articles).to.be.a('array');
+          done();
+        });
+    });
+
+    it('should fail to find a match for article and author', (done) => {
       chai
         .request(app)
         .get('/api/articles/search?article=wrongsearch&author=anthony&tag=false')
@@ -183,7 +251,40 @@ describe('Search Functionality', () => {
         });
     });
 
-    it('should fail to find with no match for article', (done) => {
+    it('should fail to find a match for article and tag', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=wrongsearch&author=false&tag=wrongtag')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal("We couldn't find any articles.");
+          done();
+        });
+    });
+
+    it('should fail to find a match for author and tag', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=false&author=anthonynot&tag=flat')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal("We couldn't find any articles.");
+          done();
+        });
+    });
+
+    it('should fail to find a match for author and tag when tag is incorrect', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=false&author=anthony&tag=flat')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal("We couldn't find any articles.");
+          done();
+        });
+    });
+
+    it('should fail to find a match for article', (done) => {
       chai
         .request(app)
         .get('/api/articles/search?article=nothingness&author=false&tag=false')
@@ -194,10 +295,21 @@ describe('Search Functionality', () => {
         });
     });
 
-    it('should fail to find with no match for author', (done) => {
+    it('should fail to find a match for author', (done) => {
       chai
         .request(app)
         .get('/api/articles/search?article=false&author=nothingness&tag=false')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal("We couldn't find any articles.");
+          done();
+        });
+    });
+
+    it('should fail to find a match for tag', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=false&author=false&tag=taggg')
         .end((err, res) => {
           expect(res.status).to.equal(404);
           expect(res.body.message).to.equal("We couldn't find any articles.");
@@ -212,6 +324,28 @@ describe('Search Functionality', () => {
         .end((err, res) => {
           expect(res.status).to.equal(404);
           expect(res.body.error).to.equal('Please input something');
+          done();
+        });
+    });
+
+    it('should fail to find match when one input is incorrect', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=jamesss&author=anthony&tag=taggs')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('We couldn\'t find any articles.');
+          done();
+        });
+    });
+
+    it('should fail to find match when one input is incorrect', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/search?article=jamesss&author=anthffony&tag=taggs')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal("We couldn't find any articles.");
           done();
         });
     });
