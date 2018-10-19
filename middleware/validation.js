@@ -288,3 +288,21 @@ exports.reactionValidation = (req, res, next) => {
 
   next();
 };
+
+exports.validateRating = (req, res, next) => {
+  const ratingNumber = parseInt(req.query.ratingNumber, 10);
+
+  if (Number.isNaN(ratingNumber)) {
+    return res.status(400).send({
+      errors: `Your rating must be a number: ${req.query.ratingNumber}`
+    });
+  } else if (ratingNumber > 5) {
+    return res.status(400).send({
+      errors:
+      'You can\'t rate an article above 5 star'
+    });
+  }
+
+  req.ratingNumber = ratingNumber;
+  next();
+};

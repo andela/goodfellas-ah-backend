@@ -38,6 +38,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    averageRating: {
+      type: DataTypes.INTEGER,
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -56,6 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: 'articleSlug',
       sourceKey: 'slug',
     });
+    Articles.hasMany(models.Rating, { foreignKey: 'articleId', as: 'star_ratings' });
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(models.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
   };
