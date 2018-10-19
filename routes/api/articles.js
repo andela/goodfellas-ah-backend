@@ -13,13 +13,12 @@ const router = require('express').Router();
 
 const multipart = multiparty();
 
-router.post(
-  '/articles',
+router.post('/articles',
   authenticate,
   multipart,
   checkNullInput,
-  articleController.createArticle
-);
+  articleController.createArticle);
+
 router.put(
   '/articles/:slug',
   authenticate,
@@ -103,5 +102,8 @@ router.post(
   reactionValidation,
   commentController.commentReaction
 );
+
+router.post('/articles/:slug/favorite', authenticate, articleController.favoriteArticle);
+router.delete('/articles/:slug/favorite', authenticate, articleController.deleteFavorite);
 
 export default router;

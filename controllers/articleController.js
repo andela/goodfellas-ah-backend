@@ -2,7 +2,9 @@ import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles, Reactions, Bookmark } = models;
+const {
+  Articles, Reactions, Bookmark, FavoriteArticle
+} = models;
 
 /**
  * Creates an article
@@ -12,32 +14,35 @@ const { Articles, Reactions, Bookmark } = models;
  */
 
 const createArticle = async (req, res) => {
-  const {
-    title,
-    description,
-    body,
-  } = req.body;
+  const { title, description, body } = req.body;
+  try {
+    // Calculate the article's read time
 
-  // Calculate the article's read time
+    let image = null;
+    if (req.files && req.files.image) {
+      image = await utility.imageUpload(req.files);
+    }
 
-  let image = null;
-  if (req.files && req.files.image) {
-    image = await utility.imageUpload(req.files);
-  }
+    const readTime = utility.readTime(body, image);
 
-  const readTime = utility.readTime(body, image);
-
-  return Articles
-    .create({
+    const article = await Articles.create({
       title,
       description,
       body,
       image,
       read_time: readTime,
       authorId: req.userId
-    })
-    .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))
-    .catch(error => res.status(500).send({ error: error.message }));
+    });
+    const existingArticle = await helper.findArticle(article.slug, req.userId);
+    res
+      .status(201)
+      .send({
+        message: 'You have created an article successfully',
+        article: existingArticle
+      });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 };
 
 /**
@@ -49,35 +54,46 @@ const createArticle = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   const { slug } = req.params;
+  try {
+    const existingArticle = await helper.findRecord(Articles, {
+      slug
+    });
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article not found!' });
+    }
 
-  const existingArticle = await helper.findRecord(Articles, {
-    slug
-  });
-  if (!existingArticle) {
-    return res.status(404).send({ error: 'Article not found!' });
+    if (existingArticle !== null && existingArticle.authorId !== req.userId) {
+      return res
+        .status(403)
+        .send({
+          message: 'You cannot modify an article added by another User'
+        });
+    }
+
+    const readTime = utility.readTime(req.body.body, req.body.image);
+
+    let image = null;
+    if (req.files && req.files.image) {
+      image = await utility.imageUpload(req.files);
+    }
+    await existingArticle.updateAttributes({
+      title: req.body.title || existingArticle.title,
+      description: req.body.description || existingArticle.description,
+      body: req.body.body || existingArticle.body,
+      image,
+      read_time: readTime
+    });
+    const updatedArticle = await helper.findArticle(
+      existingArticle.slug,
+      req.userId
+    );
+    return res
+      .status(200)
+      .send({ message: 'Article successfully modified', updatedArticle });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
-
-  if (existingArticle !== null && existingArticle.authorId !== req.userId) {
-    return res.status(403).send({ message: 'You cannot modify an article added by another User' });
-  }
-
-  const readTime = utility.readTime(req.body.body, req.body.image);
-
-  let image = null;
-  if (req.files && req.files.image) {
-    image = await utility.imageUpload(req.files);
-  }
-  existingArticle.updateAttributes({
-    title: req.body.title || existingArticle.title,
-    description: req.body.description || existingArticle.description,
-    body: req.body.body || existingArticle.body,
-    image,
-    read_time: readTime
-  })
-    .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
-    .catch(error => res.status(500).send({ error: error.message }));
 };
-
 
 /**
  * deletes an article
@@ -96,13 +112,15 @@ const deleteArticle = async (req, res) => {
     return res.status(404).send({ error: 'Article not found!' });
   }
   if (existingArticle.authorId !== req.userId) {
-    return res.status(403).send({ error: 'You cannot delete an article added by another user' });
+    return res
+      .status(403)
+      .send({ error: 'You cannot delete an article added by another user' });
   }
-  return existingArticle.destroy()
+  return existingArticle
+    .destroy()
     .then(res.status(200).send({ message: 'article successfully deleted' }))
     .catch(error => res.status(500).send({ error: error.message }));
 };
-
 
 /**
  * gets all articles
@@ -111,23 +129,31 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = (req, res) => Articles
-  .findAll({
-    include: {
+const getAllArticles = (req, res) => Articles.findAll({
+  include: [
+    {
       model: Bookmark,
       as: 'bookmarked',
       where: { userId: req.userId },
       attributes: ['createdAt', 'updatedAt'],
-      required: false,
+      required: false
+    },
+    {
+      model: FavoriteArticle,
+      as: 'favorite',
+      where: { user_id: req.userId },
+      attributes: ['createdAt', 'updatedAt'],
+      required: false
     }
-  })
+  ],
+})
   .then((article) => {
     if (article.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
     return res.status(200).send({
       message: 'Articles gotten successfully!',
-      article,
+      article
     });
   })
   .catch(error => res.status(500).send({ error: error.message }));
@@ -141,8 +167,9 @@ const getAllArticles = (req, res) => Articles
 
 const getAnArticle = async (req, res) => {
   const { slug } = req.params;
+  const { userId } = req;
   try {
-    const existingArticle = await helper.findArticle(slug, req.userId);
+    const existingArticle = await helper.findArticle(slug, userId);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
@@ -169,12 +196,16 @@ const reactToArticle = async (req, res) => {
 
   try {
     const existingArticle = await helper.findRecord(Articles, { slug });
-    if (!existingArticle) { return res.status(404).send({ message: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ message: 'Article Not found!' });
+    }
 
     const articleId = existingArticle.id;
-    const existingReaction = await Reactions.findOne({ where: { userId, articleId } });
+    const existingReaction = await Reactions.findOne({
+      where: { userId, articleId }
+    });
 
-    if (existingReaction && (existingReaction.reaction === reaction)) {
+    if (existingReaction && existingReaction.reaction === reaction) {
       existingReaction.destroy();
       return res.status(200).send({ message: 'Successfully removed reaction' });
     } else if (existingReaction) {
@@ -213,11 +244,20 @@ const addArticleTags = async (req, res) => {
     }
 
     if (existingArticle !== null && existingArticle.authorId !== req.userId) {
-      return res.status(403).send({ message: 'You cannot modify an article added by another User' });
+      return res
+        .status(403)
+        .send({
+          message: 'You cannot modify an article added by another User'
+        });
     }
 
     existingArticle.updateAttributes({ tagList: tags });
-    res.status(200).send({ message: 'Updated article tags successfully', data: { tags: existingArticle.tagList } });
+    res
+      .status(200)
+      .send({
+        message: 'Updated article tags successfully',
+        data: { tags: existingArticle.tagList }
+      });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -228,13 +268,21 @@ const bookmarkArticle = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
-    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
-    const existingBookmark = await Bookmark.count({ where: { userId, articleSlug: slug } });
-    if (existingBookmark) return res.status(400).send({ error: 'Article has been previously bookmarked' });
+    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    const existingBookmark = await Bookmark.count({
+      where: { userId, articleSlug: slug }
+    });
+    if (existingBookmark) {
+      return res
+        .status(400)
+        .send({ error: 'Article has been previously bookmarked' });
+    }
     const bookmarked = await helper.bookmarkArticle(userId, slug);
     bookmarked.title = existingArticle.title;
 
-    res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
+    res
+      .status(200)
+      .send({ message: 'Article bookmarked successfully', data: bookmarked });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -252,9 +300,15 @@ const deleteBookmark = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
-    if (!existingArticle) return res.status(404).send({ error: 'Article Not found!' });
-    const deletedBookmark = await Bookmark.destroy({ where: { userId, articleSlug: slug } });
-    if (deletedBookmark === 0) return res.status(400).send({ error: 'This article is not currently bookmarked' });
+    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    const deletedBookmark = await Bookmark.destroy({
+      where: { userId, articleSlug: slug }
+    });
+    if (deletedBookmark === 0) {
+      return res
+        .status(400)
+        .send({ error: 'This article is not currently bookmarked' });
+    }
 
     res.status(200).send({ message: 'Bookmark removed successfully' });
   } catch (error) {
@@ -281,7 +335,15 @@ const getBookmarks = async (req, res) => {
         attributes: {
           include: [['id', 'articleId']],
           exclude: ['id']
-        }
+        },
+        include: [
+          {
+            model: FavoriteArticle,
+            as: 'favorite',
+            where: { user_id: req.userId },
+            attributes: ['createdAt', 'updatedAt'],
+            required: false
+          }],
       }
     });
     res.status(200).send({
@@ -291,6 +353,56 @@ const getBookmarks = async (req, res) => {
       },
       message: 'Retrieved Bookmarks'
     });
+  } catch (error) {
+    console.log('THIS IS ME AND THE ARE THE ONE WITH HHHHHHHHHHHHHHHHHHHHHHHHH', error);
+    res.status(500).send({ error: error.message });
+  }
+};
+
+const favoriteArticle = async (req, res) => {
+  const { slug } = req.params;
+  const { userId } = req;
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    const alreadyFavorited = await helper.findRecord(FavoriteArticle, {
+      user_id: userId,
+      article_slug: slug
+    });
+    if (alreadyFavorited) {
+      return res
+        .status(400)
+        .send({ error: 'Article has already been favourited' });
+    }
+    const article = await FavoriteArticle.create({
+      user_id: userId,
+      article_slug: slug
+    });
+    res
+      .status(200)
+      .send({ message: 'Article favorited successfully', article });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+const deleteFavorite = async (req, res) => {
+  const { slug } = req.params;
+  const { userId } = req;
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    const deletedFavorite = await FavoriteArticle.destroy({
+      where: { user_id: userId, article_slug: slug }
+    });
+    if (deletedFavorite === 0) {
+      return res
+        .status(400)
+        .send({ error: 'This article is not currently favorited' });
+    }
+    res
+      .status(200)
+      .send({ message: 'Article succesfully removed from list of favorites' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -307,4 +419,6 @@ export default {
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
+  favoriteArticle,
+  deleteFavorite
 };

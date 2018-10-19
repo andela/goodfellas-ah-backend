@@ -47,7 +47,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
-    }
+    },
+  }, {
+    getterMethods: {
+      favorited() {
+        return this.getDataValue('favorite').length > 0;
+      },
+      favoritesCount() {
+        return this.getDataValue('favorite').length;
+      }
+    },
   });
   Articles.associate = (models) => {
     Articles.hasMany(models.Bookmark, {
@@ -58,6 +67,12 @@ module.exports = (sequelize, DataTypes) => {
     });
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(models.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
+    Articles.hasMany(models.FavoriteArticle, {
+      foreignKey: 'article_slug',
+      as: 'favorite',
+      targetKey: 'article_slug',
+      sourceKey: 'slug',
+    });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],
