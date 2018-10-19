@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     averageRating: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
     },
     authorId: {
       type: DataTypes.INTEGER,
