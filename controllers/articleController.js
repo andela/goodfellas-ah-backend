@@ -115,18 +115,13 @@ const deleteArticle = async (req, res) => {
 
 const getAllArticles = (req, res) => Articles
   .findAll({
-    include: [{
+    include: {
       model: Bookmark,
       as: 'bookmarked',
       where: { userId: req.userId },
       attributes: ['createdAt', 'updatedAt'],
       required: false,
-    },
-    {
-      model: ReadingStats,
-      as: 'reading_stats'
     }
-    ]
   })
   .then((article) => {
     if (article.length < 1) {
@@ -189,12 +184,8 @@ const getAnArticle = async (req, res) => {
     }
 
     const article = await helper.countReactions(existingArticle);
-    const readerStats = await addReadingStats(req.userId, existingArticle);
-    if (article && readerStats) {
-      res.status(200).send({ message: 'Article gotten successfully!', article });
-    } else {
-      res.status(500).send({ error: 'Internal server error' });
-    }
+    return addReadingStats(req.userId, existingArticle).then(() =>
+     res.status(200).send({ message: 'Article gotten successfully!', article }));
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -353,4 +344,5 @@ export default {
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
+  addReadingStats
 };
