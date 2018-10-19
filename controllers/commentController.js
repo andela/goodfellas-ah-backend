@@ -13,7 +13,13 @@ const profileAtrributes = ['username', 'bio', 'image'];
 exports.postComment = async (req, res) => {
   try {
     const values = utility.trimValues(req.body);
-    const { body } = values;
+    const {
+      body,
+      pageId,
+      highlight,
+      startIndex,
+      endIndex
+    } = values;
     const { slug } = req.params;
     const { userId } = req;
     const existingArticle = await helper.findRecord(Articles, { slug });
@@ -21,10 +27,13 @@ exports.postComment = async (req, res) => {
       return res.status(400).json(errorMessage.noArticle);
     }
     const comment = await ArticleComment.create({
-      article_slug: slug,
       body,
+      pageId,
+      highlight,
+      startIndex,
+      endIndex,
+      article_slug: slug,
       user_id: userId
-
     });
     res.status(201).json({
       error: false,
