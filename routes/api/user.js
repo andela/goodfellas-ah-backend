@@ -13,5 +13,6 @@ router.get('/user/followers/:userId', authenticate, userController.listOfFollowe
 router.post('/user/notification/on/:setting', authenticate, acceptableValues(notificationRule), userController.setNotification);
 router.post('/user/notification/off/:setting', authenticate, acceptableValues(notificationRule), userController.unsetNotification);
 router.get('/user/notification/', authenticate, userController.getNotifications);
+router.get('/user/notification/:notificationId', authenticate, userController.getNotification);
 
 module.exports = router;

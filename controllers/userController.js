@@ -282,4 +282,19 @@ export default {
       });
     }
   },
+  async getNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      const notifications = await helper.getNotification({ userId, id: notificationId });
+      res.status(201).send({
+        message: 'Notifications retrieved successfully',
+        data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
 };
