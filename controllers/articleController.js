@@ -354,7 +354,6 @@ const getBookmarks = async (req, res) => {
       message: 'Retrieved Bookmarks'
     });
   } catch (error) {
-    console.log('THIS IS ME AND THE ARE THE ONE WITH HHHHHHHHHHHHHHHHHHHHHHHHH', error);
     res.status(500).send({ error: error.message });
   }
 };
