@@ -43,21 +43,24 @@ const searchArticles = async (req, res) => {
                 title: {
                   [Op.iLike]: `%${article}%`
                 },
-                tag: {
-                  $contains: tag
+                tagList: {
+                  [Op.contains]: [tag]
                 }
               }
             }
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ message: 'Success', articles });
+                res.status(200).send({ success: true, message: 'Success', articles });
               } else {
-                res.status(404).send({ message: "We couldn't find any articles." });
+                res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
+            })
+            .catch(() => {
+              res.status(500).send({ message: 'Internal server error' });
             });
         })
-        .catch(() => res.status(404).send({ message: "We couldn't find any articles." }));
+        .catch(() => res.status(404).send({ success: false, message: "We couldn't find any articles." }));
     } else if (author !== 'false' && article !== 'false') {
       // Search by author and article
       User.findAll({
@@ -85,9 +88,9 @@ const searchArticles = async (req, res) => {
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ message: 'Success', articles });
+                res.status(200).send({ success: true, message: 'Success', articles });
               } else {
-                res.status(404).send({ message: "We couldn't find any articles." });
+                res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
             });
         });
@@ -110,42 +113,44 @@ const searchArticles = async (req, res) => {
             where: {
               [Op.and]: {
                 authorId: result[0].dataValues.id,
-                tag: {
-                  $contains: tag
+                tagList: {
+                  [Op.contains]: [tag]
                 }
               }
             }
           })
             .then((articles) => {
               if (articles.length > 0) {
-                res.status(200).send({ message: 'Success', articles });
+                res.status(200).send({ success: true, message: 'Success', articles });
               } else {
-                res.status(404).send({ message: "We couldn't find any articles." });
+                res.status(404).send({ success: false, message: "We couldn't find any articles." });
               }
             });
         })
-        .catch(() => res.status(404).send({ message: "We couldn't find any articles." }));
+        .catch(() => res.status(404).send({ success: false, message: "We couldn't find any articles." }));
     } else if (tag !== 'false' && article !== 'false') {
       // Search by tag and article
+      console.log(article, tag);
       Articles.findAll({
         where: {
           [Op.and]: {
-            tag: {
-              $contains: tag
-            },
             title: {
               [Op.iLike]: `%${article}%`
+            },
+            tagList: {
+              [Op.contains]: [tag]
             }
           }
         }
       })
         .then((articles) => {
           if (articles.length > 0) {
-            res.status(200).send({ message: 'Success', articles });
+            res.status(200).send({ success: true, message: 'Success', articles });
           } else {
-            res.status(404).send({ message: "We couldn't find any articles." });
+            res.status(404).send({ success: false, message: "We couldn't find any articles." });
           }
-        });
+        })
+        .catch(error => res.status(500).send({ error }));
     } else if (author !== 'false') {
       // Search by author
       User.findAll({
@@ -166,11 +171,11 @@ const searchArticles = async (req, res) => {
           }
         }).then((articles) => {
           if (articles.length > 0) {
-            res.status(200).send({ message: 'Success', articles });
+            res.status(200).send({ success: true, message: 'Success', articles });
           }
         });
       })
-        .catch(() => { res.status(404).send({ message: "We couldn't find any articles." }); });
+        .catch(() => { res.status(404).send({ success: false, message: "We couldn't find any articles." }); });
     } else if (article !== 'false') {
       // Search by article
       Articles.findAll({
@@ -181,7 +186,7 @@ const searchArticles = async (req, res) => {
         }
       }).then((articles) => {
         if (articles.length > 0) {
-          res.status(200).send({ message: 'Success', articles });
+          res.status(200).send({ success: true, articles });
         } else {
           res.status(404).send({ message: "We couldn't find any articles." });
         }
@@ -190,17 +195,21 @@ const searchArticles = async (req, res) => {
       // Search by tag
       Articles.findAll({
         where: {
-          tag: {
-            $contains: tag
+          tagList: {
+            [Op.contains]: [tag]
           }
         }
       }).then((articles) => {
+        console.log(articles);
         if (articles.length > 0) {
-          res.status(200).send({ message: 'Success', articles });
+          res.status(200).send({ success: true, articles });
         } else {
-          res.status(404).send({ message: "We couldn't find any articles." });
+          res.status(404).send({ success: false, message: "We couldn't find any articles." });
         }
-      });
+      })
+        .catch(() => {
+          res.status(500).send({ message: 'internal server error' });
+        });
     }
   } catch (error) {
     res.status(500).send({ error: error.message });
