@@ -172,7 +172,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Returnsh the right response when a request body field is empty', (done) => {
+      it('Returns the right response when a request body field is empty', (done) => {
         const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -413,8 +413,8 @@ describe('Articles controller', () => {
           });
       });
     });
-    describe('GET all articles', () => {
-      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+    describe('GET a given number of articles', () => {
+      it('Returns the right response when the articles are gotten/fetched', (done) => {
         chai
           .request(app)
           .get('/api/articles/feed/1')
