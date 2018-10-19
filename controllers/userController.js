@@ -72,7 +72,8 @@ module.exports = {
     if (match) {
       res.status(200).send({
         message: 'Successfully signed in',
-        token: utility.createToken(existingUser.dataValues)
+        token: utility.createToken(existingUser.dataValues),
+        userId: existingUser.id
       });
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
