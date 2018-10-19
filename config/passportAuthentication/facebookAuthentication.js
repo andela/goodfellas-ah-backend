@@ -17,7 +17,7 @@ passport.use(new FacebookTokenStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   profileFields: ['id', 'name', 'displayName', 'email'],
-  callbackURL: 'https://aa9f858f.ngrok.io/api/auth/facebook/callback'
+  callbackURL: `${process.env.BASE_URL}/api/auth/facebook/callback`
 }, utility.strategyCallback));
 
 /* For testing purposes configure a mock strategy
