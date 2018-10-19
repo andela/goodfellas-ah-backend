@@ -2,7 +2,9 @@ import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles, Reactions, Bookmark } = models;
+const {
+  Articles, Reactions, Bookmark, ReadingStats
+} = models;
 
 /**
  * Creates an article
@@ -113,13 +115,18 @@ const deleteArticle = async (req, res) => {
 
 const getAllArticles = (req, res) => Articles
   .findAll({
-    include: {
+    include: [{
       model: Bookmark,
       as: 'bookmarked',
       where: { userId: req.userId },
       attributes: ['createdAt', 'updatedAt'],
       required: false,
+    },
+    {
+      model: ReadingStats,
+      as: 'reading_stats'
     }
+    ]
   })
   .then((article) => {
     if (article.length < 1) {
@@ -131,6 +138,39 @@ const getAllArticles = (req, res) => Articles
     });
   })
   .catch(error => res.status(500).send({ error: error.message }));
+
+
+/**
+ * fetches an article
+ * @param {number} userId The id of the reader
+ * @param {article} article article.
+ * @returns {object} res.
+ */
+const addReadingStats = async (userId, article) => {
+  try {
+    const userStats = await ReadingStats.findOne({
+      where: {
+        readerId: userId,
+        articleId: article.id
+      }
+    });
+
+    if (userStats) {
+      const updateStats = await userStats.update({ count: userStats.count + 1 });
+      return updateStats;
+    }
+    const postStats = await ReadingStats.create({
+      authorId: article.authorId,
+      articleId: article.id,
+      readerId: userId,
+      count: 1
+    });
+    return postStats;
+  } catch (error) {
+    return error;
+  }
+};
+
 
 /**
  * fetches an article
@@ -149,7 +189,12 @@ const getAnArticle = async (req, res) => {
     }
 
     const article = await helper.countReactions(existingArticle);
-    res.status(200).send({ message: 'Article gotten successfully!', article });
+    const readerStats = await addReadingStats(req.userId, existingArticle);
+    if (article && readerStats) {
+      res.status(200).send({ message: 'Article gotten successfully!', article });
+    } else {
+      res.status(500).send({ error: 'Internal server error' });
+    }
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -195,13 +240,8 @@ const reactToArticle = async (req, res) => {
 };
 
 /**
-<<<<<<< HEAD
- * updates an article's tags
- * @param {object} req The request body of the request.
-=======
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
->>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -300,6 +340,7 @@ const getBookmarks = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
 
 export default {
   createArticle,
