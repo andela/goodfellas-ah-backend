@@ -185,7 +185,7 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (typeof data.files.profileImage === 'undefined') {
+  if (typeof data.files.image === 'undefined') {
     return true;
   }
 };
