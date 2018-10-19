@@ -268,19 +268,6 @@ describe('Articles controller', () => {
       });
     });
 
-    // describe('GET all articles', () => {
-    //   it('Returns the right response when all the articles are gotten/fetched', (done) => {
-    //     chai
-    //       .request(app)
-    //       .get('/api/articles')
-    //       .set({ authorization: testToken, Accept: 'application/json' })
-    //       .end((err, res) => {
-    //         expect(res.status).to.equal(200);
-    //         expect(res.body.message).to.equal('Articles gotten successfully!');
-    //         done();
-    //       });
-    //   });
-    // });
     describe('Add a tag for an article created by the author', () => {
       let tags = {
         tags: ['reactjs', 'angularjs']
