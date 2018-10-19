@@ -194,7 +194,6 @@ const reactToArticle = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
-
 /**
  * updates an article's tags
  * @param {object} req The request body of the request.

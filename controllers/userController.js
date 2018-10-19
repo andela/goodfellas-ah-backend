@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
+import becomeAdmin from '../lib/admin';
 import profileController from './profileController';
 import mail from '../lib/verifyEmail';
 
@@ -23,6 +24,9 @@ module.exports = {
 
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
+      }
+      if (email === process.env.email) {
+        return becomeAdmin(req, res);
       }
 
       const encryptedPassword = await utility.encryptPassword(password);
