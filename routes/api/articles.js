@@ -115,5 +115,8 @@ router.delete(
   authenticate,
   articleController.deleteFavorite
 );
-
+router.get(
+  '/articles/:slug/favorite',
+  articleController.getFavorite
+);
 export default router;

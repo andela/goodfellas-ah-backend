@@ -406,6 +406,21 @@ const deleteFavorite = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+const getFavorite = async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    const favorites = await FavoriteArticle.findAndCountAll({
+      where: { article_slug: slug }
+    });
+    res
+      .status(200)
+      .send({ message: 'Successfully retrieved users who favorited this article', favorites });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 export default {
   createArticle,
@@ -419,5 +434,6 @@ export default {
   deleteBookmark,
   getBookmarks,
   favoriteArticle,
-  deleteFavorite
+  deleteFavorite,
+  getFavorite
 };

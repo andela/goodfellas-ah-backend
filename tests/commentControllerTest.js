@@ -555,5 +555,15 @@ describe('Comment controller', () => {
           done();
         });
     });
+    it('should get all the users that favorited an article', (done) => {
+      chai
+        .request(app)
+        .get(`/api/articles/${slug}/favorite`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Successfully retrieved users who favorited this article');
+          done();
+        });
+    });
   });
 });
