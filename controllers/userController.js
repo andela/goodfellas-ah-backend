@@ -243,10 +243,13 @@ export default {
     const { userId } = req;
     const { setting } = req.params;
     try {
-      const notificationSetting = await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex > -1) throw new Error('You already have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
       res.status(201).send({
-        message: 'Notification setting successfully updated',
-        data: notificationSetting,
+        message: 'Notification setting successfully updated'
       });
     } catch (err) {
       res.status(400).send({
@@ -258,10 +261,13 @@ export default {
     const { userId } = req;
     const { setting } = req.params;
     try {
-      const notificationSetting = await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex === -1) throw new Error('You currently do not have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
       res.status(201).send({
-        message: 'Notification setting successfully updated',
-        data: notificationSetting,
+        message: 'Notification setting successfully updated'
       });
     } catch (err) {
       res.status(400).send({

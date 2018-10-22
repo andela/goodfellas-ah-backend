@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  This connects to the socket
+
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io.connect('http://localhost:3000?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNTQwMjAwNDExLCJleHAiOjE1NDAyODY4MTF9.r1bu7YdIRZ30cd28jyDy90YMbURtNbSI6J-mQACmdFY');
+    socket.on('connect', () => {
+      console.log(socket.id);
+    });
+    socket.on('new notification', notification => console.log(notification))
+    socket.on('welcome', notification => console.log('notification'))
+  </script>
+</body>
+</html>

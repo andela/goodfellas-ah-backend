@@ -28,11 +28,9 @@ module.exports = (sequelize, DataTypes) => {
   {
     hooks: {
       afterCreate(notification) {
-        console.log('created');
         eventEmitter.emit('notification created', notification);
       },
       afterBulkCreate(notification) {
-        console.log('created');
         eventEmitter.emit('notification created', notification);
       }
     }
