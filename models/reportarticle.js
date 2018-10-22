@@ -1,4 +1,4 @@
-'use strict';
+
 module.exports = (sequelize, DataTypes) => {
   const ReportArticle = sequelize.define('ReportArticle', {
     articleId: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true
     },
   }, {});
-  ReportArticle.associate = (models) => {
+  ReportArticle.associate = () => {
     // associations can be defined here
   };
   return ReportArticle;

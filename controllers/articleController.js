@@ -2,7 +2,9 @@ import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles, Reactions, Bookmark, ReportArticle } = models;
+const {
+  Articles, Reactions, Bookmark, ReportArticle
+} = models;
 
 /**
  * Creates an article
@@ -297,12 +299,12 @@ const getBookmarks = async (req, res) => {
 };
 
 const reportArticle = async (req, res) => {
-  const { violation }  = req.body;
+  const { violation } = req.body;
   const { slug } = req.params;
   try {
     const article = await helper.findArticle(slug);
     if (!article) return res.status(404).send({ error: 'Article Not found!' });
-    
+
     const report = await ReportArticle.create({
       articleId: article.id,
       authorId: article.authorId,
@@ -310,17 +312,15 @@ const reportArticle = async (req, res) => {
       violation
     });
 
-    if(report){
+    if (report) {
       res.status(201).send({ message: 'You have reported this article successfully', report });
-    } else {
-      res.status(500).send({ error: error.message });
     }
-
+    res.status(500).send({ error: 'Internal server error' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
-  
+
 
 export default {
   createArticle,
