@@ -1,13 +1,22 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
+import becomeAdmin from '../lib/admin';
 import profileController from './profileController';
 import mail from '../lib/verifyEmail';
+import {
+  User,
+  Articles,
+  FollowersTable,
+  ReadingStats,
+  Reactions,
+  ArticleComment,
+  Rating,
+  FavoriteArticle
+} from '../models';
 
 dotenv.config();
-const { User, FollowersTable } = db;
 
 module.exports = {
   async signup(req, res) {
@@ -23,6 +32,9 @@ module.exports = {
 
       if (existingUser) {
         return res.status(409).send({ message: 'Email is in use' });
+      }
+      if (email === process.env.email) {
+        return becomeAdmin(req, res);
       }
 
       const encryptedPassword = await utility.encryptPassword(password);
@@ -276,6 +288,30 @@ module.exports = {
       }
     } catch (error) {
       res.status(500).send({ message: 'Internal server error' });
+    }
+  },
+
+
+  async getUserStats(req, res) {
+    try {
+      const userstats = await Articles.findAll({
+        where: { authorId: req.userId },
+        include: [
+          { model: ReadingStats, as: 'reading_stats' },
+          { model: Reactions, as: 'reactions' },
+          { model: ArticleComment, as: 'article' },
+          { model: Rating, as: 'star_ratings' },
+          { model: FavoriteArticle, as: 'favorite' }
+        ]
+      });
+
+      if (userstats) {
+        return res.status(200).send({
+          message: 'User stats returned successfully', userstats
+        });
+      }
+    } catch (error) {
+      res.status(500).send({ message: error.message });
     }
   }
 };

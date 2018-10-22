@@ -184,8 +184,7 @@ const getAnArticle = async (req, res) => {
     }
 
     const article = await helper.countReactions(existingArticle);
-    return addReadingStats(req.userId, existingArticle).then(() =>
-     res.status(200).send({ message: 'Article gotten successfully!', article }));
+    return addReadingStats(req.userId, existingArticle).then(() => res.status(200).send({ message: 'Article gotten successfully!', article }));
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -229,7 +228,6 @@ const reactToArticle = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
-
 /**
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
@@ -343,6 +341,5 @@ export default {
   reactToArticle,
   bookmarkArticle,
   deleteBookmark,
-  getBookmarks,
-  addReadingStats
+  getBookmarks
 };
