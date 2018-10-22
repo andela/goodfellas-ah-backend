@@ -20,7 +20,9 @@ const generateErrorMessage = (missing) => {
 const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 const checkEmptyFields = (data) => {
   const emptyFields = {};
-  const missingFields = Object.keys(data).filter(field => !data[field] || !/\S/.test(data[field]));
+  const missingFields = Object.keys(data).filter(
+    field => !data[field] || !/\S/.test(data[field])
+  );
   if (missingFields.length > 0) {
     emptyFields.status = true;
     emptyFields.message = generateErrorMessage(missingFields);
@@ -48,9 +50,9 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
-  // if (route === 'reaction' && fieldLength > 1) {
-  //   return true;
-  // }
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
 
   return false;
 };
@@ -67,11 +69,7 @@ exports.checkNullInput = (req, res, next) => {
   let isUndefined = false;
   let isNull = false;
   let isString = true;
-  const {
-    title,
-    description,
-    body
-  } = req.body;
+  const { title, description, body } = req.body;
   [title, description, body].forEach((field) => {
     if (field === undefined) {
       isUndefined = true;
@@ -91,7 +89,9 @@ exports.checkNullInput = (req, res, next) => {
     return res.status(400).send({ error: 'Invalid Input' });
   }
   if (isNull) {
-    return res.status(400).send({ error: 'A field does not contain any input' });
+    return res
+      .status(400)
+      .send({ error: 'A field does not contain any input' });
   }
   if (!isString) {
     return res.status(400).send({ error: 'Input cannot be numbers only!' });
@@ -124,7 +124,6 @@ exports.validate = route => (req, res, next) => {
   next();
 };
 
-
 // middleware for validating passwords
 exports.validateResetPassword = (req, res, next) => {
   const emptyFields = checkEmptyFields(req.body);
@@ -133,7 +132,9 @@ exports.validateResetPassword = (req, res, next) => {
     return res.status(400).send({ message: emptyFields.message });
   }
   if (req.body.password.length < 5) {
-    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
+    return res
+      .status(400)
+      .send({ message: 'Passwords must be greater than four characters' });
   }
   if (req.body.password.length !== req.body.confirm_password.length) {
     return res.status(400).send({ message: 'Passwords do not match' });
@@ -141,7 +142,6 @@ exports.validateResetPassword = (req, res, next) => {
 
   next();
 };
-
 
 // middleware for validating forgot password
 exports.validateForgotPassword = (req, res, next) => {
@@ -153,7 +153,7 @@ exports.validateForgotPassword = (req, res, next) => {
   }
 
   if (!isEmailValid) {
-    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
+    return res.status(400).send({ message: "You've entered an invalid email" });
   }
 
   req.email = req.body.email.trim();
@@ -185,7 +185,7 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (typeof data.files.image === 'undefined') {
+  if (Object.keys(data.files).length === 1 && !(Object.keys(data.files).includes('image'))) {
     return true;
   }
 };
@@ -283,7 +283,9 @@ exports.reactionValidation = (req, res, next) => {
     return res.status(400).send({ message: 'Too many fields' });
   }
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
-    return res.status(400).send({ message: 'Incorrect reaction value provided' });
+    return res
+      .status(400)
+      .send({ message: 'Incorrect reaction value provided' });
   }
 
   next();

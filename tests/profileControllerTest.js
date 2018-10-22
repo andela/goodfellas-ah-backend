@@ -100,21 +100,6 @@ describe('Profile controller', () => {
           done();
         });
     });
-    describe('update profile', () => {
-      it('PUT /api/user/profile should return an error if image field is undefined', (done) => {
-        chai
-          .request(app)
-          .put(`/api/user/profile/${id}`)
-          .set({ authorization: testToken, Accept: 'application/json' })
-          .field('username', 'trr')
-          .field('bio', 'trr')
-          .end((err, res) => {
-            expect(res.status).to.equal(400);
-            expect(res.body.message).to.equal('Profile Image is required');
-            done();
-          });
-      });
-    });
   });
 
   describe('get the profiles of all the users', () => {
