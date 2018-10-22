@@ -325,6 +325,36 @@ describe('Articles controller', () => {
             done();
           });
       });
+      it('Returns an error message when a user provides too many values for the request', (done) => {
+        tags = {
+          tags: ['reactjs', 'angularjs'],
+          extraField: 'extraValue'
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+      it('Returns an error message when a user provides an empty values for the request', (done) => {
+        tags = {
+          tags: ''
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('Please fill the tags field');
+            done();
+          });
+      });
     });
     describe('React to an article', () => {
       it('Returns a success message when an article is liked for the first time', (done) => {
