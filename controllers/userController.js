@@ -248,7 +248,7 @@ export default {
         .findIndex(element => element === setting);
       if (settingIndex > -1) throw new Error('You already have this setting enabled');
       await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
-      res.status(201).send({
+      res.status(200).send({
         message: 'Notification setting successfully updated'
       });
     } catch (err) {
@@ -266,7 +266,7 @@ export default {
         .findIndex(element => element === setting);
       if (settingIndex === -1) throw new Error('You currently do not have this setting enabled');
       await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
-      res.status(201).send({
+      res.status(200).send({
         message: 'Notification setting successfully updated'
       });
     } catch (err) {
@@ -279,7 +279,7 @@ export default {
     const { userId } = req;
     try {
       const notifications = await helper.getNotifications({ userId });
-      res.status(201).send({
+      res.status(200).send({
         message: 'Notifications retrieved successfully',
         data: notifications,
       });
@@ -294,8 +294,8 @@ export default {
     const { notificationId } = req.params;
     try {
       const notifications = await helper.getNotification({ userId, id: notificationId });
-      res.status(201).send({
-        message: 'Notifications retrieved successfully',
+      res.status(200).send({
+        message: 'Notification retrieved successfully',
         data: notifications,
       });
     } catch (err) {

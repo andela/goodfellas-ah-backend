@@ -2,22 +2,10 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-import { userDetail } from './signUpDetails';
+import { userDetail, article, article2 } from './testDetails';
 
 chai.use(chaiHttp);
 
-const article = {
-  title: 'Enough is Enough!',
-  description: 'This is a call for Revolt',
-  body: 'My people the time has come to revolt against this new government',
-  image: 'null'
-};
-const article2 = {
-  title: 'Second Article',
-  description: 'This is the second article',
-  body: 'Like I have said, this is the second article. Got that?',
-  image: 'null'
-};
 let testToken;
 let slug;
 
@@ -54,8 +42,7 @@ describe('Articles controller', () => {
         .send(article)
         .end((err, res) => {
           expect(res.status).to.equal(201);
-          const { title } = res.body.article;
-          expect(title).to.equal('Enough is Enough!');
+          expect(res.body.article.title).to.equal('Enough is Enough!');
           expect(res.body.message).to.equal('You have created an article successfully');
           const articleSlug = res.body.article.slug;
           slug = articleSlug;
