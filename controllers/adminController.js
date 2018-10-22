@@ -51,6 +51,13 @@ const revokeAdmin = async (req, res) => {
     .catch(error => res.status(500).send({ error: error.message }));
 };
 
+
+/**
+ * get all report article id by the admin
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 const getAllReports = async (req, res) => {
   const user = await helper.findRecord(User, { id: req.userId });
 

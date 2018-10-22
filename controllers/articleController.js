@@ -298,6 +298,12 @@ const getBookmarks = async (req, res) => {
   }
 };
 
+/**
+ * report an article
+ * @param {object} req The request body which contain the id of the logged in user.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 const reportArticle = async (req, res) => {
   const { violation } = req.body;
   const { slug } = req.params;
