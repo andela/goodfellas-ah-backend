@@ -34,12 +34,10 @@ const createArticle = async (req, res) => {
       authorId: req.userId
     });
     const existingArticle = await helper.findArticle(article.slug, req.userId);
-    res
-      .status(201)
-      .send({
-        message: 'You have created an article successfully',
-        article: existingArticle
-      });
+    res.status(201).send({
+      message: 'You have created an article successfully',
+      article: existingArticle
+    });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -63,11 +61,9 @@ const updateArticle = async (req, res) => {
     }
 
     if (existingArticle !== null && existingArticle.authorId !== req.userId) {
-      return res
-        .status(403)
-        .send({
-          message: 'You cannot modify an article added by another User'
-        });
+      return res.status(403).send({
+        message: 'You cannot modify an article added by another User'
+      });
     }
 
     const readTime = utility.readTime(req.body.body, req.body.image);
@@ -83,13 +79,8 @@ const updateArticle = async (req, res) => {
       image,
       read_time: readTime
     });
-    const updatedArticle = await helper.findArticle(
-      existingArticle.slug,
-      req.userId
-    );
-    return res
-      .status(200)
-      .send({ message: 'Article successfully modified', updatedArticle });
+    const updatedArticle = await helper.findArticle(existingArticle.slug, req.userId);
+    return res.status(200).send({ message: 'Article successfully modified', updatedArticle });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -112,9 +103,7 @@ const deleteArticle = async (req, res) => {
     return res.status(404).send({ error: 'Article not found!' });
   }
   if (existingArticle.authorId !== req.userId) {
-    return res
-      .status(403)
-      .send({ error: 'You cannot delete an article added by another user' });
+    return res.status(403).send({ error: 'You cannot delete an article added by another user' });
   }
   return existingArticle
     .destroy()
@@ -145,7 +134,7 @@ const getAllArticles = (req, res) => Articles.findAll({
       attributes: ['createdAt', 'updatedAt'],
       required: false
     }
-  ],
+  ]
 })
   .then((article) => {
     if (article.length < 1) {
@@ -244,20 +233,16 @@ const addArticleTags = async (req, res) => {
     }
 
     if (existingArticle !== null && existingArticle.authorId !== req.userId) {
-      return res
-        .status(403)
-        .send({
-          message: 'You cannot modify an article added by another User'
-        });
+      return res.status(403).send({
+        message: 'You cannot modify an article added by another User'
+      });
     }
 
     existingArticle.updateAttributes({ tagList: tags });
-    res
-      .status(200)
-      .send({
-        message: 'Updated article tags successfully',
-        data: { tags: existingArticle.tagList }
-      });
+    res.status(200).send({
+      message: 'Updated article tags successfully',
+      data: { tags: existingArticle.tagList }
+    });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -268,21 +253,19 @@ const bookmarkArticle = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
-    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
     const existingBookmark = await Bookmark.count({
       where: { userId, articleSlug: slug }
     });
     if (existingBookmark) {
-      return res
-        .status(400)
-        .send({ error: 'Article has been previously bookmarked' });
+      return res.status(400).send({ error: 'Article has been previously bookmarked' });
     }
     const bookmarked = await helper.bookmarkArticle(userId, slug);
     bookmarked.title = existingArticle.title;
 
-    res
-      .status(200)
-      .send({ message: 'Article bookmarked successfully', data: bookmarked });
+    res.status(200).send({ message: 'Article bookmarked successfully', data: bookmarked });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -300,14 +283,14 @@ const deleteBookmark = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findArticle(slug);
-    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
     const deletedBookmark = await Bookmark.destroy({
       where: { userId, articleSlug: slug }
     });
     if (deletedBookmark === 0) {
-      return res
-        .status(400)
-        .send({ error: 'This article is not currently bookmarked' });
+      return res.status(400).send({ error: 'This article is not currently bookmarked' });
     }
 
     res.status(200).send({ message: 'Bookmark removed successfully' });
@@ -343,7 +326,8 @@ const getBookmarks = async (req, res) => {
             where: { user_id: req.userId },
             attributes: ['createdAt', 'updatedAt'],
             required: false
-          }],
+          }
+        ]
       }
     });
     res.status(200).send({
@@ -363,23 +347,21 @@ const favoriteArticle = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findRecord(Articles, { slug });
-    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
     const alreadyFavorited = await helper.findRecord(FavoriteArticle, {
       user_id: userId,
       article_slug: slug
     });
     if (alreadyFavorited) {
-      return res
-        .status(400)
-        .send({ error: 'Article has already been favourited' });
+      return res.status(400).send({ error: 'Article has already been favourited' });
     }
     const article = await FavoriteArticle.create({
       user_id: userId,
       article_slug: slug
     });
-    res
-      .status(200)
-      .send({ message: 'Article favorited successfully', article });
+    res.status(200).send({ message: 'Article favorited successfully', article });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -390,18 +372,16 @@ const deleteFavorite = async (req, res) => {
   const { userId } = req;
   try {
     const existingArticle = await helper.findRecord(Articles, { slug });
-    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
     const deletedFavorite = await FavoriteArticle.destroy({
       where: { user_id: userId, article_slug: slug }
     });
     if (deletedFavorite === 0) {
-      return res
-        .status(400)
-        .send({ error: 'This article is not currently favorited' });
+      return res.status(400).send({ error: 'This article is not currently favorited' });
     }
-    res
-      .status(200)
-      .send({ message: 'Article succesfully removed from list of favorites' });
+    res.status(200).send({ message: 'Article succesfully removed from list of favorites' });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -410,13 +390,13 @@ const getFavorite = async (req, res) => {
   const { slug } = req.params;
   try {
     const existingArticle = await helper.findRecord(Articles, { slug });
-    if (!existingArticle) { return res.status(404).send({ error: 'Article Not found!' }); }
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
     const favorites = await FavoriteArticle.findAndCountAll({
       where: { article_slug: slug }
     });
-    res
-      .status(200)
-      .send({ message: 'Successfully retrieved users who favorited this article', favorites });
+    res.status(200).send({ message: 'Successfully retrieved users who favorited this article', favorites });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

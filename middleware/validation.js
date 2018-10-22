@@ -20,9 +20,7 @@ const generateErrorMessage = (missing) => {
 const checkValidEmail = email => email.match(/[A-z0-9.]+@[A-z]+\.(com|me)/);
 const checkEmptyFields = (data) => {
   const emptyFields = {};
-  const missingFields = Object.keys(data).filter(
-    field => !data[field] || !/\S/.test(data[field])
-  );
+  const missingFields = Object.keys(data).filter(field => !data[field] || !/\S/.test(data[field]));
   if (missingFields.length > 0) {
     emptyFields.status = true;
     emptyFields.message = generateErrorMessage(missingFields);
@@ -89,9 +87,7 @@ exports.checkNullInput = (req, res, next) => {
     return res.status(400).send({ error: 'Invalid Input' });
   }
   if (isNull) {
-    return res
-      .status(400)
-      .send({ error: 'A field does not contain any input' });
+    return res.status(400).send({ error: 'A field does not contain any input' });
   }
   if (!isString) {
     return res.status(400).send({ error: 'Input cannot be numbers only!' });
@@ -114,9 +110,7 @@ exports.validate = route => (req, res, next) => {
     return res.status(400).send({ message: 'Please enter a valid email' });
   }
   if (userDetails.password.length < 5) {
-    return res
-      .status(400)
-      .send({ message: 'Passwords must be greater than four characters' });
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
   }
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });
@@ -132,9 +126,7 @@ exports.validateResetPassword = (req, res, next) => {
     return res.status(400).send({ message: emptyFields.message });
   }
   if (req.body.password.length < 5) {
-    return res
-      .status(400)
-      .send({ message: 'Passwords must be greater than four characters' });
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
   }
   if (req.body.password.length !== req.body.confirm_password.length) {
     return res.status(400).send({ message: 'Passwords do not match' });
@@ -185,7 +177,7 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (Object.keys(data.files).length === 1 && !(Object.keys(data.files).includes('image'))) {
+  if (Object.keys(data.files).length === 1 && !Object.keys(data.files).includes('image')) {
     return true;
   }
 };
@@ -283,9 +275,7 @@ exports.reactionValidation = (req, res, next) => {
     return res.status(400).send({ message: 'Too many fields' });
   }
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
-    return res
-      .status(400)
-      .send({ message: 'Incorrect reaction value provided' });
+    return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }
 
   next();

@@ -35,13 +35,11 @@ module.exports = {
           message: 'You are do not have the authorization to update this profile'
         });
       }
-      const userProfile = await existingProfile.updateAttributes(
-        {
-          username: username || existingProfile.username,
-          bio: bio || existingProfile.bio,
-          image: image || existingProfile.image
-        },
-      );
+      const userProfile = await existingProfile.updateAttributes({
+        username: username || existingProfile.username,
+        bio: bio || existingProfile.bio,
+        image: image || existingProfile.image
+      });
       res.status(200).send({
         error: false,
         message: 'Profile updated Successfully',
@@ -76,11 +74,13 @@ module.exports = {
   async getProfiles(req, res) {
     try {
       const profileList = await Profiles.findAll({
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['firstname', 'lastname', 'email', 'role']
-        }]
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['firstname', 'lastname', 'email', 'role']
+          }
+        ]
       });
       res.send({
         message: 'Successfully retrieved a list of author profiles',
