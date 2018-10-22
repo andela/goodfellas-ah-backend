@@ -2,7 +2,7 @@ import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles, Reactions, Bookmark } = models;
+const { Articles, Reactions, Bookmark, ReportArticle } = models;
 
 /**
  * Creates an article
@@ -193,14 +193,10 @@ const reactToArticle = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
 /**
-<<<<<<< HEAD
  * updates an article's tags
  * @param {object} req The request body of the request.
-=======
- * bookmarks an article
- * @param {object} req The request body which contain the article's slug as param.
->>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -300,6 +296,32 @@ const getBookmarks = async (req, res) => {
   }
 };
 
+const reportArticle = async (req, res) => {
+  const { violation }  = req.body;
+  const { slug } = req.params;
+  try {
+    const article = await helper.findArticle(slug);
+    if (!article) return res.status(404).send({ error: 'Article Not found!' });
+    
+    const report = await ReportArticle.create({
+      articleId: article.id,
+      authorId: article.authorId,
+      reporterId: req.userId,
+      violation
+    });
+
+    if(report){
+      res.status(201).send({ message: 'You have reported this article successfully', report });
+    } else {
+      res.status(500).send({ error: error.message });
+    }
+
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+  
+
 export default {
   createArticle,
   updateArticle,
@@ -311,4 +333,5 @@ export default {
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
+  reportArticle
 };
