@@ -10,7 +10,6 @@ import {
   Articles,
   FollowersTable,
   ReadingStats,
-  Reactions,
   ArticleComment,
   Rating,
   FavoriteArticle
@@ -291,25 +290,37 @@ module.exports = {
     }
   },
 
-
+  /**
+ * gets all the stats of an article
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
   async getUserStats(req, res) {
     try {
-      const userstats = await Articles.findAll({
+      const userStats = await Articles.findAll({
         where: { authorId: req.userId },
         include: [
           { model: ReadingStats, as: 'reading_stats' },
-          { model: Reactions, as: 'reactions' },
-          { model: ArticleComment, as: 'article' },
+          { model: ArticleComment, as: 'comments' },
           { model: Rating, as: 'star_ratings' },
           { model: FavoriteArticle, as: 'favorite' }
         ]
       });
 
-      if (userstats) {
+      const allStatsPromise = userStats.map(async (each) => {
+        const stats = await helper.countReactions(each);
+        return stats;
+      });
+      const allStats = await Promise.all(allStatsPromise);
+      if (allStats.length > 0) {
         return res.status(200).send({
-          message: 'User stats returned successfully', userstats
+          message: 'User stats returned successfully', allStats
         });
       }
+      return res.status(404).send({
+        message: 'There are no statistics for your articles'
+      });
     } catch (error) {
       res.status(500).send({ message: error.message });
     }
