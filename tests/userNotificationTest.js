@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import sinon from 'sinon';
+import io from 'socket.io-client';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
 import { User } from '../models';
@@ -8,7 +9,11 @@ import eventEmitter from '../lib/eventEmitter';
 import { article, userADetails, userBDetails } from './testDetails';
 
 chai.use(chaiHttp);
-
+const socketURL = 'http://localhost:3000/';
+const socketOptions = {
+  transports: ['websocket'],
+  'force new connection': true
+};
 describe('Notification Settings', () => {
   after((done) => {
     resetDB();
@@ -19,9 +24,9 @@ describe('Notification Settings', () => {
     let userAToken;
     let userBToken;
     let userAId;
-    let userBId;
     const articleCreatedSpy = sinon.spy();
     const notificationCreatedSpy = sinon.spy();
+    const userBNotificationSpy = sinon.spy();
     eventEmitter.on('article created', articleCreatedSpy);
     eventEmitter.on('notification created', notificationCreatedSpy);
     beforeEach('add users to db, userB follow userA, create article', (done) => {
@@ -39,24 +44,23 @@ describe('Notification Settings', () => {
               .send(userBDetails)
               .end((err, res) => {
                 userBToken = res.body.token;
-                User.findOne({ where: { email: userBDetails.email } }).then((userB) => {
-                  userBId = userB.id;
-                  chai
-                    .request(app)
-                    .post(`/api//user/follow/${userAId}`)
-                    .set('authorization', userBToken)
-                    .send()
-                    .end(() => {
-                      chai
-                        .request(app)
-                        .post('/api/articles')
-                        .set({ authorization: userAToken, Accept: 'application/json' })
-                        .send(article)
-                        .end(() => {
-                          done();
-                        });
-                    });
-                });
+                const userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
+                userBSocket.on('new notification', userBNotificationSpy);
+                chai
+                  .request(app)
+                  .post(`/api//user/follow/${userAId}`)
+                  .set('authorization', userBToken)
+                  .send()
+                  .end(() => {
+                    chai
+                      .request(app)
+                      .post('/api/articles')
+                      .set({ authorization: userAToken, Accept: 'application/json' })
+                      .send(article)
+                      .end(() => {
+                        done();
+                      });
+                  });
               });
           });
         });
@@ -79,6 +83,12 @@ describe('Notification Settings', () => {
             expect(notificationCreatedSpy.called).to.equal(true);
             done();
           });
+      }, 2000);
+    });
+    it("should emit socket event 'new notification' for userB", (done) => {
+      setTimeout(() => {
+        expect(userBNotificationSpy.called).to.equal(true);
+        done();
       }, 2000);
     });
   });
