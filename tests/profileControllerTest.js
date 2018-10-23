@@ -146,7 +146,7 @@ describe('GET a user profile', () => {
       .put(`/api/user/profile/${id}`)
       .set({ authorization: testToken2, Accept: 'application/json' })
       .send({
-        username: 'test',
+        username: 'test1',
         bio: 'me'
       })
       .end((err, res) => {
