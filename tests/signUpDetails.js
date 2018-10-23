@@ -5,12 +5,14 @@ const userDetail = {
   email: 'goodfellas@gmail.com',
   password: 'password'
 };
+
 const adminDetail = {
   firstname: process.env.firstname,
   lastname: process.env.lastname,
   email: process.env.email,
   password: process.env.password,
 };
+
 const userDetail2 = {
   firstname: 'john',
   lastname: 'doe',

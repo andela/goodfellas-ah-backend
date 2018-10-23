@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    read_time: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -46,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
   Articles.associate = (models) => {
+    Articles.belongsTo(models.User, { as: 'user', foreignKey: 'authorId' });
     Articles.hasMany(models.Bookmark, {
       foreignKey: 'articleSlug',
       as: 'bookmarked',

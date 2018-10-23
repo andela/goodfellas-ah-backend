@@ -17,16 +17,23 @@ const createArticle = async (req, res) => {
     description,
     body,
   } = req.body;
+
+  // Calculate the article's read time
+
   let image = null;
   if (req.files && req.files.image) {
     image = await utility.imageUpload(req.files);
   }
+
+  const readTime = utility.readTime(body, image);
+
   return Articles
     .create({
       title,
       description,
       body,
       image,
+      read_time: readTime,
       authorId: req.userId
     })
     .then(article => res.status(201).send({ message: 'You have created an article successfully', article }))
@@ -53,6 +60,9 @@ const updateArticle = async (req, res) => {
   if (existingArticle !== null && existingArticle.authorId !== req.userId) {
     return res.status(403).send({ message: 'You cannot modify an article added by another User' });
   }
+
+  const readTime = utility.readTime(req.body.body, req.body.image);
+
   let image = null;
   if (req.files && req.files.image) {
     image = await utility.imageUpload(req.files);
@@ -62,6 +72,7 @@ const updateArticle = async (req, res) => {
     description: req.body.description || existingArticle.description,
     body: req.body.body || existingArticle.body,
     image,
+    read_time: readTime
   })
     .then(updatedArticle => res.status(200).send({ message: 'Article successfully modified', updatedArticle }))
     .catch(error => res.status(500).send({ error: error.message }));
@@ -100,26 +111,27 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = (req, res) => Articles
-  .findAll({
-    include: {
-      model: Bookmark,
-      as: 'bookmarked',
-      where: { userId: req.userId },
-      attributes: ['createdAt', 'updatedAt'],
-      required: false,
-    }
-  })
-  .then((article) => {
-    if (article.length < 1) {
+const getArticles = async (req, res) => {
+  const { page } = req.params;
+  const { userId } = req;
+  const limit = 10;
+
+  try {
+    const { articles, pages } = await helper.getArticles(Articles, { page, limit, userId });
+
+    if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
+
     return res.status(200).send({
       message: 'Articles gotten successfully!',
-      article,
+      articles,
+      pages
     });
-  })
-  .catch(error => res.status(500).send({ error: error.message }));
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 /**
  * fetches an article
@@ -183,11 +195,38 @@ const reactToArticle = async (req, res) => {
   }
 };
 /**
+<<<<<<< HEAD
+ * updates an article's tags
+ * @param {object} req The request body of the request.
+=======
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
+>>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
+
+const addArticleTags = async (req, res) => {
+  const { slug } = req.params;
+  const { tags } = req.body;
+
+  try {
+    const existingArticle = await helper.findRecord(Articles, { slug });
+
+    if (!existingArticle) {
+      return res.status(404).send({ error: 'Article Not found!' });
+    }
+
+    if (existingArticle !== null && existingArticle.authorId !== req.userId) {
+      return res.status(403).send({ message: 'You cannot modify an article added by another User' });
+    }
+
+    existingArticle.updateAttributes({ tagList: tags });
+    res.status(200).send({ message: 'Updated article tags successfully', data: { tags: existingArticle.tagList } });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
@@ -266,8 +305,9 @@ export default {
   createArticle,
   updateArticle,
   deleteArticle,
-  getAllArticles,
+  getArticles,
   getAnArticle,
+  addArticleTags,
   reactToArticle,
   bookmarkArticle,
   deleteBookmark,
