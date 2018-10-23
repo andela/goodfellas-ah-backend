@@ -15,7 +15,7 @@ router.post('/articles', authenticate, multipart, checkNullInput, articleControl
 router.put('/articles/:slug', authenticate, multipart, checkNullInput, articleController.updateArticle);
 router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 
-router.get('/articles', allowVisitors, articleController.getAllArticles);
+router.get('/articles/feed/:page', allowVisitors, articleController.getArticles);
 router.get('/articles/:slug', allowVisitors, articleController.getAnArticle);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
 
