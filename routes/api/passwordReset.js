@@ -5,17 +5,9 @@ import { validateForgotPassword, findUserByToken, validateResetPassword } from '
 const router = express.Router();
 
 // forgot password
-router.post(
-  '/forgotPassword',
-  validateForgotPassword,
-  userController.forgotPassword
-);
+router.post('/forgotPassword', validateForgotPassword, userController.forgotPassword);
 
 // reset password
-router.post(
-  '/resetPassword',
-  validateResetPassword,
-  findUserByToken, userController.resetPassword
-);
+router.post('/resetPassword', validateResetPassword, findUserByToken, userController.resetPassword);
 
 export default router;

@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       defaultValue: 0
     },
+    read_time: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -52,9 +56,18 @@ module.exports = (sequelize, DataTypes) => {
         const { authorId, slug, title } = article;
         eventEmitter.emit('article created', authorId, slug, title);
       }
-    }
+    },
+    getterMethods: {
+      favorited() {
+        return this.getDataValue('favorite').length > 0;
+      },
+      favoritesCount() {
+        return this.getDataValue('favorite').length;
+      }
+    },
   });
   Articles.associate = (models) => {
+    Articles.belongsTo(models.User, { as: 'user', foreignKey: 'authorId' });
     Articles.hasMany(models.Bookmark, {
       foreignKey: 'articleSlug',
       as: 'bookmarked',
@@ -63,6 +76,12 @@ module.exports = (sequelize, DataTypes) => {
     });
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(models.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
+    Articles.hasMany(models.FavoriteArticle, {
+      foreignKey: 'article_slug',
+      as: 'favorite',
+      targetKey: 'article_slug',
+      sourceKey: 'slug',
+    });
   };
   SequelizeSlugify.slugifyModel(Articles, {
     source: ['title'],

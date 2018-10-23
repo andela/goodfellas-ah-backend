@@ -37,7 +37,8 @@ const checkFieldLength = (route, fields) => {
   if (route === 'signup' && fieldLength > 4) {
     return true;
   }
-  if (route === 'reaction' && fieldLength > 1) {
+
+  if ((route === 'tags' || route === 'reaction') && fieldLength > 1) {
     return true;
   }
   if (route === 'comment' && fieldLength > 1) {
@@ -47,9 +48,9 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
-  // if (route === 'reaction' && fieldLength > 1) {
-  //   return true;
-  // }
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
 
   return false;
 };
@@ -66,11 +67,7 @@ exports.checkNullInput = (req, res, next) => {
   let isUndefined = false;
   let isNull = false;
   let isString = true;
-  const {
-    title,
-    description,
-    body
-  } = req.body;
+  const { title, description, body } = req.body;
   [title, description, body].forEach((field) => {
     if (field === undefined) {
       isUndefined = true;
@@ -130,16 +127,13 @@ exports.validate = route => (req, res, next) => {
     return res.status(400).send({ message: 'Please enter a valid email' });
   }
   if (userDetails.password.length < 5) {
-    return res
-      .status(400)
-      .send({ message: 'Passwords must be greater than four characters' });
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
   }
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });
   }
   next();
 };
-
 
 // middleware for validating passwords
 exports.validateResetPassword = (req, res, next) => {
@@ -158,7 +152,6 @@ exports.validateResetPassword = (req, res, next) => {
   next();
 };
 
-
 // middleware for validating forgot password
 exports.validateForgotPassword = (req, res, next) => {
   const isEmailValid = checkValidEmail(req.body.email);
@@ -169,7 +162,7 @@ exports.validateForgotPassword = (req, res, next) => {
   }
 
   if (!isEmailValid) {
-    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
+    return res.status(400).send({ message: "You've entered an invalid email" });
   }
 
   req.email = req.body.email.trim();
@@ -201,7 +194,7 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (typeof data.files.profileImage === 'undefined') {
+  if (Object.keys(data.files).length === 1 && !Object.keys(data.files).includes('image')) {
     return true;
   }
 };
@@ -248,6 +241,27 @@ exports.profileValidation = (req, res, next) => {
   next();
 };
 
+exports.tagValidation = (req, res, next) => {
+  const userDetails = req.body;
+  const { tags } = userDetails;
+  const tooManyFields = checkFieldLength('tags', userDetails);
+  const emptyFields = checkEmptyFields({ tags });
+
+  if (emptyFields.status) {
+    return res.status(400).send({ message: emptyFields.message });
+  }
+
+  if (tooManyFields) {
+    return res.status(400).send({ message: 'Too many fields' });
+  }
+
+  if (!Array.isArray(tags)) {
+    return res.status(400).send({ message: 'Tags must be in a list' });
+  }
+
+  next();
+};
+
 exports.commentValidation = (req, res, next) => {
   const undefinedFieldError = undefinedcommentFields(req.body);
   if (undefinedFieldError) {
@@ -263,6 +277,7 @@ exports.commentValidation = (req, res, next) => {
   }
   next();
 };
+
 exports.reactionValidation = (req, res, next) => {
   const userDetails = req.body;
   const { reaction } = userDetails;
@@ -279,5 +294,6 @@ exports.reactionValidation = (req, res, next) => {
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
     return res.status(400).send({ message: 'Incorrect reaction value provided' });
   }
+
   next();
 };

@@ -29,7 +29,8 @@ describe('Notification Settings', () => {
     const userBNotificationSpy = sinon.spy();
     eventEmitter.on('article created', articleCreatedSpy);
     eventEmitter.on('notification created', notificationCreatedSpy);
-    beforeEach('add users to db, userB follow userA, create article', (done) => {
+    before('add users to db, userB follow userA, create article', (done) => {
+      // add userA to db
       chai
         .request(app)
         .post('/api/auth/signup')
@@ -38,14 +39,17 @@ describe('Notification Settings', () => {
           userAToken = res.body.token;
           User.findOne({ where: { email: userADetails.email } }).then((userA) => {
             userAId = userA.id;
+            // add userB to db
             chai
               .request(app)
               .post('/api/auth/signup')
               .send(userBDetails)
               .end((err, res) => {
                 userBToken = res.body.token;
+                // connect userB socket
                 const userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
                 userBSocket.on('new notification', userBNotificationSpy);
+                // userB follow userA
                 chai
                   .request(app)
                   .post(`/api//user/follow/${userAId}`)
@@ -65,7 +69,11 @@ describe('Notification Settings', () => {
           });
         });
     });
-    afterEach('Reset database after each test', async () => resetDB());
+    after('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
     it("should emit event 'article created'", (done) => {
       expect(articleCreatedSpy.called).to.equal(true);
       done();
@@ -101,7 +109,7 @@ describe('Notification Settings', () => {
     const userBNotificationSpy = sinon.spy();
     eventEmitter.on('comment created', commentCreatedSpy);
     eventEmitter.on('notification created', notificationCreatedSpy);
-    beforeEach('add users to db, userB follow userA, create article', (done) => {
+    before('add users to db, userB follow userA, create article', (done) => {
       chai
         .request(app)
         .post('/api/auth/signup')
@@ -142,7 +150,11 @@ describe('Notification Settings', () => {
             });
         });
     });
-    afterEach('Reset database after each test', async () => resetDB());
+    after('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
     it("should emit event 'comment created'", (done) => {
       expect(commentCreatedSpy.called).to.equal(true);
       done();

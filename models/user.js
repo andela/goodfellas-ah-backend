@@ -1,11 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'User',
-    {
+    'User', {
       firstname: {
         type: DataTypes.STRING,
         allowNull: false
       },
+
       lastname: {
         type: DataTypes.STRING,
         allowNull: false
@@ -24,16 +24,24 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'Local',
         values: ['Local', 'google', 'facebook', 'twitter']
       },
+      verification_token: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
       password_reset_token: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       password_reset_time: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       role: {
         type: DataTypes.ENUM,
         defaultValue: 'User',
-        values: ['SuperAdmin', 'Admin', 'User']
+        values: ['Admin', 'User', 'Visitor']
       },
       notificationSettings: {
         type: DataTypes.ARRAY(DataTypes.STRING),
@@ -60,6 +68,9 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'user_id'
     });
     User.hasMany(models.CommentReaction, {
+      foreignKey: 'user_id'
+    });
+    User.hasMany(models.FavoriteArticle, {
       foreignKey: 'user_id'
     });
   };

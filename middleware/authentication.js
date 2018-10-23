@@ -32,9 +32,7 @@ export default (req, res, next) => {
       }
     });
   } else {
-    return res
-      .status(401)
-      .send({ message: 'Unauthorized request, please login' });
+    return res.status(401).send({ message: 'Unauthorized request, please login' });
   }
 };
 export { tokenIsValid, allowVisitors };

@@ -1,3 +1,6 @@
+
+import {} from 'dotenv/config';
+
 // user log in details
 const userDetail = {
   firstname: 'Anthony',
@@ -41,6 +44,12 @@ const userCDetails = {
   email: 'user@see.com',
   password: 'userpassword'
 };
+const adminDetail = {
+  firstname: process.env.firstname,
+  lastname: process.env.lastname,
+  email: process.env.email,
+  password: process.env.password,
+};
 const test = 3;
 export {
   userDetail,
@@ -51,4 +60,5 @@ export {
   userADetails,
   userBDetails,
   userCDetails,
+  adminDetail,
 };
