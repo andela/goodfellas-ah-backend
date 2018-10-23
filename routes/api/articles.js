@@ -27,6 +27,7 @@ router.delete('/articles/:slug/bookmark', authenticate, articleController.delete
 router.get('/articles/all/bookmark', authenticate, articleController.getBookmarks);
 
 router.post('/articles/:slug/comments', authenticate, commentValidation, commentController.postComment);
+router.post('/articles/:slug/comments/highlight/:status', authenticate, commentValidation, commentController.postComment);
 router.get('/articles/:slug/comments', commentController.getComment);
 router.delete('/articles/:slug/comments/:commentId', authenticate, commentController.deleteComment);
 router.put('/articles/:slug/comments/:commentId', authenticate, commentController.updateComment);
