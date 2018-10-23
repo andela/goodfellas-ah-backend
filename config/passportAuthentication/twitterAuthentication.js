@@ -16,7 +16,7 @@ let strategy;
 passport.use('twitter', new TwitterTokenStrategy({
   consumerKey: process.env.TWITTER_CLIENT_ID,
   consumerSecret: process.env.TWITTER_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3000/api/auth/twitter/callback',
+  callbackURL: `${process.env.BASE_URL}/api/auth/twitter/callback`,
   includeEmail: true
 }, utility.strategyCallback));
 

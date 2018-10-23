@@ -38,6 +38,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    averageRating: {
+      type: DataTypes.STRING,
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,

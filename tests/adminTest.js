@@ -109,5 +109,27 @@ describe('Admin user', () => {
           done();
         });
     });
+    it('PUT to /admin/:userId should return an error when user to be updated is not found', (done) => {
+      chai
+        .request(app)
+        .put('/api/admin/7')
+        .set({ authorization: Token2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('User not found!');
+          done();
+        });
+    });
+    it('PUT to /admin/revoke/:userId should return an error when user to be updated is not found', (done) => {
+      chai
+        .request(app)
+        .put('/api/admin/revoke/7')
+        .set({ authorization: Token2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('User not found!');
+          done();
+        });
+    });
   });
 });

@@ -297,32 +297,28 @@ module.exports = {
  * @returns {object} res.
  */
   async getUserStats(req, res) {
-    try {
-      const userStats = await Articles.findAll({
-        where: { authorId: req.userId },
-        include: [
-          { model: ReadingStats, as: 'reading_stats' },
-          { model: ArticleComment, as: 'comments' },
-          { model: Rating, as: 'star_ratings' },
-          { model: FavoriteArticle, as: 'favorite' }
-        ]
-      });
+    const userStats = await Articles.findAll({
+      where: { authorId: req.userId },
+      include: [
+        { model: ReadingStats, as: 'reading_stats' },
+        { model: ArticleComment, as: 'comments' },
+        { model: Rating, as: 'star_ratings' },
+        { model: FavoriteArticle, as: 'favorite' }
+      ]
+    });
 
-      const allStatsPromise = userStats.map(async (each) => {
-        const stats = await helper.countReactions(each);
-        return stats;
+    const allStatsPromise = userStats.map(async (each) => {
+      const stats = await helper.countReactions(each);
+      return stats;
+    });
+    const allStats = await Promise.all(allStatsPromise);
+    if (allStats.length > 0) {
+      return res.status(200).send({
+        message: 'User stats returned successfully', allStats
       });
-      const allStats = await Promise.all(allStatsPromise);
-      if (allStats.length > 0) {
-        return res.status(200).send({
-          message: 'User stats returned successfully', allStats
-        });
-      }
-      return res.status(404).send({
-        message: 'There are no statistics for your articles'
-      });
-    } catch (error) {
-      res.status(500).send({ message: error.message });
     }
+    return res.status(404).send({
+      message: 'There are no statistics for your articles'
+    });
   }
 };
