@@ -92,6 +92,83 @@ describe('Notification Settings', () => {
       }, 2000);
     });
   });
+  describe('When comment is created', () => {
+    let userAToken;
+    let userBToken;
+    let articleSlug;
+    const commentCreatedSpy = sinon.spy();
+    const notificationCreatedSpy = sinon.spy();
+    const userBNotificationSpy = sinon.spy();
+    eventEmitter.on('comment created', commentCreatedSpy);
+    eventEmitter.on('notification created', notificationCreatedSpy);
+    beforeEach('add users to db, userB follow userA, create article', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userADetails)
+        .end((err, res) => {
+          userAToken = res.body.token;
+          chai
+            .request(app)
+            .post('/api/auth/signup')
+            .send(userBDetails)
+            .end((err, res) => {
+              userBToken = res.body.token;
+              const userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
+              userBSocket.on('new notification', userBNotificationSpy);
+              chai
+                .request(app)
+                .post('/api/articles')
+                .set('authorization', userAToken)
+                .send(article)
+                .end((err, res) => {
+                  articleSlug = res.body.article.slug;
+                  chai
+                    .request(app)
+                    .post(`/api/articles/${articleSlug}/favorite`)
+                    .set({ authorization: userBToken, Accept: 'application/json' })
+                    .send(article)
+                    .end(() => {
+                      chai
+                        .request(app)
+                        .post(`/api/articles/${articleSlug}/comments`)
+                        .set({ authorization: userAToken, Accept: 'application/json' })
+                        .send({ body: 'this is a fun comment from userA' })
+                        .end(() => {
+                          done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+    afterEach('Reset database after each test', async () => resetDB());
+    it("should emit event 'comment created'", (done) => {
+      expect(commentCreatedSpy.called).to.equal(true);
+      done();
+    });
+    it('should create notification for userB', (done) => {
+      setTimeout(() => {
+        chai
+          .request(app)
+          .get('/api/user/notification')
+          .set({ authorization: userBToken })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect(res.body.message).to.equal('Notifications retrieved successfully');
+            expect(res.body.data.count).to.equal(1);
+            expect(notificationCreatedSpy.called).to.equal(true);
+            done();
+          });
+      }, 2000);
+    });
+    it("should emit socket event 'new notification' for userB", (done) => {
+      setTimeout(() => {
+        expect(userBNotificationSpy.called).to.equal(true);
+        done();
+      }, 2000);
+    });
+  });
   describe('PUT /user/notification/on/:setting', () => {
     let userToken;
     beforeEach('add user to db and turn email notification off', (done) => {
