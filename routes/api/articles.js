@@ -1,10 +1,16 @@
 import multiparty from 'connect-multiparty';
 import articleController from '../../controllers/articleController';
 import commentController from '../../controllers/commentController';
-import {
-  checkNullInput, commentValidation, reactionValidation, tagValidation
-} from '../../middleware/validation';
+import searchController from '../../controllers/searchController';
 import authenticate, { allowVisitors } from '../../middleware/authentication';
+import {
+  checkNullInput,
+  commentValidation,
+  reactionValidation,
+  tagValidation,
+  validateRating,
+  searchValidation,
+} from '../../middleware/validation';
 
 const router = require('express').Router();
 
@@ -15,6 +21,10 @@ router.post('/articles', authenticate, multipart, checkNullInput, articleControl
 router.put('/articles/:slug', authenticate, multipart, checkNullInput, articleController.updateArticle);
 router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 
+
+router.get('/articles/search', searchValidation, searchController);
+
+router.get('/articles', allowVisitors, articleController.getArticles);
 router.get('/articles/feed/:page', allowVisitors, articleController.getArticles);
 router.get('/articles/:slug', allowVisitors, articleController.getAnArticle);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
@@ -25,6 +35,7 @@ router.delete('/articles/:slug/bookmark', authenticate, articleController.delete
 router.get('/articles/all/bookmark', authenticate, articleController.getBookmarks);
 
 router.post('/articles/:slug/comments', authenticate, commentValidation, commentController.postComment);
+router.post('/articles/:slug/comments/highlight/:status', authenticate, commentValidation, commentController.postComment);
 router.get('/articles/:slug/comments', commentController.getComment);
 router.delete('/articles/:slug/comments/:commentId', authenticate, commentController.deleteComment);
 router.put('/articles/:slug/comments/:commentId', authenticate, commentController.updateComment);
@@ -41,4 +52,6 @@ router.post('/articles/:slug/comments/react/:commentId', authenticate, reactionV
 router.post('/articles/:slug/favorite', authenticate, articleController.favoriteArticle);
 router.delete('/articles/:slug/favorite', authenticate, articleController.deleteFavorite);
 router.get('/articles/:slug/favorite', articleController.getFavorite);
+router.post('/articles/:slug/rating', authenticate, validateRating, articleController.postRating);
+
 export default router;

@@ -10,10 +10,23 @@ const {
 const userAttributes = ['firstname', 'lastname', 'email'];
 const profileAtrributes = ['username', 'bio', 'image'];
 
+/**
+ * posts a comment
+ * @param {object} req The request body which contains the details of the comment.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+
 exports.postComment = async (req, res) => {
   try {
     const values = utility.trimValues(req.body);
-    const { body } = values;
+    const {
+      body,
+      pageId,
+      highlight,
+      startIndex,
+      endIndex
+    } = values;
     const { slug } = req.params;
     const { userId } = req;
     const existingArticle = await helper.findRecord(Articles, { slug });
@@ -21,8 +34,12 @@ exports.postComment = async (req, res) => {
       return res.status(400).json(errorMessage.noArticle);
     }
     const comment = await ArticleComment.create({
-      article_slug: slug,
       body,
+      pageId,
+      highlight,
+      startIndex,
+      endIndex,
+      article_slug: slug,
       user_id: userId
     });
     res.status(201).json({
@@ -34,6 +51,13 @@ exports.postComment = async (req, res) => {
     res.send(error);
   }
 };
+
+/**
+ * retrieves a comment
+ * @param {object} req The request body which contains the slug of the associated article.
+ * @param {object} res The response body containing the retrieved comments.
+ * @returns {object} res.
+ */
 
 exports.getComment = async (req, res) => {
   try {
@@ -88,6 +112,13 @@ exports.getComment = async (req, res) => {
   }
 };
 
+/**
+ * deletes a comment
+ * @param {object} req The request body which contains the article slug, user id and comment id.
+ * @param {object} res The response body with success message.
+ * @returns {object} res.
+ */
+
 exports.deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
@@ -124,6 +155,15 @@ exports.deleteComment = async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
+/**
+ * updates a comment
+ * @param {object} req The request body which contains the article slug, user id, comment id,
+ * and comment.
+ * @param {object} res The response body containing the success message.
+ * @returns {object} res.
+ */
+
 exports.updateComment = async (req, res) => {
   try {
     const { commentId } = req.params;
@@ -167,6 +207,14 @@ exports.updateComment = async (req, res) => {
   }
 };
 
+/**
+ * replies a comment
+ * @param {object} req The request body which contains the user id, comment id,
+ * and comment.
+ * @param {object} res The response body containing the reply.
+ * @returns {object} res.
+ */
+
 exports.replyComment = async (req, res) => {
   try {
     const { commentId } = req.params;
@@ -192,6 +240,14 @@ exports.replyComment = async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
+/**
+ * updates a comment reply
+ * @param {object} req The request body which contains the user id, reply id,
+ * and comment.
+ * @param {object} res The response body containing the updated reply.
+ * @returns {object} res.
+ */
 
 exports.updateReply = async (req, res) => {
   try {
@@ -230,6 +286,13 @@ exports.updateReply = async (req, res) => {
   }
 };
 
+/**
+ * deletes a comment reply
+ * @param {object} req The request body which contains the user id and reply id
+ * @param {object} res The response body containing the success message.
+ * @returns {object} res.
+ */
+
 exports.deleteReply = async (req, res) => {
   try {
     const { replyId } = req.params;
@@ -260,6 +323,13 @@ exports.deleteReply = async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
+/**
+ * retrieves a comment reply
+ * @param {object} req The request body which contains the comment id
+ * @param {object} res The response body containing the reply.
+ * @returns {object} res.
+ */
 
 exports.getReply = async (req, res) => {
   try {
@@ -293,6 +363,14 @@ exports.getReply = async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
+/**
+ * adds a comment reaction
+ * @param {object} req The request body which contains the reaction, user id, article slug
+ * and comment id.
+ * @param {object} res The response body containing the comment's reaction.
+ * @returns {object} res.
+ */
 
 exports.commentReaction = async (req, res) => {
   try {

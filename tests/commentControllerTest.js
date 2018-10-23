@@ -110,7 +110,7 @@ describe('Comment controller', () => {
   });
 
   describe('POST comment ', () => {
-    it('POST /api/articles/slug/comments should post a  comment', (done) => {
+    it('POST /api/articles/slug/comments should post a comment', (done) => {
       chai
         .request(app)
         .post(`/api/articles/${slug}/comments`)
@@ -244,7 +244,7 @@ describe('Comment controller', () => {
         .request(app)
         .put(`/api/articles/${slug}/comments/${commentId}`)
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send({ body: 'This is my first comment update' })
+        .send({ body: 'This is my first comment updateh' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('comment updated successfully');
@@ -562,6 +562,26 @@ describe('Comment controller', () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('Successfully retrieved users who favorited this article');
+          done();
+        });
+    });
+  });
+  describe('Highlight an article and comment', () => {
+    it('POST /api/articles/slug/comments/highlight should post a comment', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/comments`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .send({
+          body: 'This is my first comment',
+          pageId: 'randomString',
+          highlight: 'This is the highlighted text',
+          startIndex: 1,
+          endIndex: 20
+        })
+        .end((err, res) => {
+          expect(res.status).to.equal(201);
+          expect(res.body.message).to.equal('comment posted successfully');
           done();
         });
     });
