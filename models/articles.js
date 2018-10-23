@@ -51,10 +51,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     getterMethods: {
       favorited() {
-        return this.getDataValue('favorite').length > 0;
+        return this.getDataValue('favorite') ? this.getDataValue('favorite').length > 0 : null;
       },
       favoritesCount() {
-        return this.getDataValue('favorite').length;
+        return this.getDataValue('favorite') ? this.getDataValue('favorite').length : null;
       }
     },
   });

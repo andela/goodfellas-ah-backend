@@ -1,3 +1,4 @@
+/* eslint no-plusplus:0 */
 import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
@@ -209,6 +210,8 @@ const reactToArticle = async (req, res) => {
 /**
  * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
+ * updates an article's tags
+ * @param {object} req The request body of the request.
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -216,9 +219,11 @@ const reactToArticle = async (req, res) => {
 const addArticleTags = async (req, res) => {
   const { slug } = req.params;
   const { tags } = req.body;
+  const { userId } = req;
 
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+   const existingArticle = await helper.findRecord(Articles, { slug });
+  // const existingArticle = await helper.findArticle(slug, userId);
 
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
@@ -239,6 +244,13 @@ const addArticleTags = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
