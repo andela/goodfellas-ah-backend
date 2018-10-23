@@ -1,40 +1,43 @@
 import eventEmitter from '../lib/eventEmitter';
 
 module.exports = (sequelize, DataTypes) => {
-  const UserNotification = sequelize.define('UserNotification', {
-    userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    authorId: {
-      type: DataTypes.INTEGER
-    },
-    articleSlug: {
-      type: DataTypes.STRING
-    },
-    commentId: {
-      type: DataTypes.INTEGER
-    },
-    type: {
-      type: DataTypes.ENUM,
-      allowNull: false,
-      values: ['followerArticle', 'favoriteArticleComment']
-    },
-    seen: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-  },
-  {
-    hooks: {
-      afterCreate(notification) {
-        eventEmitter.emit('notification created', notification);
+  const UserNotification = sequelize.define(
+    'UserNotification',
+    {
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
       },
-      afterBulkCreate(notification) {
-        eventEmitter.emit('notification created', notification);
+      authorId: {
+        type: DataTypes.INTEGER
+      },
+      articleSlug: {
+        type: DataTypes.STRING
+      },
+      commentId: {
+        type: DataTypes.INTEGER
+      },
+      type: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ['followerArticle', 'favoriteArticleComment']
+      },
+      seen: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+    },
+    {
+      hooks: {
+        afterCreate(notification) {
+          eventEmitter.emit('notification created', notification);
+        },
+        afterBulkCreate(notification) {
+          eventEmitter.emit('notification created', notification);
+        }
       }
     }
-  });
+  );
   UserNotification.associate = (models) => {
     UserNotification.belongsTo(models.User, {
       foreignKey: 'userId',

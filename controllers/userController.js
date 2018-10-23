@@ -340,10 +340,12 @@ export default {
     const { userId } = req;
     const { notificationId } = req.params;
     try {
-      await UserNotification.update({ seen: true },
+      await UserNotification.update(
+        { seen: true },
         {
           where: { userId, id: notificationId }
-        });
+        }
+      );
       res.status(201).send({
         message: 'Notification has been seen',
       });

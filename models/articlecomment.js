@@ -1,22 +1,25 @@
 import eventEmitter from '../lib/eventEmitter';
 
 module.exports = (sequelize, DataTypes) => {
-  const ArticleComment = sequelize.define('ArticleComment', {
-    body: DataTypes.STRING,
-    pageId: DataTypes.STRING,
-    highlight: DataTypes.STRING,
-    startIndex: DataTypes.INTEGER,
-    endIndex: DataTypes.INTEGER,
-    article_slug: DataTypes.STRING,
-    user_id: DataTypes.INTEGER
-  },
-  {
-    hooks: {
-      afterCreate(comment) {
-        eventEmitter.emit('comment created', comment);
+  const ArticleComment = sequelize.define(
+    'ArticleComment',
+    {
+      body: DataTypes.STRING,
+      pageId: DataTypes.STRING,
+      highlight: DataTypes.STRING,
+      startIndex: DataTypes.INTEGER,
+      endIndex: DataTypes.INTEGER,
+      article_slug: DataTypes.STRING,
+      user_id: DataTypes.INTEGER
+    },
+    {
+      hooks: {
+        afterCreate(comment) {
+          eventEmitter.emit('comment created', comment);
+        }
       }
     }
-  });
+  );
   ArticleComment.associate = (models) => {
     ArticleComment.hasMany(models.CommentReply, {
       foreignKey: 'comment_id'

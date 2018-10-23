@@ -344,7 +344,7 @@ exports.validateRating = (req, res, next) => {
     return res.status(400).send({
       errors: `Your rating must be a number: ${req.query.ratingNumber}`
     });
-  } else if (ratingNumber > 5) {
+  } if (ratingNumber > 5) {
     return res.status(400).send({
       errors:
       'You can\'t rate an article above 5 star'
