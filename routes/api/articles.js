@@ -1,13 +1,15 @@
 import multiparty from 'connect-multiparty';
 import articleController from '../../controllers/articleController';
 import commentController from '../../controllers/commentController';
+import searchController from '../../controllers/searchController';
+import authenticate, { allowVisitors } from '../../middleware/authentication';
 import {
   checkNullInput,
   commentValidation,
   reactionValidation,
+  searchValidation,
   tagValidation
 } from '../../middleware/validation';
-import authenticate, { allowVisitors } from '../../middleware/authentication';
 
 const router = require('express').Router();
 
@@ -17,6 +19,9 @@ router.post('/articles', authenticate, multipart, checkNullInput, articleControl
 router.put('/articles/:slug', authenticate, multipart, checkNullInput, articleController.updateArticle);
 router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 
+router.get('/articles/search', searchValidation, searchController);
+
+router.get('/articles', allowVisitors, articleController.getArticles);
 router.get('/articles/feed/:page', allowVisitors, articleController.getArticles);
 router.get('/articles/:slug', allowVisitors, articleController.getAnArticle);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
