@@ -1,3 +1,4 @@
+/* eslint no-plusplus:0 */
 import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
@@ -224,7 +225,7 @@ const addArticleTags = async (req, res) => {
 };
 
 /**
-* bookmarks an article
+ * bookmarks an article
  * @param {object} req The request body which contain the article's slug as param.
  * @param {object} res The response body.
  * @returns {object} res.
