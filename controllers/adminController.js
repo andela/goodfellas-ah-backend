@@ -20,6 +20,9 @@ const createAdmin = async (req, res) => {
   existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
+  if (!existingUser) {
+    return res.status(404).send({ error: 'User not found!' });
+  }
   existingUser.updateAttributes({
     role: 'Admin',
   })
@@ -44,6 +47,9 @@ const revokeAdmin = async (req, res) => {
   existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
+  if (!existingUser) {
+    return res.status(404).send({ error: 'User not found!' });
+  }
   existingUser.updateAttributes({
     role: 'User',
   })
