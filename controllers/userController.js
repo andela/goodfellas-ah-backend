@@ -226,7 +226,7 @@ module.exports = {
       });
     }
     const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 60 * 60 });
-    const expiration = new Date(Date.now() + 60 * 60 * 1000);
+    const expiration = new Date(Date.now() + (60 * 60 * 1000));
     const mailMessage = `Click <a href="http://127.0.0.1:3000/api/resetPassword?token=
   ${token}">here</a> to reset your password`;
     user.update({ password_reset_token: token, password_reset_time: expiration }).then(async () => {
