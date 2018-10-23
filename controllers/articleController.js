@@ -113,26 +113,27 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = (req, res) => Articles
-  .findAll({
-    include: {
-      model: Bookmark,
-      as: 'bookmarked',
-      where: { userId: req.userId },
-      attributes: ['createdAt', 'updatedAt'],
-      required: false,
-    }
-  })
-  .then((article) => {
-    if (article.length < 1) {
+const getArticles = async (req, res) => {
+  const { page } = req.params;
+  const { userId } = req;
+  const limit = 10;
+
+  try {
+    const { articles, pages } = await helper.getArticles(Articles, { page, limit, userId });
+
+    if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
+
     return res.status(200).send({
       message: 'Articles gotten successfully!',
-      article,
+      articles,
+      pages
     });
-  })
-  .catch(error => res.status(500).send({ error: error.message }));
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 
 /**
@@ -335,7 +336,7 @@ export default {
   createArticle,
   updateArticle,
   deleteArticle,
-  getAllArticles,
+  getArticles,
   getAnArticle,
   addArticleTags,
   reactToArticle,
