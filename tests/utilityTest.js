@@ -56,4 +56,11 @@ describe('Utility', () => {
     const sendingEmail = utility.sendEmail(email, mailMessage);
     chai.expect(sendingEmail).to.equal(false);
   });
+
+  it('should fail when values are not passed', async () => {
+    const email = '';
+    const mailMessage = '';
+    const sendingEmail = utility.sendEmail(email, mailMessage);
+    chai.expect(sendingEmail).to.equal(false);
+  });
 });

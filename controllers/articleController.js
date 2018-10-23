@@ -3,7 +3,9 @@ import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Articles, Reactions, Bookmark } = models;
+const {
+  Articles, Reactions, Bookmark, Rating
+} = models;
 
 /**
  * Creates an article
@@ -195,9 +197,11 @@ const reactToArticle = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
 /**
  * updates an article's tags
  * @param {object} req The request body of the request.
+>>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -304,6 +308,54 @@ const getBookmarks = async (req, res) => {
   }
 };
 
+const addRatingsToArticle = async (article) => {
+  const ratings = await Rating.findAll({ where: { articleId: article.id } });
+  if (ratings) {
+    let ratingSum = 0;
+    ratings.forEach((rate) => { ratingSum += rate.starRating; });
+    const averageRating = ratingSum / ratings.length;
+    const articleUpdated = await article.update({ averageRating });
+    return articleUpdated;
+  }
+};
+
+const postRating = async (req, res) => {
+  try {
+    const findArticle = await helper.findArticle(req.params.slug);
+    if (!findArticle) {
+      res.status(404).send({ message: 'Article can not be found' });
+    }
+    const userRating = await Rating.findOne({
+      where: {
+        userId: req.userId,
+        articleId: findArticle.id
+      }
+    });
+
+    let addRating;
+    if (userRating) {
+      const values = { starRating: req.ratingNumber };
+      addRating = await helper.updateRecord(userRating, values);
+    } else {
+      const values = {
+        userId: req.userId,
+        articleId: findArticle.id,
+        starRating: req.ratingNumber
+      };
+      addRating = await helper.postRecord(Rating, values);
+    }
+
+    const ratingsToArticles = await addRatingsToArticle(findArticle);
+    if (addRating && ratingsToArticles) {
+      res.status(201).send({
+        message: `You've rated this article ${req.ratingNumber} star`
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 export default {
   createArticle,
   updateArticle,
@@ -315,4 +367,5 @@ export default {
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
+  postRating
 };
