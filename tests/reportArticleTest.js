@@ -122,7 +122,6 @@ describe('Report Articles', () => {
         });
     });
 
-
     it('Should return an error when token is invalid', (done) => {
       chai
         .request(app)
@@ -135,14 +134,14 @@ describe('Report Articles', () => {
         });
     });
 
-    it('Should return an unauthorized error', (done) => {
+    it('Should return error when user is not authorized', (done) => {
       chai
         .request(app)
         .get('/api/admin/reportedArticles')
         .set({ authorization: userToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(403);
-          expect(res.body.error).to.equal('You are not authorised to perform this action!');
+          expect(res.body.message).to.equal('Access Denied!, You are not authorized to do this');
           done();
         });
     });
@@ -155,6 +154,18 @@ describe('Report Articles', () => {
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('Reported articles');
+          done();
+        });
+    });
+
+    it('Should return an error when wrong route is called', (done) => {
+      chai
+        .request(app)
+        .post('/api/admin/reportedArticles')
+        .set({ authorization: adminToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.message).to.equal('Invalid request, Route does not exist');
           done();
         });
     });

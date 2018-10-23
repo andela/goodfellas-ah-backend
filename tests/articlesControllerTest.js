@@ -1,8 +1,12 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
+import db from '../models';
 import { resetDB } from './resetTestDB';
 import { userDetail } from './signUpDetails';
+import generateArticleList from './testHelper';
+
+const { Articles } = db;
 
 chai.use(chaiHttp);
 
@@ -28,8 +32,11 @@ describe('Articles controller', () => {
       .post('/api/auth/signup')
       .send(userDetail)
       .end((err, res) => {
-        const { token } = res.body;
+        const { token, userId } = res.body;
         testToken = token;
+
+        const articleList = generateArticleList(userId);
+        Articles.bulkCreate(articleList);
         done();
       });
   });
@@ -165,7 +172,7 @@ describe('Articles controller', () => {
             done();
           });
       });
-      it('Returnsh the right response when a request body field is empty', (done) => {
+      it('Returns the right response when a request body field is empty', (done) => {
         const badArticle = {
           title: 'Enough is Enough!',
           description: 'This is a call for Revolt',
@@ -218,7 +225,7 @@ describe('Articles controller', () => {
       });
     });
     describe('GET an article', () => {
-      it('Returns the right response when a paricular article gotten/fetched', (done) => {
+      it('Returns the right response when a paricular article gotten', (done) => {
         chai
           .request(app)
           .get(`/api/articles/${slug}`)
@@ -261,19 +268,6 @@ describe('Articles controller', () => {
       });
     });
 
-    describe('GET all articles', () => {
-      it('Returns the right response when all the articles are gotten/fetched', (done) => {
-        chai
-          .request(app)
-          .get('/api/articles')
-          .set({ authorization: testToken, Accept: 'application/json' })
-          .end((err, res) => {
-            expect(res.status).to.equal(200);
-            expect(res.body.message).to.equal('Articles gotten successfully!');
-            done();
-          });
-      });
-    });
     describe('Add a tag for an article created by the author', () => {
       let tags = {
         tags: ['reactjs', 'angularjs']
@@ -322,6 +316,36 @@ describe('Articles controller', () => {
           .send(tags)
           .end((err, res) => {
             expect(res.status).to.equal(400);
+            done();
+          });
+      });
+      it('Returns an error message when a user provides too many values for the request', (done) => {
+        tags = {
+          tags: ['reactjs', 'angularjs'],
+          extraField: 'extraValue'
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            done();
+          });
+      });
+      it('Returns an error message when a user provides an empty values for the request', (done) => {
+        tags = {
+          tags: ''
+        };
+        chai
+          .request(app)
+          .post(`/api/articles/${slug}/tags`)
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .send(tags)
+          .end((err, res) => {
+            expect(res.status).to.equal(400);
+            expect(res.body.message).to.equal('Please fill the tags field');
             done();
           });
       });
@@ -419,11 +443,11 @@ describe('Articles controller', () => {
           });
       });
     });
-    describe('GET all articles', () => {
-      it('Returns the right response when all the articles are gotten/fetched', (done) => {
+    describe('GET a given number of articles', () => {
+      it('Returns the right response when the articles are gotten/fetched', (done) => {
         chai
           .request(app)
-          .get('/api/articles')
+          .get('/api/articles/feed/1')
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
@@ -431,21 +455,32 @@ describe('Articles controller', () => {
             done();
           });
       });
+      it('Returns the required number of articles per request', (done) => {
+        chai
+          .request(app)
+          .get('/api/articles/feed/1')
+          .set({ authorization: testToken, Accept: 'application/json' })
+          .end((err, res) => {
+            expect(res.status).to.equal(200);
+            expect((res.body.articles).length).to.equal(10);
+            done();
+          });
+      });
       it('return bookmarked field when article is bookmarked', (done) => {
         chai
           .request(app)
-          .delete(`/api/articles/${slug}/bookmark`)
+          .post(`/api/articles/${slug}/bookmark`)
           .set({ authorization: testToken, Accept: 'application/json' })
           .end(() => {
             chai
               .request(app)
-              .get('/api/articles')
+              .get('/api/articles/feed/1')
               .set({ authorization: testToken, Accept: 'application/json' })
               .end((err, res) => {
                 expect(res.status).to.equal(200);
                 expect(res.body.message).to.equal('Articles gotten successfully!');
-                expect(res.body.article[0]).to.have.property('bookmarked');
-                expect(res.body.article[0].bookmarked).to.be.an('array');
+                expect(res.body.articles[0]).to.have.property('bookmarked');
+                expect(res.body.articles[0].bookmarked).to.be.an('array');
                 done();
               });
           });

@@ -19,6 +19,9 @@ const createAdmin = async (req, res) => {
   existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
+  if (!existingUser) {
+    return res.status(404).send({ error: 'User not found!' });
+  }
   existingUser.updateAttributes({
     role: 'Admin',
   })
@@ -43,6 +46,9 @@ const revokeAdmin = async (req, res) => {
   existingUser = await helper.findRecord(User, {
     id: req.params.userId
   });
+  if (!existingUser) {
+    return res.status(404).send({ error: 'User not found!' });
+  }
   existingUser.updateAttributes({
     role: 'User',
   })
@@ -58,11 +64,6 @@ const revokeAdmin = async (req, res) => {
  * @returns {object} res.
  */
 const getAllReports = async (req, res) => {
-  const user = await helper.findRecord(User, { id: req.userId });
-
-  if (user.role !== 'Admin') {
-    return res.status(403).send({ error: 'You are not authorised to perform this action!' });
-  }
   const allReports = await ReportArticle.findAll({});
   if (!allReports) {
     return res.status(404).send({ message: 'These are no reported articles' });

@@ -1,9 +1,10 @@
+/* eslint no-plusplus:0 */
 import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const {
-  Articles, Reactions, Bookmark, ReportArticle
+  Articles, Reactions, Bookmark, ReportArticle, Rating
 } = models;
 
 /**
@@ -113,26 +114,27 @@ const deleteArticle = async (req, res) => {
  * @returns {object} res.
  */
 
-const getAllArticles = (req, res) => Articles
-  .findAll({
-    include: {
-      model: Bookmark,
-      as: 'bookmarked',
-      where: { userId: req.userId },
-      attributes: ['createdAt', 'updatedAt'],
-      required: false,
-    }
-  })
-  .then((article) => {
-    if (article.length < 1) {
+const getArticles = async (req, res) => {
+  const { page } = req.params;
+  const { userId } = req;
+  const limit = 10;
+
+  try {
+    const { articles, pages } = await helper.getArticles(Articles, { page, limit, userId });
+
+    if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
+
     return res.status(200).send({
       message: 'Articles gotten successfully!',
-      article,
+      articles,
+      pages
     });
-  })
-  .catch(error => res.status(500).send({ error: error.message }));
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 /**
  * fetches an article
@@ -224,6 +226,13 @@ const addArticleTags = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
+/**
+ * bookmarks an article
+ * @param {object} req The request body which contain the article's slug as param.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
 
 const bookmarkArticle = async (req, res) => {
   const { slug } = req.params;
@@ -327,17 +336,66 @@ const reportArticle = async (req, res) => {
   }
 };
 
+const addRatingsToArticle = async (article) => {
+  const ratings = await Rating.findAll({ where: { articleId: article.id } });
+  if (ratings) {
+    let ratingSum = 0;
+    ratings.forEach((rate) => { ratingSum += rate.starRating; });
+    const averageRating = ratingSum / ratings.length;
+    const articleUpdated = await article.update({ averageRating });
+    return articleUpdated;
+  }
+};
+
+const postRating = async (req, res) => {
+  try {
+    const findArticle = await helper.findArticle(req.params.slug);
+    if (!findArticle) {
+      res.status(404).send({ message: 'Article can not be found' });
+    }
+    const userRating = await Rating.findOne({
+      where: {
+        userId: req.userId,
+        articleId: findArticle.id
+      }
+    });
+
+    let addRating;
+    if (userRating) {
+      const values = { starRating: req.ratingNumber };
+      addRating = await helper.updateRecord(userRating, values);
+    } else {
+      const values = {
+        userId: req.userId,
+        articleId: findArticle.id,
+        starRating: req.ratingNumber
+      };
+      addRating = await helper.postRecord(Rating, values);
+    }
+
+    const ratingsToArticles = await addRatingsToArticle(findArticle);
+    if (addRating && ratingsToArticles) {
+      res.status(201).send({
+        message: `You've rated this article ${req.ratingNumber} star`
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 
 export default {
   createArticle,
   updateArticle,
   deleteArticle,
-  getAllArticles,
+  getArticles,
   getAnArticle,
   addArticleTags,
   reactToArticle,
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
-  reportArticle
+  reportArticle,
+  postRating
 };

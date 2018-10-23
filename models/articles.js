@@ -38,6 +38,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    averageRating: {
+      type: DataTypes.STRING,
+    },
     authorId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -50,12 +53,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
   Articles.associate = (models) => {
+    Articles.belongsTo(models.User, { as: 'user', foreignKey: 'authorId' });
     Articles.hasMany(models.Bookmark, {
       foreignKey: 'articleSlug',
       as: 'bookmarked',
       targetKey: 'articleSlug',
       sourceKey: 'slug',
     });
+    Articles.hasMany(models.Rating, { foreignKey: 'articleId', as: 'star_ratings' });
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
     Articles.hasMany(models.ArticleComment, { as: 'article', foreignKey: 'article_slug' });
   };
