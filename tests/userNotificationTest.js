@@ -178,7 +178,7 @@ describe('Notification Settings', () => {
       setTimeout(() => {
         expect(userBNotificationSpy.called).to.equal(true);
         done();
-      }, 2000);
+      }, 20000);
     });
   });
   describe('PUT /user/notification/on/:setting', () => {
