@@ -219,12 +219,9 @@ const reactToArticle = async (req, res) => {
 const addArticleTags = async (req, res) => {
   const { slug } = req.params;
   const { tags } = req.body;
-  const { userId } = req;
 
   try {
-   const existingArticle = await helper.findRecord(Articles, { slug });
-  // const existingArticle = await helper.findArticle(slug, userId);
-
+    const existingArticle = await helper.findRecord(Articles, { slug });
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
