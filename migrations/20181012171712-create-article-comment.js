@@ -11,6 +11,18 @@ module.exports = {
       body: {
         type: Sequelize.STRING
       },
+      pageId: {
+        type: Sequelize.STRING
+      },
+      highlight: {
+        type: Sequelize.STRING
+      },
+      startIndex: {
+        type: Sequelize.INTEGER
+      },
+      endIndex: {
+        type: Sequelize.INTEGER
+      },
       article_slug: {
         type: Sequelize.STRING
       },

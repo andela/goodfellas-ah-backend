@@ -1,6 +1,6 @@
+
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('ReadingStats', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('Ratings', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -16,11 +16,11 @@ module.exports = {
           as: 'articleId',
         },
       },
-      authorId: {
+      userId: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      readerId: {
+      starRating: {
         allowNull: false,
         type: Sequelize.INTEGER
       },
@@ -32,7 +32,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
-  },
-  down: queryInterface => queryInterface.dropTable('ReadingStats') 
+    }),
+  down: queryInterface =>  queryInterface.dropTable('Ratings') 
 };

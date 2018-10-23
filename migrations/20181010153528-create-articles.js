@@ -44,6 +44,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      averageRating: {
+        type: Sequelize.INTEGER
+      },
       authorId: {
         type: Sequelize.INTEGER,
         allowNull: false,

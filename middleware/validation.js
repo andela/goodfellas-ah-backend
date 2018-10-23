@@ -28,6 +28,14 @@ const checkEmptyFields = (data) => {
   return emptyFields;
 };
 
+const checkExtraFields = (commentDetails, requiredFields) => {
+  const requiredFieldsSet = new Set(requiredFields);
+  const commentDetailKeys = Object.keys(commentDetails).filter(field => field);
+  const invalidList = commentDetailKeys.filter(item => !requiredFieldsSet.has(item));
+
+  return invalidList;
+};
+
 const checkFieldLength = (route, fields) => {
   const fieldLength = Object.keys(fields).length;
 
@@ -41,7 +49,7 @@ const checkFieldLength = (route, fields) => {
   if ((route === 'tags' || route === 'reaction') && fieldLength > 1) {
     return true;
   }
-  if (route === 'comment' && fieldLength > 1) {
+  if (route === 'comment' && fieldLength > 5) {
     return true;
   }
   if (route === 'profile' && fieldLength > 2) {
@@ -254,16 +262,41 @@ exports.tagValidation = (req, res, next) => {
 };
 
 exports.commentValidation = (req, res, next) => {
-  const undefinedFieldError = undefinedcommentFields(req.body);
+  let emptyFields;
+  const commentDetails = req.body;
+  const { status } = req.params;
+  const requiredFields = ['body', 'pageId', 'highlight', 'startIndex', 'endIndex'];
+  const {
+    body,
+    pageId,
+    highlight,
+    startIndex,
+    endIndex
+  } = commentDetails;
+
+  const undefinedFieldError = undefinedcommentFields(commentDetails);
+  const extraFields = checkExtraFields(commentDetails, requiredFields);
+  const tooManyFields = checkFieldLength('comment', commentDetails);
+
+  if (!status) {
+    emptyFields = checkEmptyFields({ body });
+  } else {
+    emptyFields = checkEmptyFields({
+      body,
+      pageId,
+      highlight,
+      startIndex,
+      endIndex
+    });
+  }
+
   if (undefinedFieldError) {
     return res.status(400).send({ message: 'All fields are required' });
   }
-  const emptyFields = checkEmptyFields(req.body);
-  const tooManyFields = checkFieldLength('comment', req.body);
   if (emptyFields.status) {
     return res.status(400).send({ message: emptyFields.message });
   }
-  if (tooManyFields) {
+  if (tooManyFields || (extraFields.length > 0)) {
     return res.status(400).send({ message: 'Extra field(s) not required' });
   }
   next();
@@ -284,6 +317,40 @@ exports.reactionValidation = (req, res, next) => {
   }
   if (reaction !== 1 && reaction !== -1 && !Number.isNaN(reaction)) {
     return res.status(400).send({ message: 'Incorrect reaction value provided' });
+  }
+
+  next();
+};
+
+exports.validateRating = (req, res, next) => {
+  const ratingNumber = parseInt(req.query.ratingNumber, 10);
+
+  if (!req.query.ratingNumber) {
+    return res.status(400).send({
+      errors: 'Please enter a rating number from 1 to 5'
+    });
+  }
+
+  if (Number.isNaN(ratingNumber)) {
+    return res.status(400).send({
+      errors: `Your rating must be a number: ${req.query.ratingNumber}`
+    });
+  } else if (ratingNumber > 5) {
+    return res.status(400).send({
+      errors:
+      'You can\'t rate an article above 5 star'
+    });
+  }
+
+  req.ratingNumber = ratingNumber;
+  next();
+};
+
+exports.searchValidation = (req, res, next) => {
+  const checkField = checkEmptyFields(req.query);
+
+  if (checkField.status) {
+    return res.status(400).send({ message: checkField.message });
   }
 
   next();

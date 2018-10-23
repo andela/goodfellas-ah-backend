@@ -11,7 +11,7 @@ import {
   FollowersTable,
   ReadingStats,
   ArticleComment,
-  Rating,
+  Reactions,
   FavoriteArticle
 } from '../models';
 
@@ -291,38 +291,93 @@ module.exports = {
   },
 
   /**
+ * post reading reading stats of an article
+ * @param {req} req The req object
+ * @param {res} res The response object.
+ * @returns {object} res.
+ */
+  async getAReadingStats(req, res) {
+    const { slug } = req.params;
+    try {
+      const article = await helper.findArticle(slug);
+      if (!article) return res.status(404).send({ error: 'Article Not found!' });
+
+      if (article.authorId !== req.userId) {
+        return res.status(401).send({ error: 'You are not allowed to view article stats of other users' });
+      }
+
+      const readingStats = await ReadingStats.findAll({ where: {
+        articleId: article.id,
+        authorId: req.userId
+      } });
+
+      res.status(200).send({
+        message: 'Reading stats retrieved', views: readingStats.length
+      });
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  },
+
+
+  /**
+ * get reading reading stats of an article
+ * @param {req} req The req object
+ * @param {res} res The response object.
+ * @returns {object} res.
+ */
+async getAllReadingStats(req, res) {
+  try {
+    const allReadingStats = await ReadingStats.findAll({ where: {
+      authorId: req.userId, 
+    } });
+
+  if (!allReadingStats) return res.status(404).send({ error: 'There are no readings for your articles!' });
+
+  let allStats = [];
+
+  allReadingStats.forEach((each) => {
+    let test = {}
+    if(each.articleId){
+      test.articleId = each.articleId;
+      test.views += 1;
+    }
+    allStats.push(test);
+  })
+
+    res.status(200).send({
+      message: 'Reading stats retrieved', allStats
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+},
+
+
+  /**
  * gets all the stats of an article
  * @param {object} req The request body of the request.
  * @param {object} res The response body.
  * @returns {object} res.
  */
   async getUserStats(req, res) {
-    try {
-      const userStats = await Articles.findAll({
-        where: { authorId: req.userId },
-        include: [
-          { model: ReadingStats, as: 'reading_stats' },
-          { model: ArticleComment, as: 'comments' },
-          { model: Rating, as: 'star_ratings' },
-          { model: FavoriteArticle, as: 'favorite' }
-        ]
-      });
+    const userStats = await Articles.findAll({
+      where: { authorId: req.userId },
+      include: [
+        { model: ReadingStats, as: 'reading_stats' },
+        { model: ArticleComment, as: 'comments' },
+        { model: Reactions, as: 'reactions' },
+        { model: FavoriteArticle, as: 'favorite' }
+      ]
+    });
 
-      const allStatsPromise = userStats.map(async (each) => {
-        const stats = await helper.countReactions(each);
-        return stats;
+    if (userStats.length > 0) {
+      return res.status(200).send({
+        message: 'User stats returned successfully', userStats
       });
-      const allStats = await Promise.all(allStatsPromise);
-      if (allStats.length > 0) {
-        return res.status(200).send({
-          message: 'User stats returned successfully', allStats
-        });
-      }
-      return res.status(404).send({
-        message: 'There are no statistics for your articles'
-      });
-    } catch (error) {
-      res.status(500).send({ message: error.message });
     }
+    return res.status(404).send({
+      message: 'There are no statistics for your articles'
+    });
   }
 };
