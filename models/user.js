@@ -1,11 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
-    'User',
-    {
+    'User', {
       firstname: {
         type: DataTypes.STRING,
         allowNull: false
       },
+
       lastname: {
         type: DataTypes.STRING,
         allowNull: false
@@ -33,18 +33,17 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false
       },
       password_reset_token: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       password_reset_time: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       role: {
         type: DataTypes.ENUM,
         defaultValue: 'User',
-        values: ['SuperAdmin', 'Admin', 'User']
+        values: ['Admin', 'User', 'Visitor']
       }
-    },
-    {}
+    }, {}
   );
   User.associate = (models) => {
     User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });
