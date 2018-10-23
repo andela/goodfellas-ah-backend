@@ -244,7 +244,7 @@ describe('Comment controller', () => {
         .request(app)
         .put(`/api/articles/${slug}/comments/${commentId}`)
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send({ body: 'This is my first comment update' })
+        .send({ body: 'This is my first comment updateh' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('comment updated successfully');
