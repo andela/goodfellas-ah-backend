@@ -1,7 +1,6 @@
-import db from '../models';
+import { User, ReportArticle } from '../models';
 import helper from '../lib/helper';
 
-const { User, ReportArticle } = db;
 
 /**
  * creates an admin
@@ -66,9 +65,9 @@ const getAllReports = async (req, res) => {
   }
   const allReports = await ReportArticle.findAll({});
   if (!allReports) {
-    return res.status(404).send({ message: 'These are info of reported articles' });
+    return res.status(404).send({ message: 'These are no reported articles' });
   }
-  return res.status(200).send({ message: 'These are reported articles', allReports });
+  return res.status(200).send({ message: 'Reported articles', allReports });
 };
 
 

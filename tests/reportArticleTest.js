@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-import { userDetail } from './signUpDetails';
+import { userDetail, adminDetail } from './signUpDetails';
 
 chai.use(chaiHttp);
 
@@ -13,10 +13,11 @@ const article = {
   image: 'null'
 };
 
-let testToken;
+let userToken;
+let adminToken;
 let slug;
 
-describe('Articles controller', () => {
+describe('Report Articles', () => {
   before((done) => {
     chai
       .request(app)
@@ -24,7 +25,15 @@ describe('Articles controller', () => {
       .send(userDetail)
       .end((err, res) => {
         const { token } = res.body;
-        testToken = token;
+        userToken = token;
+      });
+    chai
+      .request(app)
+      .post('/api/auth/signup')
+      .send(adminDetail)
+      .end((err, res) => {
+        const { token } = res.body;
+        adminToken = token;
         done();
       });
   });
@@ -35,7 +44,7 @@ describe('Articles controller', () => {
     done();
   });
 
-  describe('POST an article', () => {
+  describe('Report an article', () => {
     after((done) => {
       resetDB();
 
@@ -46,7 +55,7 @@ describe('Articles controller', () => {
       chai
         .request(app)
         .post('/api/articles')
-        .set({ authorization: testToken, Accept: 'application/json' })
+        .set({ authorization: userToken, Accept: 'application/json' })
         .send(article)
         .end((err, res) => {
           expect(res.status).to.equal(201);
@@ -63,8 +72,8 @@ describe('Articles controller', () => {
       chai
         .request(app)
         .post(`/api/articles/${slug}/report`)
-        .set({ authorization: 'testToken', Accept: 'application/json' })
-        .send(article)
+        .set({ authorization: 'userToken', Accept: 'application/json' })
+        .send({ violation: 'plagiarisism' })
         .end((err, res) => {
           expect(res.status).to.equal(401);
           expect(res.body.message).to.equal('jwt malformed');
@@ -76,8 +85,8 @@ describe('Articles controller', () => {
       chai
         .request(app)
         .post('/api/articles/slug/report')
-        .set({ authorization: testToken, Accept: 'application/json' })
-        .send(article)
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .send({ violation: 'plagiarisism' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
           expect(res.body.error).to.equal('Article Not found!');
@@ -89,7 +98,8 @@ describe('Articles controller', () => {
       chai
         .request(app)
         .post(`/api/articles/${slug}/report`)
-        .set({ authorization: testToken, Accept: 'application/json' })
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .send({ violation: 'plagiarisism' })
         .send(article)
         .end((err, res) => {
           expect(res.status).to.equal(201);
@@ -98,15 +108,53 @@ describe('Articles controller', () => {
         });
     });
 
-    it('Should report an article successfully', (done) => {
+    it('Should report an article successfully when field is not field', (done) => {
       chai
         .request(app)
         .post(`/api/articles/${slug}/report`)
-        .set({ authorization: testToken, Accept: 'application/json' })
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .send({ violation: 'plagiarisism' })
         .send(article)
         .end((err, res) => {
           expect(res.status).to.equal(201);
           expect(res.body.message).to.equal('You have reported this article successfully');
+          done();
+        });
+    });
+
+
+    it('Should return an error when token is invalid', (done) => {
+      chai
+        .request(app)
+        .get('/api/admin/reportedArticles')
+        .set({ authorization: 'invalidtoken', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+
+    it('Should return an unauthorized error', (done) => {
+      chai
+        .request(app)
+        .get('/api/admin/reportedArticles')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(403);
+          expect(res.body.error).to.equal('You are not authorised to perform this action!');
+          done();
+        });
+    });
+
+    it('Should return info of articles reported', (done) => {
+      chai
+        .request(app)
+        .get('/api/admin/reportedArticles')
+        .set({ authorization: adminToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Reported articles');
           done();
         });
     });
