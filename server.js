@@ -21,10 +21,6 @@ app.use(json());
 
 app.use(router);
 
-router.get('/api', (req, res) => {
-  res.status(200).send({ message: 'Welcome to the Authors Haven API' });
-});
-
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
