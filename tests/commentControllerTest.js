@@ -115,7 +115,7 @@ describe('Comment controller', () => {
         .request(app)
         .post(`/api/articles/${slug}/comments`)
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send({ body: 'This is my first comment' })
+        .send({ body: 'This is my first comment yes' })
         .end((err, res) => {
           expect(res.status).to.equal(201);
           expect(res.body.message).to.equal('comment posted successfully');
