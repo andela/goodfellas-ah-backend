@@ -4,7 +4,7 @@ import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const {
-  Articles, Reactions, Bookmark, Rating
+  Articles, Reactions, Bookmark, ReportArticle, Rating
 } = models;
 
 /**
@@ -201,7 +201,6 @@ const reactToArticle = async (req, res) => {
 /**
  * updates an article's tags
  * @param {object} req The request body of the request.
->>>>>>> staging
  * @param {object} res The response body.
  * @returns {object} res.
  */
@@ -308,6 +307,35 @@ const getBookmarks = async (req, res) => {
   }
 };
 
+/**
+ * report an article
+ * @param {object} req The request body which contain the id of the logged in user.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+const reportArticle = async (req, res) => {
+  const { violation } = req.body;
+  const { slug } = req.params;
+  try {
+    const article = await helper.findArticle(slug);
+    if (!article) return res.status(404).send({ error: 'Article Not found!' });
+
+    const report = await ReportArticle.create({
+      articleId: article.id,
+      authorId: article.authorId,
+      reporterId: req.userId,
+      violation
+    });
+
+    if (report) {
+      res.status(201).send({ message: 'You have reported this article successfully', report });
+    }
+    res.status(500).send({ error: 'Internal server error' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 const addRatingsToArticle = async (article) => {
   const ratings = await Rating.findAll({ where: { articleId: article.id } });
   if (ratings) {
@@ -356,6 +384,7 @@ const postRating = async (req, res) => {
   }
 };
 
+
 export default {
   createArticle,
   updateArticle,
@@ -367,5 +396,6 @@ export default {
   bookmarkArticle,
   deleteBookmark,
   getBookmarks,
+  reportArticle,
   postRating
 };

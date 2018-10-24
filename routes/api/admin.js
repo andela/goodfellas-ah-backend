@@ -6,6 +6,6 @@ const router = require('express').Router();
 
 router.put('/admin/:userId', authenticate, adminController.createAdmin);
 router.put('/admin/revoke/:userId', authenticate, permit('Admin'), adminController.revokeAdmin);
-
+router.get('/admin/reportedArticles', authenticate, permit('Admin'), adminController.getAllReports);
 
 export default router;
