@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-import { userDetail } from './signUpDetails';
+import { userDetail } from './testDetails';
 
 chai.use(chaiHttp);
 let slugged;

@@ -42,8 +42,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         defaultValue: 'User',
         values: ['Admin', 'User', 'Visitor']
-      }
-    }, {}
+      },
+      notificationSettings: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: ['email', 'inApp']
+      },
+    },
+    {}
   );
   User.associate = (models) => {
     User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });

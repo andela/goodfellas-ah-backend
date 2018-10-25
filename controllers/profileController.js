@@ -52,6 +52,10 @@ module.exports = {
   async getProfile(req, res) {
     try {
       const { userId } = req.params;
+      const userAttributes = ['firstname', 'lastname', 'email', 'role'];
+      const privateAttributes = ['notificationSettings'];
+      const attributes = Number(req.userId) === Number(userId)
+        ? userAttributes.concat(privateAttributes) : userAttributes;
       const existingProfile = await helper.findRecord(Profiles, {
         userId
       });
@@ -61,7 +65,14 @@ module.exports = {
           message: 'User does not exist'
         });
       }
-      Profiles.findOne({ where: { userId } }).then(profile => res.status(200).json({
+      Profiles.findOne({
+        where: { userId },
+        include: [{
+          model: User,
+          as: 'user',
+          attributes,
+        }]
+      }).then(profile => res.status(200).json({
         error: false,
         data: profile,
         message: 'Profile retrieved successfully'

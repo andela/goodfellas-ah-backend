@@ -8,9 +8,14 @@ import profileController from './profileController';
 import mail from '../lib/verifyEmail';
 
 dotenv.config();
-const { User, FollowersTable } = db;
+const {
+  User,
+  FollowersTable,
+  sequelize,
+  UserNotification,
+} = db;
 
-module.exports = {
+export default {
   async signup(req, res) {
     try {
       const values = utility.trimValues(req.body);
@@ -168,10 +173,7 @@ module.exports = {
         include: {
           model: User,
           as: 'followedUser',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
+          attributes: ['firstname', 'lastname', 'email', 'role'],
         }
       });
       res.status(200).send({
@@ -191,21 +193,10 @@ module.exports = {
     const { userId } = req.params;
     try {
       await helper.throwErrorOnNonExistingUser(userId);
-      const followers = await FollowersTable.findAndCountAll({
-        where: { followedUserId: userId },
-        attributes: { exclude: ['followedUserId'] },
-        include: {
-          model: User,
-          as: 'follower',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
-        }
-      });
+      const followers = await helper.getFollowers(userId);
       res.status(200).send({
         data: {
-          followers: followers.rows,
+          followers: followers.followers,
           followersCount: followers.count
         },
         message: 'Retrieved followers'
@@ -279,5 +270,89 @@ module.exports = {
     } catch (error) {
       res.status(500).send({ message: 'Internal server error' });
     }
-  }
+  },
+  async setNotification(req, res) {
+    const { userId } = req;
+    const { setting } = req.params;
+    try {
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex > -1) throw new Error('You already have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      res.status(200).send({
+        message: 'Notification setting successfully updated'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async unsetNotification(req, res) {
+    const { userId } = req;
+    const { setting } = req.params;
+    try {
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex === -1) throw new Error('You currently do not have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      res.status(200).send({
+        message: 'Notification setting successfully updated'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async getNotifications(req, res) {
+    const { userId } = req;
+    try {
+      const notifications = await helper.getNotifications({ userId });
+      res.status(200).send({
+        message: 'Notifications retrieved successfully',
+        data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async getNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      const notifications = await helper.getNotification({ userId, id: notificationId });
+      res.status(200).send({
+        message: 'Notification retrieved successfully',
+        data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async seenNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      await UserNotification.update(
+        { seen: true },
+        {
+          where: { userId, id: notificationId }
+        }
+      );
+      res.status(201).send({
+        message: 'Notification has been seen',
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
 };

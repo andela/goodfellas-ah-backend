@@ -3,6 +3,8 @@ node_js:
   - "stable"
 services:
   - postgresql
+addons:
+  postgresql: "9.4"
 env:
   global:
   - DB_USERNAME=postgres

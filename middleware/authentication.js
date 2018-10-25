@@ -4,15 +4,21 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const tokenIsValid = (token) => {
+  try {
+    return verify(token, process.env.SECRET);
+  } catch (error) {
+    return false;
+  }
+};
 const allowVisitors = (req, res, next) => {
   const token = req.headers.authorization;
-  try {
-    if (!token) throw new Error('token not supplied');
-    req.userId = verify(token, process.env.SECRET).id;
-    next();
-  } catch (e) {
-    next();
+  const validToken = tokenIsValid(token);
+  if (validToken) {
+    req.userId = validToken.id;
+    return next();
   }
+  return next();
 };
 export default (req, res, next) => {
   const token = req.headers.authorization;
@@ -29,4 +35,4 @@ export default (req, res, next) => {
     return res.status(401).send({ message: 'Unauthorized request, please login' });
   }
 };
-export { allowVisitors };
+export { tokenIsValid, allowVisitors };

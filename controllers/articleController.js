@@ -191,7 +191,8 @@ const reactToArticle = async (req, res) => {
     if (existingReaction && existingReaction.reaction === reaction) {
       existingReaction.destroy();
       return res.status(200).send({ message: 'Successfully removed reaction' });
-    } else if (existingReaction) {
+    }
+    if (existingReaction) {
       existingReaction.updateAttributes({ reaction });
       return res.status(200).send({ message: 'Successfully updated reaction' });
     }

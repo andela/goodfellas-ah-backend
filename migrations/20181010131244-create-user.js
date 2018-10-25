@@ -48,6 +48,10 @@ module.exports = {
       defaultValue: 'User',
       values: ['Admin', 'User', 'Visitor']
     },
+    notificationSettings: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      defaultValue: ['email', 'inApp']
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

@@ -102,6 +102,23 @@ exports.checkNullInput = (req, res, next) => {
   }
   return next();
 };
+exports.acceptableValues = rules => (req, res, next) => {
+  const field = Object.keys(rules)[0];
+  const rule = rules[field];
+  const acceptableValues = rule.values;
+  const suppliedValue = req[rule.keyToUse][field];
+  if (acceptableValues.indexOf(suppliedValue) < 0) {
+    const errorMessage = acceptableValues
+      .reduce((accumulator, currentValue, currentIndex) => {
+        if (currentIndex === acceptableValues.length - 1) {
+          return `${accumulator}or '${currentValue}'.`;
+        }
+        return `${accumulator}'${currentValue}', `;
+      }, `Set '${field}' to `);
+    return res.status(400).send({ error: errorMessage });
+  }
+  next();
+};
 
 // middleware for validating signup fields
 exports.validate = route => (req, res, next) => {
@@ -327,7 +344,7 @@ exports.validateRating = (req, res, next) => {
     return res.status(400).send({
       errors: `Your rating must be a number: ${req.query.ratingNumber}`
     });
-  } else if (ratingNumber > 5) {
+  } if (ratingNumber > 5) {
     return res.status(400).send({
       errors:
       'You can\'t rate an article above 5 star'

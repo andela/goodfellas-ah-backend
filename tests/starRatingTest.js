@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import { userDetail } from './signUpDetails';
+import { userDetail } from './testDetails';
 
 const { app } = require('../server');
 const { resetDB } = require('./resetTestDB');
