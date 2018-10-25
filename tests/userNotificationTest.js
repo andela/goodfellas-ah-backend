@@ -20,10 +20,47 @@ describe('Notification Settings', () => {
 
     done();
   });
+
+  describe('When clients attempt to connect', () => {
+    let authorizedUserToken;
+    let authorizedUserSocket;
+    const authorizedUserConnectionSpy = sinon.spy();
+    const badConnectionSpy = sinon.spy();
+    before('attempt connection of one authorized and one unauthorized client', (done) => {
+      const badConnection = io.connect(`${socketURL}?token=thisIsACompromisedToken`, socketOptions);
+      badConnection.on('error', badConnectionSpy);
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userBDetails)
+        .end((err, res) => {
+          authorizedUserToken = res.body.token;
+          // connect userB socket
+          authorizedUserSocket = io.connect(`${socketURL}?token=${authorizedUserToken}`, socketOptions);
+          authorizedUserSocket.on('connect', authorizedUserConnectionSpy);
+          done();
+        });
+    });
+    after('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+    it("should emit event 'error' on bad Connection", (done) => {
+      expect(badConnectionSpy.called).to.equal(true);
+      sinon.assert.calledWith(badConnectionSpy, 'authentication error');
+      done();
+    });
+    it("should emit event 'connect' on authorized Connection", (done) => {
+      expect(authorizedUserConnectionSpy.called).to.equal(true);
+      done();
+    });
+  });
   describe('When article is created', () => {
     let userAToken;
     let userBToken;
     let userAId;
+    let userBSocket;
     const articleCreatedSpy = sinon.spy();
     const notificationCreatedSpy = sinon.spy();
     const userBNotificationSpy = sinon.spy();
@@ -47,13 +84,13 @@ describe('Notification Settings', () => {
               .end((err, res) => {
                 userBToken = res.body.token;
                 // connect userB socket
-                const userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
+                userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
                 userBSocket.on('new notification', userBNotificationSpy);
                 // userB follow userA
                 chai
                   .request(app)
                   .post(`/api//user/follow/${userAId}`)
-                  .set('authorization', userBToken)
+                  .set({ authorization: userBToken })
                   .send()
                   .end(() => {
                     chai
