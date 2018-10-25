@@ -3,29 +3,12 @@ import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
 import { User } from '../models';
+import { userADetails, userBDetails, userCDetails } from './testDetails';
 
 chai.use(chaiHttp);
 
 describe('User controller', () => {
   const rootUrl = '/api';
-  const userADetails = {
-    firstname: 'Jane',
-    lastname: 'Doegirl',
-    email: 'jane@doegirl.com',
-    password: 'myPassword'
-  };
-  const userBDetails = {
-    firstname: 'John',
-    lastname: 'Doeis',
-    email: 'john@doeis.com',
-    password: 'johnspassword'
-  };
-  const userCDetails = {
-    firstname: 'User',
-    lastname: 'Seee',
-    email: 'user@see.com',
-    password: 'userpassword'
-  };
   after((done) => {
     resetDB();
 
@@ -540,6 +523,86 @@ describe('User controller', () => {
 
       expect(response).to.have.status(401);
       expect(response.body.message).to.equal('Unauthorized request, please login');
+    });
+  });
+  describe('PUT /user/notification/on/:setting', () => {
+    let userToken;
+    beforeEach('add user to db and turn email notification off', (done) => {
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userADetails)
+        .end((err, res) => {
+          userToken = res.body.token;
+          chai
+            .request(app)
+            .put('/api/user/notification/off/email')
+            .set({ authorization: userToken, Accept: 'application/json' })
+            .end(() => {
+              done();
+            });
+        });
+    });
+    afterEach('Reset database', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should turn specified notification on', (done) => {
+      chai
+        .request(app)
+        .put('/api/user/notification/on/email')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Notification setting successfully updated');
+          done();
+        });
+    });
+    it('should return error if setting is currently on', (done) => {
+      chai
+        .request(app)
+        .put('/api/user/notification/on/inApp')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.message).to.equal('You already have this setting enabled');
+          done();
+        });
+    });
+    it('should return error while passing wrong parameter', (done) => {
+      chai
+        .request(app)
+        .put('/api/user/notification/on/wrong')
+        .set({ authorization: userToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal("Set 'setting' to 'email', or 'inApp'.");
+          done();
+        });
+    });
+    it('should return error if token is compromised', (done) => {
+      chai
+        .request(app)
+        .put('/api/user/notification/on/email')
+        .set({ authorization: 'thisIsACompromisedTokenItShouldNotWork', Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('jwt malformed');
+          done();
+        });
+    });
+    it('should return error if token is not specified', (done) => {
+      chai
+        .request(app)
+        .put('/api/user/notification/on/email')
+        .set({ Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(401);
+          expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
     });
   });
 });

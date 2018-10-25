@@ -2,7 +2,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-import { userDetail, userDetail2 } from './signUpDetails';
+import { userDetail, userDetail2 } from './testDetails';
 
 chai.use(chaiHttp);
 let testToken;
@@ -37,7 +37,7 @@ describe('Comment controller', () => {
   beforeEach((done) => {
     const article = {
       title: 'Enough is Enough!',
-      description: 'This is a call for Revolt',
+      description: 'This is a call for a Revolt',
       body: 'My people the time has come to revolt against this new government',
       image: 'null'
     };
@@ -92,6 +92,16 @@ describe('Comment controller', () => {
         done();
       });
   });
+  beforeEach((done) => {
+    chai
+      .request(app)
+      .post(`/api/articles/${slug}/favorite`)
+      .set({ authorization: testToken2, Accept: 'application/json' })
+      .send({ body: 'This is my first comment reply' })
+      .end(() => {
+        done();
+      });
+  });
 
   afterEach((done) => {
     resetDB();
@@ -105,7 +115,7 @@ describe('Comment controller', () => {
         .request(app)
         .post(`/api/articles/${slug}/comments`)
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send({ body: 'This is my first comment' })
+        .send({ body: 'This is my first comment yes' })
         .end((err, res) => {
           expect(res.status).to.equal(201);
           expect(res.body.message).to.equal('comment posted successfully');
@@ -234,7 +244,7 @@ describe('Comment controller', () => {
         .request(app)
         .put(`/api/articles/${slug}/comments/${commentId}`)
         .set({ authorization: testToken, Accept: 'application/json' })
-        .send({ body: 'This is my first comment update' })
+        .send({ body: 'This is my first comment updateh' })
         .end((err, res) => {
           expect(res.status).to.equal(200);
           expect(res.body.message).to.equal('comment updated successfully');
@@ -476,6 +486,82 @@ describe('Comment controller', () => {
         .end((err, res) => {
           expect(res.status).to.equal(401);
           expect(res.body.message).to.equal('Unauthorized request, please login');
+          done();
+        });
+    });
+    it('should favorite an article', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/favorite`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Article favorited successfully');
+          done();
+        });
+    });
+    it('should return error if article has already been favorited', (done) => {
+      chai
+        .request(app)
+        .post(`/api/articles/${slug}/favorite`)
+        .set({ authorization: testToken2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('Article has already been favourited');
+          done();
+        });
+    });
+    it('should return error if article does not exist', (done) => {
+      chai
+        .request(app)
+        .post('/api/articles/notitle/favorite')
+        .set({ authorization: testToken2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should return an error if user tries to unfavorite an article that is not initially favorited', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${slug}/favorite`)
+        .set({ authorization: testToken, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(400);
+          expect(res.body.error).to.equal('This article is not currently favorited');
+          done();
+        });
+    });
+    it('should unfavorite an article', (done) => {
+      chai
+        .request(app)
+        .delete(`/api/articles/${slug}/favorite`)
+        .set({ authorization: testToken2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Article succesfully removed from list of favorites');
+          done();
+        });
+    });
+    it('should throw an error if article is not found', (done) => {
+      chai
+        .request(app)
+        .delete('/api/articles/notityle/favorite')
+        .set({ authorization: testToken2, Accept: 'application/json' })
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
+    it('should get all the users that favorited an article', (done) => {
+      chai
+        .request(app)
+        .get(`/api/articles/${slug}/favorite`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.message).to.equal('Successfully retrieved users who favorited this article');
           done();
         });
     });

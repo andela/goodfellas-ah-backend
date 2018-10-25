@@ -2,11 +2,13 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
-import { userDetail } from './signUpDetails';
+
+import { userDetail, userDetail2 } from './testDetails';
 
 chai.use(chaiHttp);
 let id;
 let testToken;
+let testToken2;
 
 describe('Profile controller', () => {
   beforeEach((done) => {
@@ -18,6 +20,17 @@ describe('Profile controller', () => {
         const { userId, token } = res.body;
         id = userId;
         testToken = token;
+        done();
+      });
+  });
+  beforeEach((done) => {
+    chai
+      .request(app)
+      .post('/api/auth/signup')
+      .send(userDetail2)
+      .end((err, res) => {
+        const { token } = res.body;
+        testToken2 = token;
         done();
       });
   });
@@ -74,7 +87,7 @@ describe('Profile controller', () => {
         .set({ authorization: testToken, Accept: 'application/json' })
         .send({
           username: 'test',
-          bio: '',
+          bio: ''
         })
         .end((err, res) => {
           expect(res.status).to.equal(400);
@@ -98,21 +111,6 @@ describe('Profile controller', () => {
           expect(res.body.message).to.equal('Extra field(s) not required');
           done();
         });
-    });
-    describe('update profile', () => {
-      it('PUT /api/user/profile should return an error if image field is undefined', (done) => {
-        chai
-          .request(app)
-          .put(`/api/user/profile/${id}`)
-          .set({ authorization: testToken, Accept: 'application/json' })
-          .field('username', 'trr')
-          .field('bio', 'trr')
-          .end((err, res) => {
-            expect(res.status).to.equal(400);
-            expect(res.body.message).to.equal('Profile Image is required');
-            done();
-          });
-      });
     });
   });
 
@@ -139,5 +137,22 @@ describe('Profile controller', () => {
           done();
         });
     });
+  });
+});
+
+describe('GET a user profile', () => {
+  it('PUT /api/user/profile should return an error if user is not authorized', (done) => {
+    chai
+      .request(app)
+      .put(`/api/user/profile/${id}`)
+      .set({ authorization: testToken2, Accept: 'application/json' })
+      .send({
+        username: 'test2',
+        bio: 'me'
+      })
+      .end((err, res) => {
+        expect(res.status).to.equal(500);
+        done();
+      });
   });
 });
