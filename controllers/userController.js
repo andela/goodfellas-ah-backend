@@ -308,8 +308,7 @@ export default {
     return res.status(404).send({
       message: 'There are no statistics for your articles'
     });
-  }
-
+  },
   async setNotification(req, res) {
     const { userId } = req;
     const { setting } = req.params;
