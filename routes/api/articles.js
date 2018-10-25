@@ -49,6 +49,9 @@ router.get('/articles/comments/reply/:commentId', commentController.getReply);
 
 router.post('/articles/:slug/comments/react/:commentId', authenticate, reactionValidation, commentController.commentReaction);
 
+router.post('/articles/:slug/report', authenticate, articleController.reportArticle);
+
 router.post('/articles/:slug/rating', authenticate, validateRating, articleController.postRating);
+
 
 export default router;
