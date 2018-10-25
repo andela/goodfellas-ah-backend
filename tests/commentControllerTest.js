@@ -37,7 +37,7 @@ describe('Comment controller', () => {
   beforeEach((done) => {
     const article = {
       title: 'Enough is Enough!',
-      description: 'This is a call for Revolt',
+      description: 'This is a call for a Revolt',
       body: 'My people the time has come to revolt against this new government',
       image: 'null'
     };
