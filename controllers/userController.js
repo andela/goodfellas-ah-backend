@@ -11,13 +11,15 @@ import {
   FollowersTable,
   ReadingStats,
   ArticleComment,
-  Reactions,
-  FavoriteArticle
+  FavoriteArticle,
+  sequelize,
+  UserNotification,
 } from '../models';
 
 dotenv.config();
 
-module.exports = {
+
+export default {
   async signup(req, res) {
     try {
       const values = utility.trimValues(req.body);
@@ -70,20 +72,16 @@ module.exports = {
     });
 
     if (!existingUser) {
-      return res
-        .status(400)
-        .send({ message: 'The account with this email does not exist' });
+      return res.status(400).send({ message: 'The account with this email does not exist' });
     }
 
-    const match = await utility.comparePasswords(
-      password,
-      existingUser.dataValues.password
-    );
+    const match = await utility.comparePasswords(password, existingUser.dataValues.password);
 
     if (match) {
       res.status(200).send({
         message: 'Successfully signed in',
-        token: utility.createToken(existingUser.dataValues)
+        token: utility.createToken(existingUser.dataValues),
+        userId: existingUser.id
       });
     } else {
       res.status(400).send({ message: 'Incorrect email or password' });
@@ -108,7 +106,7 @@ module.exports = {
         });
       } else {
         // If no, return error message
-        res.status(400).send({ message: 'You can\'t login through this platform' });
+        res.status(400).send({ message: "You can't login through this platform" });
       }
     } else {
       // If No, create user then authenticate user
@@ -159,7 +157,7 @@ module.exports = {
     try {
       const user = await helper.throwErrorOnNonExistingUser(followedUserId);
       const userUnfollow = await FollowersTable.destroy({ where: { followerId, followedUserId } });
-      if (userUnfollow === 0) throw new Error('You\'re not following this user');
+      if (userUnfollow === 0) throw new Error("You're not following this user");
       res.status(201).send({
         message: `You unfollowed ${user.dataValues.firstname} ${user.dataValues.lastname}`
       });
@@ -179,10 +177,7 @@ module.exports = {
         include: {
           model: User,
           as: 'followedUser',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
+          attributes: ['firstname', 'lastname', 'email', 'role'],
         }
       });
       res.status(200).send({
@@ -202,21 +197,10 @@ module.exports = {
     const { userId } = req.params;
     try {
       await helper.throwErrorOnNonExistingUser(userId);
-      const followers = await FollowersTable.findAndCountAll({
-        where: { followedUserId: userId },
-        attributes: { exclude: ['followedUserId'] },
-        include: {
-          model: User,
-          as: 'follower',
-          attributes: {
-            include: [['id', 'userId']],
-            exclude: ['password', 'createdAt', 'updatedAt', 'role', 'id']
-          }
-        }
-      });
+      const followers = await helper.getFollowers(userId);
       res.status(200).send({
         data: {
-          followers: followers.rows,
+          followers: followers.followers,
           followersCount: followers.count
         },
         message: 'Retrieved followers'
@@ -240,30 +224,31 @@ module.exports = {
     const expiration = new Date(Date.now() + (60 * 60 * 1000));
     const mailMessage = `Click <a href="http://127.0.0.1:3000/api/resetPassword?token=
   ${token}">here</a> to reset your password`;
-    user.update({ password_reset_token: token, password_reset_time: expiration })
-      .then(async () => {
-        const message = { message: 'An email has been sent to your account', token };
-        const sentMail = utility.sendEmail(req.email, mailMessage);
-        if (sentMail) {
-          return res.status(200).send(message);
-        }
-      });
-  },
-
-  async resetPassword(req, res) {
-    const encryptedPassword = await utility.encryptPassword(req.body.password.trim());
-    return req.user.update({
-      password: encryptedPassword,
-      password_reset_time: null,
-      password_reset_token: null
-    }).then(async (user) => {
-      const mailMessage = 'Your password has been reset successfully';
-      const message = { message: 'Password reset successful' };
-      const sentMail = await utility.sendEmail(user.email, mailMessage);
+    user.update({ password_reset_token: token, password_reset_time: expiration }).then(async () => {
+      const message = { message: 'An email has been sent to your account', token };
+      const sentMail = utility.sendEmail(req.email, mailMessage);
       if (sentMail) {
         return res.status(200).send(message);
       }
     });
+  },
+
+  async resetPassword(req, res) {
+    const encryptedPassword = await utility.encryptPassword(req.body.password.trim());
+    return req.user
+      .update({
+        password: encryptedPassword,
+        password_reset_time: null,
+        password_reset_token: null
+      })
+      .then(async (user) => {
+        const mailMessage = 'Your password has been reset successfully';
+        const message = { message: 'Password reset successful' };
+        const sentMail = await utility.sendEmail(user.email, mailMessage);
+        if (sentMail) {
+          return res.status(200).send(message);
+        }
+      });
   },
 
   async verifyUser(req, res) {
@@ -277,7 +262,8 @@ module.exports = {
 
       if (checkToken) {
         // If yes, then verify that user
-        checkToken.update({ verified: true, verification_token: null })
+        checkToken
+          .update({ verified: true, verification_token: null })
           .then(() => res.status(200).send({ message: 'Account successfully verified' }))
           // Catch errors
           .catch(() => res.status(500).send({ message: 'Your account cannot be verified at the moment, Please try again later' }));
@@ -291,93 +277,144 @@ module.exports = {
   },
 
   /**
- * post reading reading stats of an article
- * @param {req} req The req object
- * @param {res} res The response object.
- * @returns {object} res.
- */
-  async getAReadingStats(req, res) {
-    const { slug } = req.params;
-    try {
-      const article = await helper.findArticle(slug);
-      if (!article) return res.status(404).send({ error: 'Article Not found!' });
-
-      if (article.authorId !== req.userId) {
-        return res.status(401).send({ error: 'You are not allowed to view article stats of other users' });
-      }
-
-      const readingStats = await ReadingStats.findAll({ where: {
-        articleId: article.id,
-        authorId: req.userId
-      } });
-
-      res.status(200).send({
-        message: 'Reading stats retrieved', views: readingStats.length
-      });
-    } catch (error) {
-      res.status(500).send({ error: error.message });
-    }
-  },
-
-
-  /**
- * get reading reading stats of an article
- * @param {req} req The req object
- * @param {res} res The response object.
- * @returns {object} res.
- */
-async getAllReadingStats(req, res) {
-  try {
-    const allReadingStats = await ReadingStats.findAll({ where: {
-      authorId: req.userId, 
-    } });
-
-  if (!allReadingStats) return res.status(404).send({ error: 'There are no readings for your articles!' });
-
-  let allStats = [];
-
-  allReadingStats.forEach((each) => {
-    let test = {}
-    if(each.articleId){
-      test.articleId = each.articleId;
-      test.views += 1;
-    }
-    allStats.push(test);
-  })
-
-    res.status(200).send({
-      message: 'Reading stats retrieved', allStats
-    });
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-},
-
-
-  /**
- * gets all the stats of an article
+ * gets all the stats of all articles of a user
  * @param {object} req The request body of the request.
  * @param {object} res The response body.
  * @returns {object} res.
  */
-  async getUserStats(req, res) {
+  async getReadingStats(req, res) {
+    const { slug } = req.params;
+    const article = await helper.findArticle(slug);
+    if (!article) {
+      return res.status(404).send({ message: 'Article can not be found' });
+    }
+
+    if (article.authorId !== req.userId) {
+      return res.status(403).send({ message: 'You can only the stats of the article you created' });
+    }
+
+    const readingStats = await ReadingStats.findAll({
+      where: { articleId: article.id }
+    });
+
+    return res.status(200).send({
+      message: 'User stats returned successfully',
+      views: readingStats.length
+    });
+  },
+
+  /**
+ * gets all the stats of all articles of a user
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+  async getAllStats(req, res) {
     const userStats = await Articles.findAll({
       where: { authorId: req.userId },
       include: [
         { model: ReadingStats, as: 'reading_stats' },
         { model: ArticleComment, as: 'comments' },
-        { model: Reactions, as: 'reactions' },
         { model: FavoriteArticle, as: 'favorite' }
       ]
     });
 
-    if (userStats.length > 0) {
+    const allStatsPromise = userStats.map(async (each) => {
+      const stats = await helper.countReactions(each);
+      return stats;
+    });
+    const allStats = await Promise.all(allStatsPromise);
+    if (allStats.length > 0) {
       return res.status(200).send({
-        message: 'User stats returned successfully', userStats
+        message: 'User stats returned successfully', allStats
       });
     }
     return res.status(404).send({
       message: 'There are no statistics for your articles'
     });
-  }
+  },
+  async setNotification(req, res) {
+    const { userId } = req;
+    const { setting } = req.params;
+    try {
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex > -1) throw new Error('You already have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_append', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      res.status(200).send({
+        message: 'Notification setting successfully updated'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async unsetNotification(req, res) {
+    const { userId } = req;
+    const { setting } = req.params;
+    try {
+      const currentSettings = await User.find({ where: { id: userId }, attributes: ['notificationSettings'] });
+      const settingIndex = currentSettings.notificationSettings
+        .findIndex(element => element === setting);
+      if (settingIndex === -1) throw new Error('You currently do not have this setting enabled');
+      await User.update({ notificationSettings: sequelize.fn('array_remove', sequelize.col('notificationSettings'), setting) }, { where: { id: userId } });
+      res.status(200).send({
+        message: 'Notification setting successfully updated'
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async getNotifications(req, res) {
+    const { userId } = req;
+    try {
+      const notifications = await helper.getNotifications({ userId });
+      res.status(200).send({
+        message: 'Notifications retrieved successfully',
+        data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async getNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      const notifications = await helper.getNotification({ userId, id: notificationId });
+      res.status(200).send({
+        message: 'Notification retrieved successfully',
+        data: notifications,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async seenNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      await UserNotification.update(
+        { seen: true },
+        {
+          where: { userId, id: notificationId }
+        }
+      );
+      res.status(201).send({
+        message: 'Notification has been seen',
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
 };

@@ -1,8 +1,7 @@
-import db from '../models';
+import { Profiles, User } from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Profiles, User } = db;
 
 module.exports = {
   createProfile(newUser) {
@@ -12,7 +11,10 @@ module.exports = {
   },
   async updateProfile(req, res) {
     try {
-      const url = await utility.imageUpload(req.files);
+      let image = null;
+      if (req.files && req.files.image) {
+        image = await utility.imageUpload(req.files);
+      }
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
       const { userId } = req;
@@ -32,15 +34,11 @@ module.exports = {
           message: 'You are do not have the authorization to update this profile'
         });
       }
-      const userProfile = await Profiles.update(
-        {
-          username,
-          bio,
-          image: url
-        },
-        { returning: true, where: { userId } }
-      );
-
+      const userProfile = await existingProfile.updateAttributes({
+        username: username || existingProfile.username,
+        bio: bio || existingProfile.bio,
+        image: image || existingProfile.image
+      });
       res.status(200).send({
         error: false,
         message: 'Profile updated Successfully',
@@ -53,6 +51,10 @@ module.exports = {
   async getProfile(req, res) {
     try {
       const { userId } = req.params;
+      const userAttributes = ['firstname', 'lastname', 'email', 'role'];
+      const privateAttributes = ['notificationSettings'];
+      const attributes = Number(req.userId) === Number(userId)
+        ? userAttributes.concat(privateAttributes) : userAttributes;
       const existingProfile = await helper.findRecord(Profiles, {
         userId
       });
@@ -62,7 +64,14 @@ module.exports = {
           message: 'User does not exist'
         });
       }
-      Profiles.findOne({ where: { userId } }).then(profile => res.status(200).json({
+      Profiles.findOne({
+        where: { userId },
+        include: [{
+          model: User,
+          as: 'user',
+          attributes,
+        }]
+      }).then(profile => res.status(200).json({
         error: false,
         data: profile,
         message: 'Profile retrieved successfully'
@@ -75,11 +84,13 @@ module.exports = {
   async getProfiles(req, res) {
     try {
       const profileList = await Profiles.findAll({
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['firstname', 'lastname', 'email', 'role']
-        }]
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['firstname', 'lastname', 'email', 'role']
+          }
+        ]
       });
       res.send({
         message: 'Successfully retrieved a list of author profiles',

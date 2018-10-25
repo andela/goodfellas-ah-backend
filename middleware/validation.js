@@ -56,9 +56,9 @@ const checkFieldLength = (route, fields) => {
     return true;
   }
 
-  // if (route === 'reaction' && fieldLength > 1) {
-  //   return true;
-  // }
+  if (route === 'reaction' && fieldLength > 1) {
+    return true;
+  }
 
   return false;
 };
@@ -75,11 +75,7 @@ exports.checkNullInput = (req, res, next) => {
   let isUndefined = false;
   let isNull = false;
   let isString = true;
-  const {
-    title,
-    description,
-    body
-  } = req.body;
+  const { title, description, body } = req.body;
   [title, description, body].forEach((field) => {
     if (field === undefined) {
       isUndefined = true;
@@ -106,6 +102,23 @@ exports.checkNullInput = (req, res, next) => {
   }
   return next();
 };
+exports.acceptableValues = rules => (req, res, next) => {
+  const field = Object.keys(rules)[0];
+  const rule = rules[field];
+  const acceptableValues = rule.values;
+  const suppliedValue = req[rule.keyToUse][field];
+  if (acceptableValues.indexOf(suppliedValue) < 0) {
+    const errorMessage = acceptableValues
+      .reduce((accumulator, currentValue, currentIndex) => {
+        if (currentIndex === acceptableValues.length - 1) {
+          return `${accumulator}or '${currentValue}'.`;
+        }
+        return `${accumulator}'${currentValue}', `;
+      }, `Set '${field}' to `);
+    return res.status(400).send({ error: errorMessage });
+  }
+  next();
+};
 
 // middleware for validating signup fields
 exports.validate = route => (req, res, next) => {
@@ -122,16 +135,13 @@ exports.validate = route => (req, res, next) => {
     return res.status(400).send({ message: 'Please enter a valid email' });
   }
   if (userDetails.password.length < 5) {
-    return res
-      .status(400)
-      .send({ message: 'Passwords must be greater than four characters' });
+    return res.status(400).send({ message: 'Passwords must be greater than four characters' });
   }
   if (tooManyFields) {
     return res.status(400).send({ message: 'Too many fields' });
   }
   next();
 };
-
 
 // middleware for validating passwords
 exports.validateResetPassword = (req, res, next) => {
@@ -150,7 +160,6 @@ exports.validateResetPassword = (req, res, next) => {
   next();
 };
 
-
 // middleware for validating forgot password
 exports.validateForgotPassword = (req, res, next) => {
   const isEmailValid = checkValidEmail(req.body.email);
@@ -161,7 +170,7 @@ exports.validateForgotPassword = (req, res, next) => {
   }
 
   if (!isEmailValid) {
-    return res.status(400).send({ message: 'You\'ve entered an invalid email' });
+    return res.status(400).send({ message: "You've entered an invalid email" });
   }
 
   req.email = req.body.email.trim();
@@ -193,7 +202,7 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (typeof data.files.profileImage === 'undefined') {
+  if (Object.keys(data.files).length === 1 && !Object.keys(data.files).includes('image')) {
     return true;
   }
 };
@@ -335,7 +344,7 @@ exports.validateRating = (req, res, next) => {
     return res.status(400).send({
       errors: `Your rating must be a number: ${req.query.ratingNumber}`
     });
-  } else if (ratingNumber > 5) {
+  } if (ratingNumber > 5) {
     return res.status(400).send({
       errors:
       'You can\'t rate an article above 5 star'

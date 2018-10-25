@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import { userDetail } from './signUpDetails';
+import { userDetail } from './testDetails';
 
 const { app } = require('../server');
 const { resetDB } = require('./resetTestDB');
@@ -129,11 +129,11 @@ describe('Star rating', () => {
     it('Should rate an article successfully', (done) => {
       chai
         .request(app)
-        .post(`/api/articles/${slug}/rating?ratingNumber=5`)
+        .post(`/api/articles/${slug}/rating?ratingNumber=4`)
         .set({ authorization: testToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('You\'ve rated this article 5 star');
+          expect(res.body.message).to.equal('You\'ve rated this article 4 star');
           done();
         });
     });

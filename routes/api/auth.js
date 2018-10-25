@@ -7,7 +7,6 @@ import twitterStrategy from '../../config/passportAuthentication/twitterAuthenti
 
 const router = require('express').Router();
 
-
 router.post('/auth/signup', validate('signup'), userController.signup);
 router.post('/auth/signin', validate('signin'), userController.signin);
 router.get('/auth/verification/:verificationToken', userController.verifyUser);

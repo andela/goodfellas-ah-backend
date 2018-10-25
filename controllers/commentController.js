@@ -1,11 +1,15 @@
-import db from '../models';
+import {
+  ArticleComment,
+  CommentReply,
+  User,
+  Profiles,
+  Articles,
+  CommentReaction
+} from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import errorMessage from '../lib/errorMessages';
 
-const {
-  ArticleComment, CommentReply, User, Profiles, Articles, CommentReaction
-} = db;
 
 const userAttributes = ['firstname', 'lastname', 'email'];
 const profileAtrributes = ['username', 'bio', 'image'];
@@ -45,7 +49,7 @@ exports.postComment = async (req, res) => {
     res.status(201).json({
       error: false,
       message: 'comment posted successfully',
-      comment,
+      comment
     });
   } catch (error) {
     res.send(error);
@@ -68,37 +72,44 @@ exports.getComment = async (req, res) => {
     }
     const comments = await ArticleComment.findAll({
       where: { article_slug: slug },
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: userAttributes,
-        include: [{
-          model: Profiles,
-          as: 'profile',
-          attributes: profileAtrributes
-        }]
-      },
-      {
-        model: CommentReply,
-        include: [{
+      include: [
+        {
           model: User,
           as: 'user',
           attributes: userAttributes,
-          include: [{
-            model: Profiles,
-            as: 'profile',
-            attributes: profileAtrributes
-          }]
-        }]
-      },
-      { model: CommentReaction }
-      ],
+          include: [
+            {
+              model: Profiles,
+              as: 'profile',
+              attributes: profileAtrributes
+            }
+          ]
+        },
+        {
+          model: CommentReply,
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: userAttributes,
+              include: [
+                {
+                  model: Profiles,
+                  as: 'profile',
+                  attributes: profileAtrributes
+                }
+              ]
+            }
+          ]
+        },
+        { model: CommentReaction }
+      ]
     });
 
     res.status(200).json({
       error: false,
       message: 'comments retrieved successfully',
-      comments,
+      comments
     });
   } catch (error) {
     res.send(error);
@@ -130,7 +141,7 @@ exports.deleteComment = async (req, res) => {
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
         error: true,
-        message: 'You don\'t have the authorization to delete this comment'
+        message: "You don't have the authorization to delete this comment"
       });
     }
     await ArticleComment.destroy({
@@ -176,7 +187,7 @@ exports.updateComment = async (req, res) => {
     if (existingComment.user_id !== userId) {
       return res.status(400).json({
         error: true,
-        message: 'You don\'t have the authorization to update this comment'
+        message: "You don't have the authorization to update this comment"
       });
     }
     const comment = await ArticleComment.update(
@@ -223,12 +234,11 @@ exports.replyComment = async (req, res) => {
       comment_id: commentId,
       body,
       user_id: userId
-
     });
     res.status(200).json({
       error: false,
       message: 'reply posted successfully',
-      reply,
+      reply
     });
   } catch (error) {
     res.status(500).send({ error: 'Internal server error' });
@@ -257,7 +267,7 @@ exports.updateReply = async (req, res) => {
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
         error: true,
-        message: 'You don\'t have the authorization to update this reply'
+        message: "You don't have the authorization to update this reply"
       });
     }
     const reply = await CommentReply.update(
@@ -300,7 +310,7 @@ exports.deleteReply = async (req, res) => {
     if (existingReply.user_id !== userId) {
       return res.status(400).json({
         error: true,
-        message: 'You don\'t have the authorization to delete this reply'
+        message: "You don't have the authorization to delete this reply"
       });
     }
     await CommentReply.destroy({
@@ -330,17 +340,20 @@ exports.getReply = async (req, res) => {
     const { commentId } = req.params;
     const reply = await CommentReply.findAll({
       where: { comment_id: commentId },
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: userAttributes,
-        include: [{
-          model: Profiles,
-          as: 'profile',
-          attributes: profileAtrributes
-        }]
-      },
-      ],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: userAttributes,
+          include: [
+            {
+              model: Profiles,
+              as: 'profile',
+              attributes: profileAtrributes
+            }
+          ]
+        }
+      ]
     });
     if (reply.length < 1) {
       return res.status(404).send({ message: 'This comment has no reply' });
@@ -348,7 +361,7 @@ exports.getReply = async (req, res) => {
     res.status(200).json({
       error: false,
       message: 'reply retrieved successfully',
-      reply,
+      reply
     });
   } catch (error) {
     res.status(500).send({ error: 'Internal server error' });
@@ -378,7 +391,7 @@ exports.commentReaction = async (req, res) => {
       return res.status(400).json(errorMessage.noComment);
     }
     // removing  a reaction
-    if (existingReaction && (existingReaction.reaction === reaction)) {
+    if (existingReaction && existingReaction.reaction === reaction) {
       existingReaction.destroy();
       return res.status(200).send({ message: 'Successfully removed reaction' });
     }
@@ -397,7 +410,7 @@ exports.commentReaction = async (req, res) => {
       return res.status(200).json({
         error: false,
         message: 'reaction updated successfully',
-        reaction: updatedReaction,
+        reaction: updatedReaction
       });
     }
     // creating a reaction
@@ -405,7 +418,6 @@ exports.commentReaction = async (req, res) => {
       comment_id: commentId,
       reaction,
       user_id: userId
-
     });
     res.status(200).json({
       error: false,

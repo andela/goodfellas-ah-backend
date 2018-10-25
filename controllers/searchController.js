@@ -1,7 +1,6 @@
-import models, { Sequelize } from '../models';
+import { User, Articles, Sequelize } from '../models';
 
 const { Op } = Sequelize;
-const { Articles, User } = models;
 
 /**
  * search Articles controller
@@ -17,7 +16,6 @@ const searchArticles = async (req, res) => {
     if (author === 'false' && article === 'false' && tag === 'false') {
       res.status(404).send({ error: 'Please input something' });
     }
-
 
     // Now conduct searches
     if (author !== 'false' && article !== 'false' && tag !== 'false') {
@@ -73,26 +71,24 @@ const searchArticles = async (req, res) => {
             }
           }
         }
-      })
-        .then((result) => {
-          Articles.findAll({
-            where: {
-              [Op.and]: {
-                authorId: result[0].dataValues.id,
-                title: {
-                  [Op.iLike]: `%${article}%`
-                }
+      }).then((result) => {
+        Articles.findAll({
+          where: {
+            [Op.and]: {
+              authorId: result[0].dataValues.id,
+              title: {
+                [Op.iLike]: `%${article}%`
               }
             }
-          })
-            .then((articles) => {
-              if (articles.length > 0) {
-                res.status(200).send({ success: true, articles });
-              } else {
-                res.status(404).send({ success: false, message: "We couldn't find any articles." });
-              }
-            });
+          }
+        }).then((articles) => {
+          if (articles.length > 0) {
+            res.status(200).send({ success: true, articles });
+          } else {
+            res.status(404).send({ success: false, message: "We couldn't find any articles." });
+          }
         });
+      });
     } else if (author !== 'false' && tag !== 'false') {
       // Search by author and tag
       User.findAll({
@@ -117,14 +113,13 @@ const searchArticles = async (req, res) => {
                 }
               }
             }
-          })
-            .then((articles) => {
-              if (articles.length > 0) {
-                res.status(200).send({ success: true, articles });
-              } else {
-                res.status(404).send({ success: false, message: "We couldn't find any articles." });
-              }
-            });
+          }).then((articles) => {
+            if (articles.length > 0) {
+              res.status(200).send({ success: true, articles });
+            } else {
+              res.status(404).send({ success: false, message: "We couldn't find any articles." });
+            }
+          });
         })
         .catch(() => res.status(404).send({ success: false, message: "We couldn't find any articles." }));
     } else if (tag !== 'false' && article !== 'false') {
@@ -162,18 +157,21 @@ const searchArticles = async (req, res) => {
             }
           }
         }
-      }).then((result) => {
-        Articles.findAll({
-          where: {
-            authorId: result[0].dataValues.id
-          }
-        }).then((articles) => {
-          if (articles.length > 0) {
-            res.status(200).send({ success: true, articles });
-          }
-        });
       })
-        .catch(() => { res.status(404).send({ success: false, message: "We couldn't find any articles." }); });
+        .then((result) => {
+          Articles.findAll({
+            where: {
+              authorId: result[0].dataValues.id
+            }
+          }).then((articles) => {
+            if (articles.length > 0) {
+              res.status(200).send({ success: true, articles });
+            }
+          });
+        })
+        .catch(() => {
+          res.status(404).send({ success: false, message: "We couldn't find any articles." });
+        });
     } else if (article !== 'false') {
       // Search by article
       Articles.findAll({
@@ -197,13 +195,14 @@ const searchArticles = async (req, res) => {
             [Op.contains]: [tag]
           }
         }
-      }).then((articles) => {
-        if (articles.length > 0) {
-          res.status(200).send({ success: true, articles });
-        } else {
-          res.status(404).send({ success: false, message: "We couldn't find any articles." });
-        }
       })
+        .then((articles) => {
+          if (articles.length > 0) {
+            res.status(200).send({ success: true, articles });
+          } else {
+            res.status(404).send({ success: false, message: "We couldn't find any articles." });
+          }
+        })
         .catch(() => {
           res.status(500).send({ message: 'internal server error' });
         });

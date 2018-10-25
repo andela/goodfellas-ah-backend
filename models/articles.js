@@ -1,4 +1,5 @@
-const SequelizeSlugify = require('sequelize-slugify');
+import SequelizeSlugify from 'sequelize-slugify';
+import eventEmitter from '../lib/eventEmitter';
 
 module.exports = (sequelize, DataTypes) => {
   const Articles = sequelize.define('Articles', {
@@ -51,6 +52,22 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
     }
+  },
+  {
+    hooks: {
+      afterCreate(article) {
+        const { authorId, slug, title } = article;
+        eventEmitter.emit('article created', authorId, slug, title);
+      }
+    },
+    getterMethods: {
+      favorited() {
+        return this.getDataValue('favorite') ? this.getDataValue('favorite').length > 0 : null;
+      },
+      favoritesCount() {
+        return this.getDataValue('favorite') ? this.getDataValue('favorite').length : null;
+      }
+    },
   });
   Articles.associate = (models) => {
     Articles.belongsTo(models.User, { as: 'user', foreignKey: 'authorId' });
@@ -69,6 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: 'slug',
     });
     Articles.hasMany(models.ReadingStats, { as: 'reading_stats', foreignKey: 'articleId' });
+
     Articles.hasMany(models.FavoriteArticle, {
       foreignKey: 'article_slug',
       as: 'favorite',
