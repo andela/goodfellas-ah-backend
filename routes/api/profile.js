@@ -7,13 +7,7 @@ const router = require('express').Router();
 
 const multipart = multiparty();
 
-router.put(
-  '/user/profile/:userId',
-  authenticate,
-  multipart,
-  validate.profileValidation,
-  profileController.updateProfile
-);
+router.put('/user/profile/:userId', authenticate, multipart, validate.profileValidation, profileController.updateProfile);
 
 router.get('/user/profile/:userId', profileController.getProfile);
 router.get('/user/profiles', authenticate, profileController.getProfiles);
