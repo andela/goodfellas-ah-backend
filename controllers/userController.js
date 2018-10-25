@@ -325,10 +325,27 @@ export default {
     const { userId } = req;
     const { notificationId } = req.params;
     try {
-      const notifications = await helper.getNotification({ userId, id: notificationId });
+      const notification = await helper.getNotification({ userId, id: notificationId });
+      if (!notification) throw new Error('Notification not found');
       res.status(200).send({
         message: 'Notification retrieved successfully',
-        data: notifications,
+        data: notification,
+      });
+    } catch (err) {
+      res.status(400).send({
+        message: err.message
+      });
+    }
+  },
+  async deleteNotification(req, res) {
+    const { userId } = req;
+    const { notificationId } = req.params;
+    try {
+      const deletedNotification = await UserNotification
+        .destroy({ where: { userId, id: notificationId } });
+      if (deletedNotification === 0) throw new Error('Notification not found');
+      res.status(200).send({
+        message: 'Notification removed successfully'
       });
     } catch (err) {
       res.status(400).send({
@@ -340,6 +357,8 @@ export default {
     const { userId } = req;
     const { notificationId } = req.params;
     try {
+      const notification = await helper.getNotification({ userId, id: notificationId });
+      if (!notification) throw new Error('Notification not found');
       await UserNotification.update(
         { seen: true },
         {

@@ -14,6 +14,7 @@ router.put('/user/notification/on/:setting', authenticate, acceptableValues(noti
 router.put('/user/notification/off/:setting', authenticate, acceptableValues(notificationRule), userController.unsetNotification);
 router.get('/user/notification/', authenticate, userController.getNotifications);
 router.get('/user/notification/:notificationId', authenticate, userController.getNotification);
+router.delete('/user/notification/:notificationId', authenticate, userController.deleteNotification);
 router.put('/user/notification/seen/:notificationId', authenticate, userController.seenNotification);
 
 module.exports = router;
