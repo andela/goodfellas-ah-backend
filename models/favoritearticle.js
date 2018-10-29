@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const FavoriteArticle = sequelize.define('FavoriteArticle', {
     user_id: DataTypes.INTEGER,

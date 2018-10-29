@@ -108,20 +108,6 @@ describe('Report Articles', () => {
         });
     });
 
-    it('Should report an article successfully when field is not field', (done) => {
-      chai
-        .request(app)
-        .post(`/api/articles/${slug}/report`)
-        .set({ authorization: userToken, Accept: 'application/json' })
-        .send({ violation: 'plagiarisism' })
-        .send(article)
-        .end((err, res) => {
-          expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('You have reported this article successfully');
-          done();
-        });
-    });
-
     it('Should return an error when token is invalid', (done) => {
       chai
         .request(app)

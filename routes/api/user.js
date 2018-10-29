@@ -10,6 +10,8 @@ router.post('/user/follow/:userId', authenticate, userController.follow);
 router.delete('/user/follow/:userId', authenticate, userController.unfollow);
 router.get('/user/followed/:userId', authenticate, userController.listOfFollowedUsers);
 router.get('/user/followers/:userId', authenticate, userController.listOfFollowers);
+router.get('/user/stats', authenticate, userController.getAllStats);
+router.get('/user/stats/:slug', authenticate, userController.getReadingStats);
 router.put('/user/notification/on/:setting', authenticate, acceptableValues(notificationRule), userController.setNotification);
 router.put('/user/notification/off/:setting', authenticate, acceptableValues(notificationRule), userController.unsetNotification);
 router.get('/user/notification/', authenticate, userController.getNotifications);

@@ -1,19 +1,23 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import becomeAdmin from '../lib/admin';
 import profileController from './profileController';
 import mail from '../lib/verifyEmail';
-
-dotenv.config();
-const {
+import {
   User,
+  Articles,
   FollowersTable,
+  ReadingStats,
+  ArticleComment,
+  FavoriteArticle,
   sequelize,
   UserNotification,
-} = db;
+} from '../models';
+
+dotenv.config();
+
 
 export default {
   async signup(req, res) {
@@ -270,6 +274,64 @@ export default {
     } catch (error) {
       res.status(500).send({ message: 'Internal server error' });
     }
+  },
+
+  /**
+ * gets all the stats of all articles of a user
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+  async getReadingStats(req, res) {
+    const { slug } = req.params;
+    const article = await helper.findArticle(slug);
+    if (!article) {
+      return res.status(404).send({ message: 'Article can not be found' });
+    }
+
+    if (article.authorId !== req.userId) {
+      return res.status(403).send({ message: 'You can only the stats of the article you created' });
+    }
+
+    const readingStats = await ReadingStats.findAll({
+      where: { articleId: article.id }
+    });
+
+    return res.status(200).send({
+      message: 'User stats returned successfully',
+      views: readingStats.length
+    });
+  },
+
+  /**
+ * gets all the stats of all articles of a user
+ * @param {object} req The request body of the request.
+ * @param {object} res The response body.
+ * @returns {object} res.
+ */
+  async getAllStats(req, res) {
+    const userStats = await Articles.findAll({
+      where: { authorId: req.userId },
+      include: [
+        { model: ReadingStats, as: 'reading_stats' },
+        { model: ArticleComment, as: 'comments' },
+        { model: FavoriteArticle, as: 'favorite' }
+      ]
+    });
+
+    const allStatsPromise = userStats.map(async (each) => {
+      const stats = await helper.countReactions(each);
+      return stats;
+    });
+    const allStats = await Promise.all(allStatsPromise);
+    if (allStats.length > 0) {
+      return res.status(200).send({
+        message: 'User stats returned successfully', allStats
+      });
+    }
+    return res.status(404).send({
+      message: 'There are no statistics for your articles'
+    });
   },
   async setNotification(req, res) {
     const { userId } = req;

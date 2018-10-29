@@ -83,7 +83,7 @@ describe('Admin user', () => {
         .set({ authorization: Token, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(403);
-          expect(res.body.error).to.equal('You are not authorised to perform this action!');
+          expect(res.body.message).to.equal('Access Denied!, You are not authorized to do this');
           done();
         });
     });

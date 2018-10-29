@@ -1,11 +1,15 @@
 /* eslint no-plusplus:0 */
-import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
-
-const {
-  Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle
-} = models;
+import {
+  Articles,
+  Reactions,
+  Bookmark,
+  ReadingStats,
+  ReportArticle,
+  Rating,
+  FavoriteArticle
+} from '../models';
 
 /**
  * Creates an article
@@ -113,6 +117,22 @@ const deleteArticle = async (req, res) => {
 };
 
 /**
+ * post reading reading stats of an article
+ * @param {number} userId The id of the reader
+ * @param {article} article article.
+ * @returns {object} res.
+ */
+const postReadingStats = async (userId, article) => {
+  if (article.id !== userId) {
+    ReadingStats.create({
+      authorId: article.authorId,
+      articleId: article.id,
+      readerId: userId,
+    });
+  }
+};
+
+/**
  * gets all articles
  * @param {object} req The request body of the request.
  * @param {object} res The response body.
@@ -159,7 +179,8 @@ const getAnArticle = async (req, res) => {
     }
 
     const article = await helper.countReactions(existingArticle);
-    res.status(200).send({ message: 'Article gotten successfully!', article });
+    postReadingStats(req.userId, existingArticle);
+    return res.status(200).send({ message: 'Article gotten successfully!', article });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
@@ -209,14 +230,6 @@ const reactToArticle = async (req, res) => {
   }
 };
 
-/**
- * bookmarks an article
- * @param {object} req The request body which contain the article's slug as param.
- * updates an article's tags
- * @param {object} req The request body of the request.
- * @param {object} res The response body.
- * @returns {object} res.
- */
 
 const addArticleTags = async (req, res) => {
   const { slug } = req.params;
@@ -345,6 +358,7 @@ const getBookmarks = async (req, res) => {
   }
 };
 
+
 /**
  * report an article
  * @param {object} req The request body which contain the id of the logged in user.
@@ -423,7 +437,6 @@ const postRating = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
-
 const favoriteArticle = async (req, res) => {
   const { slug } = req.params;
   const { userId } = req;
@@ -499,5 +512,5 @@ export default {
   deleteFavorite,
   getFavorite,
   reportArticle,
-  postRating
+  postRating,
 };
