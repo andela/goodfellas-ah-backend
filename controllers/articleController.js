@@ -128,7 +128,6 @@ const getArticles = async (req, res) => {
     const { articles, pages } = await helper.getArticles(Articles, { page, limit, userId });
 
     if (articles.length < 1) {
-      console.log(articles);
       return res.status(404).send({ message: 'Article Not found!' });
     }
 
