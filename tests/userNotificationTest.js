@@ -9,7 +9,7 @@ import eventEmitter from '../lib/eventEmitter';
 import { article, userADetails, userBDetails } from './testDetails';
 
 chai.use(chaiHttp);
-const socketURL = 'http://localhost:3000/';
+const socketURL = 'http://localhost:5000/';
 const socketOptions = {
   transports: ['websocket'],
   'force new connection': true
