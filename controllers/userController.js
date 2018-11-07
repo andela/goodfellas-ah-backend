@@ -13,6 +13,7 @@ const {
   FollowersTable,
   sequelize,
   UserNotification,
+  Profiles,
 } = db;
 
 export default {
@@ -174,6 +175,10 @@ export default {
           model: User,
           as: 'followedUser',
           attributes: ['firstname', 'lastname', 'email', 'role'],
+          include: {
+            model: Profiles,
+            as: 'profile'
+          }
         }
       });
       res.status(200).send({

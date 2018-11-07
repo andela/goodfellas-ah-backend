@@ -4,6 +4,7 @@ import socketio from 'socket.io';
 import { urlencoded, json } from 'body-parser';
 import session from 'express-session';
 import morgan from 'morgan';
+import cors from 'cors';
 import { serve, setup } from 'swagger-ui-express';
 import router from './routes';
 import eventDispatch from './lib/eventDispatch';
@@ -12,13 +13,14 @@ import { tokenIsValid } from './middleware/authentication';
 
 import swaggerDocument from './swagger.json';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 const app = express();
 const server = http.createServer(app);
 
 app.use('/api-docs', serve, setup(swaggerDocument));
 
 app.use(morgan('dev'));
+app.use(cors());
 
 app.use(session({ secret: process.env.SESSION_SECRET }));
 
