@@ -5,6 +5,7 @@ import { urlencoded, json } from 'body-parser';
 import session from 'express-session';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
+import cors from 'cors';
 import router from './routes';
 import eventDispatch from './lib/eventDispatch';
 import { tokenIsValid } from './middleware/authentication';
@@ -12,9 +13,11 @@ import { tokenIsValid } from './middleware/authentication';
 
 import swaggerDocument from './swagger.json';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 const app = express();
 const server = http.createServer(app);
+
+app.use(cors());
 
 app.use('/api-docs', serve, setup(swaggerDocument));
 
