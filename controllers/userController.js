@@ -170,7 +170,7 @@ export default {
       await helper.throwErrorOnNonExistingUser(userId);
       const followedUsers = await FollowersTable.findAndCountAll({
         where: { followerId: userId },
-        attributes: { exclude: ['followerId', 'followedUserId'] },
+        attributes: { exclude: ['followerId'] },
         include: {
           model: User,
           as: 'followedUser',

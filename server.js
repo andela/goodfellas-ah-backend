@@ -17,6 +17,8 @@ const port = process.env.PORT || 4000;
 const app = express();
 const server = http.createServer(app);
 
+app.use(cors());
+
 app.use('/api-docs', serve, setup(swaggerDocument));
 
 app.use(morgan('dev'));
