@@ -565,6 +565,16 @@ describe('Comment controller', () => {
           done();
         });
     });
+    it('should throw an error if article is not found', (done) => {
+      chai
+        .request(app)
+        .get('/api/articles/notitle/favorite')
+        .end((err, res) => {
+          expect(res.status).to.equal(404);
+          expect(res.body.error).to.equal('Article Not found!');
+          done();
+        });
+    });
   });
   describe('Highlight an article and comment', () => {
     it('POST /api/articles/slug/comments/highlight should post a comment', (done) => {
