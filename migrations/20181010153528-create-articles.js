@@ -57,6 +57,14 @@ module.exports = {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
       },
+      published: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
+      },
+      archived: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

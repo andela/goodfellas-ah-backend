@@ -15,7 +15,12 @@ const {
  */
 
 const createArticle = async (req, res) => {
-  const { title, description, body } = req.body;
+  const {
+    title,
+    description,
+    body,
+    published,
+  } = req.body;
   try {
     // Calculate the article's read time
 
@@ -32,7 +37,8 @@ const createArticle = async (req, res) => {
       body,
       image,
       read_time: readTime,
-      authorId: req.userId
+      authorId: req.userId,
+      published,
     });
     const existingArticle = await helper.findArticle(article.slug, req.userId);
     res.status(201).send({
@@ -55,7 +61,9 @@ const updateArticle = async (req, res) => {
   const { slug } = req.params;
   try {
     const existingArticle = await helper.findRecord(Articles, {
-      slug
+      slug,
+      archived: false,
+      published: true,
     });
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article not found!' });
@@ -97,7 +105,9 @@ const updateArticle = async (req, res) => {
 const deleteArticle = async (req, res) => {
   const { slug } = req.params;
   const existingArticle = await helper.findRecord(Articles, {
-    slug
+    slug,
+    archived: false,
+    published: true,
   });
 
   if (!existingArticle) {
@@ -107,7 +117,9 @@ const deleteArticle = async (req, res) => {
     return res.status(403).send({ error: 'You cannot delete an article added by another user' });
   }
   return existingArticle
-    .destroy()
+    .updateAttributes({
+      archived: true,
+    })
     .then(res.status(200).send({ message: 'article successfully deleted' }))
     .catch(error => res.status(500).send({ error: error.message }));
 };
@@ -125,7 +137,9 @@ const getArticles = async (req, res) => {
   const limit = 10;
 
   try {
-    const { articles, pages } = await helper.getArticles(Articles, { page, limit, userId });
+    const { articles, pages } = await helper.getArticles(Articles, {
+      page, limit, userId
+    });
 
     if (articles.length < 1) {
       return res.status(404).send({ message: 'Article Not found!' });
@@ -204,7 +218,9 @@ const reactToArticle = async (req, res) => {
   const { reaction } = req.body;
 
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingArticle = await helper.findRecord(
+      Articles, { slug, archived: false, published: true, }
+    );
     if (!existingArticle) {
       return res.status(404).send({ message: 'Article Not found!' });
     }
@@ -249,7 +265,9 @@ const addArticleTags = async (req, res) => {
   const { tags } = req.body;
 
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingArticle = await helper.findRecord(
+      Articles, { slug, archived: false, published: true, }
+    );
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
@@ -454,7 +472,9 @@ const favoriteArticle = async (req, res) => {
   const { slug } = req.params;
   const { userId } = req;
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingArticle = await helper.findRecord(
+      Articles, { slug, archived: false, published: true, }
+    );
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
@@ -479,7 +499,9 @@ const deleteFavorite = async (req, res) => {
   const { slug } = req.params;
   const { userId } = req;
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingArticle = await helper.findRecord(
+      Articles, { slug, archived: false, published: true, }
+    );
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
@@ -497,7 +519,9 @@ const deleteFavorite = async (req, res) => {
 const getFavorite = async (req, res) => {
   const { slug } = req.params;
   try {
-    const existingArticle = await helper.findRecord(Articles, { slug });
+    const existingArticle = await helper.findRecord(
+      Articles, { slug, archived: false, published: true, }
+    );
     if (!existingArticle) {
       return res.status(404).send({ error: 'Article Not found!' });
     }
