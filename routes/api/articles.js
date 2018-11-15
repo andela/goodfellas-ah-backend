@@ -27,6 +27,7 @@ router.get('/articles/search', searchValidation, searchController);
 router.get('/articles', allowVisitors, articleController.getArticles);
 router.get('/articles/feed/:page&:limit', allowVisitors, articleController.getArticles);
 router.get('/articles/:slug', allowVisitors, articleController.getAnArticle);
+router.get('/articles/author/:authorId', allowVisitors, articleController.getAuthorArticles);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
 
 router.post('/articles/:slug/react', authenticate, reactionValidation, articleController.reactToArticle);
@@ -52,6 +53,7 @@ router.post('/articles/:slug/comments/react/:commentId', authenticate, reactionV
 router.post('/articles/:slug/favorite', authenticate, articleController.favoriteArticle);
 router.delete('/articles/:slug/favorite', authenticate, articleController.deleteFavorite);
 router.get('/articles/:slug/favorite', articleController.getFavorite);
+router.get('/articles/user/:userId/favorite', articleController.getUserFavorites);
 router.post('/articles/:slug/report', authenticate, articleController.reportArticle);
 
 router.post('/articles/:slug/rating', authenticate, validateRating, articleController.postRating);

@@ -51,6 +51,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE'
+    },
+    published: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
+    archived: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {
@@ -83,7 +91,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'article_slug',
       as: 'comments',
       targetKey: 'article_slug',
-      sourceKey: 'slug'
+      sourceKey: 'slug',
     });
     Articles.hasMany(models.FavoriteArticle, {
       foreignKey: 'article_slug',

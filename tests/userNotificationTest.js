@@ -9,7 +9,7 @@ import eventEmitter from '../lib/eventEmitter';
 import { article, userADetails, userBDetails } from './testDetails';
 
 chai.use(chaiHttp);
-const socketURL = 'http://localhost:5000/';
+const socketURL = 'http://localhost:4000';
 const socketOptions = {
   transports: ['websocket'],
   'force new connection': true
@@ -53,6 +53,7 @@ describe('Notification Settings', () => {
     });
     it("should emit event 'connect' on authorized Connection", (done) => {
       expect(authorizedUserConnectionSpy.called).to.equal(true);
+      authorizedUserSocket.disconnect();
       done();
     });
   });
@@ -133,6 +134,7 @@ describe('Notification Settings', () => {
     it("should emit socket event 'new notification' for userB", (done) => {
       setTimeout(() => {
         expect(userBNotificationSpy.called).to.equal(true);
+        userBSocket.disconnect();
         done();
       }, 2000);
     });
@@ -141,6 +143,7 @@ describe('Notification Settings', () => {
     let userAToken;
     let userBToken;
     let articleSlug;
+    let userBSocket;
     const commentCreatedSpy = sinon.spy();
     const notificationCreatedSpy = sinon.spy();
     const userBNotificationSpy = sinon.spy();
@@ -159,7 +162,7 @@ describe('Notification Settings', () => {
             .send(userBDetails)
             .end((err, res) => {
               userBToken = res.body.token;
-              const userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
+              userBSocket = io.connect(`${socketURL}?token=${userBToken}`, socketOptions);
               userBSocket.on('new notification', userBNotificationSpy);
               chai
                 .request(app)
@@ -214,6 +217,7 @@ describe('Notification Settings', () => {
     it("should emit socket event 'new notification' for userB", (done) => {
       setTimeout(() => {
         expect(userBNotificationSpy.called).to.equal(true);
+        userBSocket.disconnect();
         done();
       }, 20000);
     });
