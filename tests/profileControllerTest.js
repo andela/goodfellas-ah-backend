@@ -151,7 +151,7 @@ describe('GET a user profile', () => {
         bio: 'me'
       })
       .end((err, res) => {
-        expect(res.status).to.equal(500);
+        expect(res.status).to.equal(409);
         done();
       });
   });

@@ -773,4 +773,123 @@ describe('Articles controller', () => {
         });
     });
   });
+  describe('GET /articles/author/:authorId', () => {
+    let userToken;
+    let userId;
+    before('add user to db, add articles', (done) => {
+      // add user to db
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          const id = res.body.userId;
+          userId = id;
+          // add first article and bookmark
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/bookmark`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end();
+            });
+          // add second article
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end(() => {
+              done();
+            });
+        });
+    });
+    after('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should return articles authored by specified user', (done) => {
+      chai
+        .request(app)
+        .get(`/api/articles/author/${userId}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.articles).to.be.an('array');
+          expect(res.body.articles).to.have.lengthOf(2);
+          done();
+        });
+    });
+  });
+  describe('GET /articles/user/:userId/favorites', () => {
+    let userToken;
+    let userId;
+    before('add user to db, add articles', (done) => {
+      // add user to db
+      chai
+        .request(app)
+        .post('/api/auth/signup')
+        .send(userDetail)
+        .end((err, res) => {
+          userToken = res.body.token;
+          const id = res.body.userId;
+          userId = id;
+          // add first article and bookmark
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article2)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/favorite`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end();
+            });
+          // add second article
+          chai
+            .request(app)
+            .post('/api/articles')
+            .set({ authorization: userToken })
+            .send(article)
+            .end((err, res) => {
+              const { slug: articleSlug } = res.body.article;
+              chai
+                .request(app)
+                .post(`/api/articles/${articleSlug}/favorite`)
+                .set({ authorization: userToken, Accept: 'application/json' })
+                .end(() => {
+                  done();
+                });
+            });
+        });
+    });
+    after('Reset database after each test', (done) => {
+      resetDB();
+
+      done();
+    });
+
+    it('should return articles favorited by specified user', (done) => {
+      chai
+        .request(app)
+        .get(`/api/articles/user/${userId}/favorite`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
+          expect(res.body.articles).to.be.an('array');
+          expect(res.body.articles).to.have.lengthOf(2);
+          done();
+        });
+    });
+  });
 });

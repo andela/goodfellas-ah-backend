@@ -12,10 +12,6 @@ module.exports = {
   },
   async updateProfile(req, res) {
     try {
-      let image = null;
-      if (req.files && req.files.image) {
-        image = await utility.imageUpload(req.files);
-      }
       const values = utility.trimValues(req.body);
       const { username, bio } = values;
       const { userId } = req;
@@ -32,8 +28,12 @@ module.exports = {
       if (existingProfile.userId !== userId) {
         return res.status(400).send({
           error: true,
-          message: 'You are do not have the authorization to update this profile'
+          message: 'You do not have the authorization to update this profile'
         });
+      }
+      let image = null;
+      if (req.files && req.files.image) {
+        image = await utility.imageUpload(req.files);
       }
       const userProfile = await existingProfile.updateAttributes({
         username: username || existingProfile.username,

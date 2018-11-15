@@ -4,7 +4,7 @@ import utility from '../lib/utility';
 import helper from '../lib/helper';
 
 const {
-  Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle
+  Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle, ArticleComment,
 } = models;
 
 /**
@@ -135,6 +135,32 @@ const getArticles = async (req, res) => {
       message: 'Articles gotten successfully!',
       articles,
       pages
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+const getAuthorArticles = async (req, res) => {
+  const { authorId } = req.params;
+
+  try {
+    const articles = await Articles.findAll({
+      where: { authorId },
+      include: [
+        {
+          model: ArticleComment,
+          as: 'comments',
+        },
+        {
+          model: Reactions,
+          as: 'reactions',
+        },
+      ]
+    });
+    return res.status(200).send({
+      message: 'Articles gotten successfully!',
+      articles
     });
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -483,6 +509,35 @@ const getFavorite = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+const getUserFavorites = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const articles = await FavoriteArticle.findAll({
+      where: { user_id: userId },
+      include: [{
+        model: Articles,
+        as: 'article',
+        include: [
+          {
+            model: ArticleComment,
+            as: 'comments',
+          },
+          {
+            model: Reactions,
+            as: 'reactions',
+          },
+        ]
+      }]
+    });
+    return res.status(200).send({
+      message: 'Articles gotten successfully!',
+      articles
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
 
 export default {
   createArticle,
@@ -499,5 +554,7 @@ export default {
   deleteFavorite,
   getFavorite,
   reportArticle,
-  postRating
+  postRating,
+  getAuthorArticles,
+  getUserFavorites,
 };

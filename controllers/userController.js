@@ -13,6 +13,7 @@ const {
   FollowersTable,
   sequelize,
   UserNotification,
+  Profiles,
 } = db;
 
 export default {
@@ -169,11 +170,15 @@ export default {
       await helper.throwErrorOnNonExistingUser(userId);
       const followedUsers = await FollowersTable.findAndCountAll({
         where: { followerId: userId },
-        attributes: { exclude: ['followerId', 'followedUserId'] },
+        attributes: { exclude: ['followerId'] },
         include: {
           model: User,
           as: 'followedUser',
           attributes: ['firstname', 'lastname', 'email', 'role'],
+          include: {
+            model: Profiles,
+            as: 'profile'
+          }
         }
       });
       res.status(200).send({

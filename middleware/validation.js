@@ -202,12 +202,12 @@ exports.findUserByToken = (req, res, next) => {
   });
 };
 const imageField = (data) => {
-  if (Object.keys(data.files).length === 1 && !Object.keys(data.files).includes('image')) {
+  if (data.files && Object.keys(data.files).length === 1 && !Object.keys(data.files).includes('image')) {
     return true;
   }
 };
 const filesFieldLength = (data) => {
-  if (Object.keys(data.files).length > 1) {
+  if (data.files && Object.keys(data.files).length > 1) {
     return true;
   }
 };
