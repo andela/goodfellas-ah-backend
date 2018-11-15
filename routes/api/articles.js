@@ -25,7 +25,7 @@ router.delete('/articles/:slug', authenticate, articleController.deleteArticle);
 router.get('/articles/search', searchValidation, searchController);
 
 router.get('/articles', allowVisitors, articleController.getArticles);
-router.get('/articles/feed/:page', allowVisitors, articleController.getArticles);
+router.get('/articles/feed/:page&:limit', allowVisitors, articleController.getArticles);
 router.get('/articles/:slug', allowVisitors, articleController.getAnArticle);
 router.post('/articles/:slug/tags', authenticate, tagValidation, articleController.addArticleTags);
 
