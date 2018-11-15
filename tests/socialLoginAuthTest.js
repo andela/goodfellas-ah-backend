@@ -1,13 +1,17 @@
-import chai, { expect } from 'chai';
-import chaiHttp from 'chai-http';
+import { expect } from 'chai';
+import request from 'supertest';
 import passport from 'passport';
 import { app } from '../server';
 import { resetDB } from './resetTestDB';
 import Strategy from '../lib/mockStrategy';
 
-chai.use(chaiHttp);
-
 let jwtToken;
+
+const parseToken = (url) => {
+  const urlComponentList = (url).split('=');
+  const usertoken = urlComponentList[1].split('&')[0];
+  return usertoken;
+};
 
 describe('Social Login Authentication', () => {
   after((done) => {
@@ -32,22 +36,19 @@ describe('Social Login Authentication', () => {
   // GOOGLE SOCIAL AUTHENTICATION
   describe('Should sign up user', () => {
     it('should sign up and authorize a new user with a google account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'googleauthtoken' })
+        .expect(302)
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('User created Successfully');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign up a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'wronggoogleauthtoken' })
         .end((err, res) => {
@@ -59,8 +60,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -73,22 +73,19 @@ describe('Social Login Authentication', () => {
 
   describe('Should sign in user', () => {
     it('should sign in and authorize an existing user with a google account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'googleauthtoken' })
+        .expect(302)
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Successfully signed in');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign in a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'notgoogleauthtoken' })
         .end((err, res) => {
@@ -100,8 +97,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -112,8 +108,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should not sign in a user with an email registered with another platform other than a google account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'googleauthtoken' })
         .end((err, res) => {
@@ -124,9 +119,9 @@ describe('Social Login Authentication', () => {
           done();
         });
     });
+
     it('should throw an internal server error if email field is empty', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/google/callback')
         .send({ access_token: 'googleauthtoken' })
         .end((err, res) => {
@@ -141,22 +136,18 @@ describe('Social Login Authentication', () => {
   // FACEBOOK SOCIAL AUTHENTICATION
   describe('Should sign up user', () => {
     it('should sign up and authorize a new user with a facebook account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'facebookauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('User created Successfully');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign up a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'wrongfacebookauthtoken' })
         .end((err, res) => {
@@ -168,8 +159,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -182,22 +172,18 @@ describe('Social Login Authentication', () => {
 
   describe('Should sign in user', () => {
     it('should sign in and authorize an existing user with a facebook account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'facebookauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Successfully signed in');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign in a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'notfacebookauthtoken' })
         .end((err, res) => {
@@ -209,8 +195,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -221,8 +206,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should not sign in a user with an email registered with another platform other than a facebook account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'facebookauthtoken' })
         .end((err, res) => {
@@ -234,8 +218,7 @@ describe('Social Login Authentication', () => {
         });
     });
     it('should throw an internal server error if email field is empty', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'facebookauthtoken' })
         .end((err, res) => {
@@ -249,22 +232,18 @@ describe('Social Login Authentication', () => {
   // TWITTER SOCIAL AUTHENTICATION
   describe('Should sign up user', () => {
     it('should sign up and authorize a new user with a twitter account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'twitterauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(201);
-          expect(res.body.message).to.equal('User created Successfully');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign up a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'wrongtwitterauthtoken' })
         .end((err, res) => {
@@ -276,8 +255,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -290,22 +268,18 @@ describe('Social Login Authentication', () => {
 
   describe('Should sign in user', () => {
     it('should sign in and authorize an existing user with a twitter account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'twitterauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(200);
-          expect(res.body.message).to.equal('Successfully signed in');
-          expect(res.body.token).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?token');
           done();
         });
     });
 
     it('should sign not sign in a user with a wrong or expired access token', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'nottwitterauthtoken' })
         .end((err, res) => {
@@ -317,8 +291,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/articles/feed/1')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
@@ -329,8 +302,7 @@ describe('Social Login Authentication', () => {
     });
 
     it('should not sign in a user with an email registered with another platform other than a twitter account', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'twitterauthtoken' })
         .end((err, res) => {
@@ -341,9 +313,9 @@ describe('Social Login Authentication', () => {
           done();
         });
     });
+
     it('should throw an internal server error if email field is empty', (done) => {
-      chai
-        .request(app)
+      request(app)
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'twitterauthtoken' })
         .end((err, res) => {
