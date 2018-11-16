@@ -2,7 +2,7 @@ import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 
-const { Profiles, User } = db;
+const { Profiles, User, FollowersTable, } = db;
 
 module.exports = {
   createProfile(newUser) {
@@ -71,6 +71,24 @@ module.exports = {
           model: User,
           as: 'user',
           attributes,
+          include: [{
+            model: FollowersTable,
+            as: 'followedUsers',
+            where: { followerId: req.userId },
+            attributes: {
+              exclude: ['followedUserId', 'followerId']
+            },
+            required: false,
+          },
+          {
+            model: FollowersTable,
+            as: 'following',
+            where: { followedUserId: req.userId },
+            attributes: {
+              exclude: ['followedUserId', 'followerId']
+            },
+            required: false,
+          }]
         }]
       }).then(profile => res.status(200).json({
         error: false,
