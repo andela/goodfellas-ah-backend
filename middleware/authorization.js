@@ -1,7 +1,6 @@
-import models from '../models';
+import { User } from '../models';
 import helper from '../lib/helper';
 
-const { User } = models;
 /**
  * @function
  * @description middleware for role-based permissions
