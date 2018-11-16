@@ -434,7 +434,7 @@ describe('Articles controller', () => {
       it('Returns the right response when the articles are gotten/fetched', (done) => {
         chai
           .request(app)
-          .get('/api/articles/feed/1')
+          .get('/api/articles/feed/1&10')
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
@@ -445,7 +445,7 @@ describe('Articles controller', () => {
       it('Returns the required number of articles per request', (done) => {
         chai
           .request(app)
-          .get('/api/articles/feed/1')
+          .get('/api/articles/feed/1&10')
           .set({ authorization: testToken, Accept: 'application/json' })
           .end((err, res) => {
             expect(res.status).to.equal(200);
@@ -461,7 +461,7 @@ describe('Articles controller', () => {
           .end(() => {
             chai
               .request(app)
-              .get('/api/articles/feed/1')
+              .get('/api/articles/feed/1&10')
               .set({ authorization: testToken, Accept: 'application/json' })
               .end((err, res) => {
                 expect(res.status).to.equal(200);

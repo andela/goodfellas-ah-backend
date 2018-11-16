@@ -61,7 +61,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -98,7 +98,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -160,7 +160,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -196,7 +196,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -256,7 +256,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
@@ -292,7 +292,7 @@ describe('Social Login Authentication', () => {
 
     it('should allow authenticated user access protected route and return no articles since none were created', (done) => {
       request(app)
-        .get('/api/articles/feed/1')
+        .get('/api/articles')
         .set({ authorization: jwtToken, Accept: 'application/json' })
         .end((err, res) => {
           expect(res.status).to.equal(404);
