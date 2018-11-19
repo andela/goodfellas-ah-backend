@@ -2,7 +2,7 @@ import models, { Sequelize } from '../models';
 
 const { Op } = Sequelize;
 const {
-  Articles, User,
+  Articles, User, Profiles, Reactions, ArticleComment
 } = models;
 
 /**
@@ -47,17 +47,48 @@ const searchArticles = async (req, res) => {
                   [Op.contains]: [tag]
                 }
               }
-            }
+            },
+            include: [
+              {
+                model: User,
+                as: 'user',
+                required: false,
+                attributes: ['firstname', 'lastname'],
+                include: {
+                  model: Profiles,
+                  as: 'profile',
+                  required: false,
+                  attributes: ['image']
+                }
+              },
+              {
+                model: Reactions,
+                as: 'reactions',
+                required: false,
+                attributes: ['reaction']
+              },
+              {
+                model: ArticleComment,
+                as: 'comments'
+              }
+            ]
           })
             .then((articles) => {
               if (articles.length > 0) {
                 res.status(200).send({ success: true, articles });
               } else {
-                res.status(404).send({ success: false, message: "We couldn't find any articles." });
+                res
+                  .status(404)
+                  .send({
+                    success: false,
+                    message: "We couldn't find any articles."
+                  });
               }
             })
             .catch(() => {
-              res.status(500).send({ message: 'Internal server error' });
+              res
+                .status(500)
+                .send({ message: 'Internal server error' });
             });
         })
         .catch(() => res.status(404).send({ success: false, message: "We couldn't find any articles." }));
@@ -83,7 +114,31 @@ const searchArticles = async (req, res) => {
                 [Op.iLike]: `%${article}%`
               }
             }
-          }
+          },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              required: false,
+              attributes: ['firstname', 'lastname'],
+              include: {
+                model: Profiles,
+                as: 'profile',
+                required: false,
+                attributes: ['image']
+              }
+            },
+            {
+              model: Reactions,
+              as: 'reactions',
+              required: false,
+              attributes: ['reaction']
+            },
+            {
+              model: ArticleComment,
+              as: 'comments',
+            },
+          ]
         }).then((articles) => {
           if (articles.length > 0) {
             res.status(200).send({ success: true, articles });
@@ -115,12 +170,41 @@ const searchArticles = async (req, res) => {
                   [Op.contains]: [tag]
                 }
               }
-            }
+            },
+            include: [
+              {
+                model: User,
+                as: 'user',
+                required: false,
+                attributes: ['firstname', 'lastname'],
+                include: {
+                  model: Profiles,
+                  as: 'profile',
+                  required: false,
+                  attributes: ['image']
+                }
+              },
+              {
+                model: Reactions,
+                as: 'reactions',
+                required: false,
+                attributes: ['reaction']
+              },
+              {
+                model: ArticleComment,
+                as: 'comments'
+              }
+            ]
           }).then((articles) => {
             if (articles.length > 0) {
               res.status(200).send({ success: true, articles });
             } else {
-              res.status(404).send({ success: false, message: "We couldn't find any articles." });
+              res
+                .status(404)
+                .send({
+                  success: false,
+                  message: "We couldn't find any articles."
+                });
             }
           });
         })
@@ -137,7 +221,31 @@ const searchArticles = async (req, res) => {
               [Op.contains]: [tag]
             }
           }
-        }
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            required: false,
+            attributes: ['firstname', 'lastname'],
+            include: {
+              model: Profiles,
+              as: 'profile',
+              required: false,
+              attributes: ['image']
+            }
+          },
+          {
+            model: Reactions,
+            as: 'reactions',
+            required: false,
+            attributes: ['reaction']
+          },
+          {
+            model: ArticleComment,
+            as: 'comments',
+          },
+        ]
       })
         .then((articles) => {
           if (articles.length > 0) {
@@ -165,7 +273,31 @@ const searchArticles = async (req, res) => {
           Articles.findAll({
             where: {
               authorId: result[0].dataValues.id
-            }
+            },
+            include: [
+              {
+                model: User,
+                as: 'user',
+                required: false,
+                attributes: ['firstname', 'lastname'],
+                include: {
+                  model: Profiles,
+                  as: 'profile',
+                  required: false,
+                  attributes: ['image']
+                }
+              },
+              {
+                model: Reactions,
+                as: 'reactions',
+                required: false,
+                attributes: ['reaction']
+              },
+              {
+                model: ArticleComment,
+                as: 'comments'
+              }
+            ]
           }).then((articles) => {
             if (articles.length > 0) {
               res.status(200).send({ success: true, articles });
@@ -182,7 +314,31 @@ const searchArticles = async (req, res) => {
           title: {
             [Op.iLike]: `%${article}%`
           }
-        }
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            required: false,
+            attributes: ['firstname', 'lastname'],
+            include: {
+              model: Profiles,
+              as: 'profile',
+              required: false,
+              attributes: ['image']
+            }
+          },
+          {
+            model: Reactions,
+            as: 'reactions',
+            required: false,
+            attributes: ['reaction']
+          },
+          {
+            model: ArticleComment,
+            as: 'comments',
+          },
+        ]
       }).then((articles) => {
         if (articles.length > 0) {
           res.status(200).send({ success: true, articles });
@@ -197,7 +353,31 @@ const searchArticles = async (req, res) => {
           tagList: {
             [Op.contains]: [tag]
           }
-        }
+        },
+        include: [
+          {
+            model: User,
+            as: 'user',
+            required: false,
+            attributes: ['firstname', 'lastname'],
+            include: {
+              model: Profiles,
+              as: 'profile',
+              required: false,
+              attributes: ['image']
+            }
+          },
+          {
+            model: Reactions,
+            as: 'reactions',
+            required: false,
+            attributes: ['reaction']
+          },
+          {
+            model: ArticleComment,
+            as: 'comments',
+          },
+        ]
       })
         .then((articles) => {
           if (articles.length > 0) {
