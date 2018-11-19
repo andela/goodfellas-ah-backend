@@ -1,4 +1,5 @@
 /* eslint no-plusplus:0 */
+import sequelize from 'sequelize';
 import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
@@ -132,13 +133,20 @@ const deleteArticle = async (req, res) => {
  */
 
 const getArticles = async (req, res) => {
-  const { page } = req.params;
+  let { page, limit } = req.params;
   const { userId } = req;
-  const limit = 10;
+
+  console.log(page, limit);
+  if (page === undefined) {
+    page = 1;
+  }
+  if (limit === undefined) {
+    limit = 100;
+  }
 
   try {
     const { articles, pages } = await helper.getArticles(Articles, {
-      page, limit, userId
+      page, limit, userId,
     });
 
     if (articles.length < 1) {
