@@ -48,15 +48,26 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: ['email', 'inApp']
       },
     },
-    {}
+    {
+      getterMethods: {
+        isFollowed() {
+          return this.getDataValue('followedUsers') ? this.getDataValue('followedUsers').length > 0 : null;
+        },
+        isFollowing() {
+          return this.getDataValue('following') ? this.getDataValue('following').length > 0 : null;
+        }
+      },
+    }
   );
   User.associate = (models) => {
     User.hasOne(models.Profiles, { as: 'profile', foreignKey: 'userId' });
     User.hasMany(models.FollowersTable, {
-      foreignKey: 'followedUserId'
+      foreignKey: 'followedUserId',
+      as: 'followedUsers'
     });
     User.hasMany(models.FollowersTable, {
-      foreignKey: 'followerId'
+      foreignKey: 'followerId',
+      as: 'following'
     });
     User.hasMany(models.Bookmark, {
       foreignKey: 'userId'

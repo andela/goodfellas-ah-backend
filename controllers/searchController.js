@@ -1,9 +1,9 @@
-import models, { Sequelize } from '../models';
+import {
+  Sequelize, Articles, User, Profiles, Reactions, ArticleComment
+} from '../models';
 
 const { Op } = Sequelize;
-const {
-  Articles, User, Profiles, Reactions, ArticleComment
-} = models;
+
 
 /**
  * search Articles controller

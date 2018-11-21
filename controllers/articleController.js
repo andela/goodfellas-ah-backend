@@ -1,12 +1,9 @@
 /* eslint no-plusplus:0 */
-import sequelize from 'sequelize';
-import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
-
-const {
+import {
   Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle, ArticleComment,
-} = models;
+} from '../models';
 
 /**
  * Creates an article
@@ -146,7 +143,7 @@ const getArticles = async (req, res) => {
 
   try {
     const { articles, pages } = await helper.getArticles(Articles, {
-      page, limit, userId,
+      page, limit, userId
     });
 
     if (articles.length < 1) {
