@@ -2,7 +2,15 @@
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import {
-  Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle, ArticleComment,
+  Articles,
+  Reactions,
+  Bookmark,
+  FavoriteArticle,
+  Rating,
+  ReportArticle,
+  ArticleComment,
+  User,
+  Profiles,
 } from '../models';
 
 /**
@@ -378,7 +386,29 @@ const getBookmarks = async (req, res) => {
             where: { user_id: req.userId },
             attributes: ['createdAt', 'updatedAt'],
             required: false
-          }
+          },
+          {
+            model: User,
+            as: 'user',
+            required: false,
+            attributes: ['firstname', 'lastname'],
+            include: {
+              model: Profiles,
+              as: 'profile',
+              required: false,
+              attributes: ['image', 'username']
+            }
+          },
+          {
+            model: Reactions,
+            as: 'reactions',
+            required: false,
+            attributes: ['reaction']
+          },
+          {
+            model: ArticleComment,
+            as: 'comments',
+          },
         ]
       }
     });
