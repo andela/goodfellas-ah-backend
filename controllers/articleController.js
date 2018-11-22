@@ -18,15 +18,10 @@ const createArticle = async (req, res) => {
     description,
     body,
     published,
+    image
   } = req.body;
   try {
     // Calculate the article's read time
-
-    let image = null;
-    if (req.files && req.files.image) {
-      image = await utility.imageUpload(req.files);
-    }
-
     const readTime = utility.readTime(body, image);
 
     const article = await Articles.create({
