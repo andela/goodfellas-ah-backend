@@ -112,10 +112,8 @@ describe('Social Login Authentication', () => {
         .get('/api/auth/google/callback')
         .send({ access_token: 'googleauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal("You can't login through this platform");
-          expect(res.body.message).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?error');
           done();
         });
     });
@@ -210,10 +208,8 @@ describe('Social Login Authentication', () => {
         .get('/api/auth/facebook/callback')
         .send({ access_token: 'facebookauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal("You can't login through this platform");
-          expect(res.body.message).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?error');
           done();
         });
     });
@@ -306,10 +302,8 @@ describe('Social Login Authentication', () => {
         .get('/api/auth/twitter/callback')
         .send({ access_token: 'twitterauthtoken' })
         .end((err, res) => {
-          jwtToken = res.body.token;
-          expect(res.status).to.equal(400);
-          expect(res.body.message).to.equal("You can't login through this platform");
-          expect(res.body.message).to.be.a('string');
+          jwtToken = parseToken(res.header.location);
+          expect(res.header.location).to.include('http://localhost:3000/auth/social?error');
           done();
         });
     });
