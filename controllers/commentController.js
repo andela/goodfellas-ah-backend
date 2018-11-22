@@ -1,11 +1,9 @@
-import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import errorMessage from '../lib/errorMessages';
-
-const {
+import {
   ArticleComment, CommentReply, User, Profiles, Articles, CommentReaction
-} = db;
+} from '../models';
 
 const userAttributes = ['firstname', 'lastname', 'email'];
 const profileAtrributes = ['username', 'bio', 'image'];

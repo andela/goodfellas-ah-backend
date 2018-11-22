@@ -1,11 +1,9 @@
 /* eslint no-plusplus:0 */
-import models from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
-
-const {
+import {
   Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle, ArticleComment,
-} = models;
+} from '../models';
 
 /**
  * Creates an article

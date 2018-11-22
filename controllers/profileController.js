@@ -1,8 +1,6 @@
-import db from '../models';
 import utility from '../lib/utility';
 import helper from '../lib/helper';
-
-const { Profiles, User, FollowersTable, } = db;
+import { Profiles, User, FollowersTable, } from '../models';
 
 module.exports = {
   createProfile(newUser) {
