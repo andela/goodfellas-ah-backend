@@ -427,25 +427,6 @@ describe('User controller', () => {
       expect(response.status).to.equal(400);
       expect(response.body.message).to.equal('Error: User doen\'t exist');
     });
-    it('should return error if token is compromised', async () => {
-      const response = await chai
-        .request(app)
-        .get(`${rootUrl}/user/followed/${userCId}`)
-        .set('authorization', 'userTokenHasBeenCompromised')
-        .send();
-
-      expect(response).to.have.status(401);
-      expect(response.body.message).to.equal('jwt malformed');
-    });
-    it('should return error if token is not given', async () => {
-      const response = await chai
-        .request(app)
-        .get(`${rootUrl}/user/followed/${userCId}`)
-        .send();
-
-      expect(response).to.have.status(401);
-      expect(response.body.message).to.equal('Unauthorized request, please login');
-    });
   });
   describe('GET /user/followers/:userId', () => {
     let userAToken;
@@ -504,25 +485,6 @@ describe('User controller', () => {
         .send();
       expect(response.status).to.equal(400);
       expect(response.body.message).to.equal('Error: User doen\'t exist');
-    });
-    it('should return error if token is compromised', async () => {
-      const response = await chai
-        .request(app)
-        .get(`${rootUrl}/user/followers/${userCId}`)
-        .set('authorization', 'userTokenHasBeenCompromised')
-        .send();
-
-      expect(response).to.have.status(401);
-      expect(response.body.message).to.equal('jwt malformed');
-    });
-    it('should return error if token is not given', async () => {
-      const response = await chai
-        .request(app)
-        .get(`${rootUrl}/user/followers/${userCId}`)
-        .send();
-
-      expect(response).to.have.status(401);
-      expect(response.body.message).to.equal('Unauthorized request, please login');
     });
   });
   describe('PUT /user/notification/on/:setting', () => {

@@ -2,7 +2,15 @@
 import utility from '../lib/utility';
 import helper from '../lib/helper';
 import {
-  Articles, Reactions, Bookmark, FavoriteArticle, Rating, ReportArticle, ArticleComment,
+  Articles,
+  Reactions,
+  Bookmark,
+  FavoriteArticle,
+  Rating,
+  ReportArticle,
+  ArticleComment,
+  User,
+  Profiles,
 } from '../models';
 
 /**
@@ -555,6 +563,18 @@ const getUserFavorites = async (req, res) => {
           {
             model: Reactions,
             as: 'reactions',
+          },
+          {
+            model: User,
+            as: 'user',
+            required: false,
+            attributes: ['firstname', 'lastname'],
+            include: {
+              model: Profiles,
+              as: 'profile',
+              required: false,
+              attributes: ['image']
+            }
           },
         ]
       }]
