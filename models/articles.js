@@ -87,6 +87,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     Articles.hasMany(models.Rating, { foreignKey: 'articleId', as: 'star_ratings' });
     Articles.hasMany(models.Reactions, { as: 'reactions', foreignKey: 'articleId' });
+    Articles.hasMany(models.Reactions, { as: 'myReactions', foreignKey: 'articleId' });
     Articles.hasMany(models.ArticleComment, {
       foreignKey: 'article_slug',
       as: 'comments',
