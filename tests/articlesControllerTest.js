@@ -3,7 +3,9 @@ import chaiHttp from 'chai-http';
 import { app } from '../server';
 import db from '../models';
 import { resetDB } from './resetTestDB';
-import { userDetail, article, article2 } from './testDetails';
+import {
+  userDetail, userDetail2, article, article2,
+} from './testDetails';
 import generateArticleList from './testHelper';
 
 
@@ -208,6 +210,32 @@ describe('Articles controller', () => {
             expect(res.status).to.equal(400);
             expect(res.body.error).to.equal('Input cannot be numbers only!');
             done();
+          });
+      });
+      it('Returns the right response when a user tries to update another authors article', (done) => {
+        let testToken2;
+        const updateDetails = {
+          title: 'Enough is Enough!',
+          description: 'This is a call for Revolt',
+          body: 'My people the time has come to revolt against this new government'
+        };
+        chai
+          .request(app)
+          .post('/api/auth/signup')
+          .send(userDetail2)
+          .end((err, res) => {
+            const { token } = res.body;
+            testToken2 = token;
+            chai
+              .request(app)
+              .put(`/api/articles/${slug}`)
+              .set({ authorization: testToken2, Accept: 'application/json' })
+              .send(updateDetails)
+              .end((err, res) => {
+                expect(res.status).to.equal(403);
+                expect(res.body.message).to.equal('You cannot modify an article added by another User');
+                done();
+              });
           });
       });
     });

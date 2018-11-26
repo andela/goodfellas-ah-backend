@@ -100,7 +100,7 @@ export default {
         res.redirect(`${process.env.CLIENT_URL}/auth/social?token=${utility.createToken(existingUser.dataValues)}&userId=${existingUser.id}`);
       } else {
         // If no, return error message
-        res.status(400).send({ message: "You can't login through this platform" });
+        res.redirect(`${process.env.CLIENT_URL}/auth/social?error=true`);
       }
     } else {
       // If No, create user then authenticate user
@@ -215,7 +215,7 @@ export default {
     }
     const token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: 60 * 60 });
     const expiration = new Date(Date.now() + (60 * 60 * 1000));
-    const mailMessage = `Click <a href="${process.env.CLIENT_URL}/api/resetPassword?token=
+    const mailMessage = `Click <a href="${process.env.CLIENT_URL}/resetPassword?token=
   ${token}">here</a> to reset your password`;
     user.update({ password_reset_token: token, password_reset_time: expiration }).then(async () => {
       const message = { message: 'An email has been sent to your account', token };
